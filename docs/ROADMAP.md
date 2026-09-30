@@ -75,6 +75,8 @@ A new agent should be able to answer:
 
 # Stage 1 — Godot/C# project bootstrap
 
+**Task breakdown:** [docs/stages/01-bootstrap/README.md](./stages/01-bootstrap/README.md)
+
 ## Goal
 
 Create the smallest reproducible Godot C# project that every later agent can build and test.
