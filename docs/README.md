@@ -51,6 +51,12 @@ Defines how we will later split a roadmap stage into AI-sized implementation tas
 
 The roadmap intentionally stays coarser than individual agent prompts.
 
+### [stages/](./stages/README.md)
+
+Contains task-level execution contracts for the active/upcoming roadmap stage.
+
+Current breakdown: [Stage 1 — Godot/C# Project Bootstrap](./stages/01-bootstrap/README.md).
+
 ## Documentation discipline
 
 Do not duplicate the same contract in many files.
