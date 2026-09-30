@@ -1,0 +1,122 @@
+# HITCH! Decision Ledger
+
+This file is a compact index of decisions already made.
+
+It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail and rationale.
+
+---
+
+## Status vocabulary
+
+- **DECIDED** — accepted for the MVP. Do not change implicitly.
+- **HYPOTHESIS** — current implementation direction that must be validated.
+- **TBD** — intentionally unresolved.
+- **DEFERRED** — not needed to answer the MVP hypothesis.
+
+---
+
+# Product / MVP
+
+| Topic | Status | Decision |
+|---|---|---|
+| MVP question | DECIDED | Test whether winch-centric PvP is fun even with primitive graphics. |
+| Player count sequence | DECIDED | Build one local player first, then move to two players as early as practical. |
+| MVP mode | DECIDED | Free fight; formal scoring/winner is unnecessary for the first evaluation. |
+| MVP completion loop | DECIDED | Connect → fight → take damage → die → respawn → repeat. |
+| Presentation | DECIDED | Greybox/primitive visuals are enough. |
+| Camera | DECIDED | First-person for MVP implementation speed. |
+| Final camera choice | TBD | MVP camera does not permanently decide final game perspective. |
+
+# Player movement
+
+| Topic | Status | Decision |
+|---|---|---|
+| Base walking | DECIDED | Slow. |
+| Base jump | DECIDED | Weak. |
+| Primary traversal | DECIDED | Winch/grapple. |
+| Momentum on detach | DECIDED | Preserve almost completely. |
+| Air control | DECIDED | Very weak hidden correction only. |
+| Player locomotion model | DECIDED | Custom-controlled capsule. |
+| Player/player collision | DECIDED | Players physically push each other. |
+| Strong-impact rotation | DECIDED | Strong impacts may physically rotate the player. |
+| Exact controlled-capsule + rotation representation | TBD | Must be prototyped without sacrificing responsiveness. |
+| Initial speed cap | DECIDED | No speed cap during first local measurements. |
+| Final speed-limiting model | TBD | Choose after data/feel tests. |
+
+# Winch / grapple
+
+| Topic | Status | Decision |
+|---|---|---|
+| Targeting | DECIDED | Hitscan/raycast. |
+| Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
+| Range | DECIDED | Medium conceptually; exact value is tuning. |
+| Reattachment delay | DECIDED | Very small; exact value is tuning. |
+| Reel control | DECIDED | Player directly controls reel-in and reel-out. |
+| Reel behavior | DECIDED | Reel motor accelerates/decelerates rather than changing length instantaneously. |
+| Elasticity | DECIDED | Strong spring behavior is part of movement skill. |
+| Slack | DECIDED | System should try to remain under tension rather than behave as a freely dangling rope. |
+| Reel-generated energy | DECIDED | Reeling may add meaningful kinetic energy; effect should weaken at high speed. |
+| Player grapple targets | DECIDED | Other players are valid targets and both players influence each other physically. |
+| Player attachment location | DECIDED | Use nearest point from predefined attachment points. |
+| Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
+| Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
+| Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
+| Exact spring force law | TBD | Must remain tunable during local movement phase. |
+
+# Combat
+
+| Topic | Status | Decision |
+|---|---|---|
+| Health | DECIDED | Health reaching zero is the primary combat death condition. |
+| Collision damage | DEFERRED | High-speed impacts affect motion but do not deal damage in first MVP. |
+| Melee | DECIDED | One melee action/weapon: high direct damage, low physical impulse. |
+| Ranged | DECIDED | One simple hitscan weapon: low damage, unlimited ammo/no magazine. |
+| Aim importance | DECIDED | Secondary to movement skill. |
+| Void behavior | TBD | Exact fall/reset/death rule is not yet fixed. |
+
+# Arena
+
+| Topic | Status | Decision |
+|---|---|---|
+| Map count | DECIDED | One MVP arena. |
+| Shape | DECIDED | Small open arena with void around it. |
+| Art | DECIDED | Greybox. |
+
+# Technology
+
+| Topic | Status | Decision |
+|---|---|---|
+| Engine family | DECIDED | Godot 4.x. |
+| Exact Godot version | TBD | Pin one version during repository bootstrap. |
+| Language | DECIDED | C#. |
+| Physics backend | DECIDED | Jolt/Godot physics for collision/world queries and secondary physics. |
+| Core movement | DECIDED | Custom gameplay simulation rather than opaque rigid-body locomotion. |
+| Core winch | DECIDED | Custom gameplay model rather than relying entirely on a physics joint. |
+| Target platform | HYPOTHESIS | Desktop first. |
+| Simulation frequency | HYPOTHESIS | Compare 60 Hz and 120 Hz; prefer 120 Hz only if value is measurable and affordable. |
+| Networking transport | HYPOTHESIS | Godot multiplayer/ENet as initial transport candidate. |
+| Server model | HYPOTHESIS | Authoritative server. |
+| Local-player networking | HYPOTHESIS | Client-side prediction + reconciliation. |
+| Remote-player rendering | HYPOTHESIS | Interpolation. |
+| Dedicated server | HYPOTHESIS | Headless Godot server should remain possible. |
+
+# AI implementation
+
+| Topic | Status | Decision |
+|---|---|---|
+| Primary code author | DECIDED | AI agents will write most/all implementation code. |
+| Code style priority | DECIDED | Explicit typed contracts, compiler feedback, small modules, testability. |
+| TBD behavior | DECIDED | Agents must not silently convert temporary assumptions into design decisions. |
+| Speculative architecture | DECIDED | Avoid frameworks/systems not required by current MVP stage. |
+
+---
+
+## How to change a decision
+
+A task that changes a **DECIDED** item should:
+
+1. explicitly state that the decision is being reopened;
+2. update `DESIGN.md` when gameplay intent changes;
+3. update this ledger;
+4. update architecture/roadmap if affected;
+5. mention the migration impact on existing implementation.
