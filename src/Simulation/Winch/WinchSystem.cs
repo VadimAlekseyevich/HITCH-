@@ -99,14 +99,32 @@ public static class WinchSystem
                 WinchState.Initial);
         }
 
+        var appliedRadialAcceleration = 0f;
+
         if (distance > 0f)
         {
-            updatedPlayer = updatedPlayer with
+            var inwardSpeed = Vector3.Dot(
+                updatedPlayer.Velocity,
+                direction);
+
+            if (inwardSpeed < config.PullTargetInwardSpeed)
             {
-                Velocity = updatedPlayer.Velocity
-                    + (direction * config.PullAcceleration * fixedDeltaSeconds),
-                IsGrounded = false,
-            };
+                var neededSpeed =
+                    config.PullTargetInwardSpeed - inwardSpeed;
+                var addedSpeed = MathF.Min(
+                    neededSpeed,
+                    config.PullRadialAcceleration * fixedDeltaSeconds);
+
+                updatedPlayer = updatedPlayer with
+                {
+                    Velocity = updatedPlayer.Velocity
+                        + (direction * addedSpeed),
+                    IsGrounded = false,
+                };
+
+                appliedRadialAcceleration =
+                    addedSpeed / fixedDeltaSeconds;
+            }
         }
 
         return new WinchStepResult(
@@ -114,7 +132,7 @@ public static class WinchSystem
             winch with
             {
                 LastActualDistance = distance,
-                LastPullAcceleration = config.PullAcceleration,
+                LastPullAcceleration = appliedRadialAcceleration,
             });
     }
 
@@ -153,7 +171,7 @@ public static class WinchSystem
             WinchPathState.AtWorldAnchor(hit.Position),
             true,
             Vector3.Distance(player.Position, hit.Position),
-            config.PullAcceleration);
+            0f);
     }
 
     private static Vector3 ViewForward(
