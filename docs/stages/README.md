@@ -8,7 +8,8 @@ A stage breakdown is created only when that stage is about to begin. We intentio
 
 ## Stages
 
-- [Stage 1 — Godot/C# project bootstrap](./01-bootstrap/README.md)
+- [Stage 1 — Godot/C# project bootstrap](./01-bootstrap/README.md) — **DONE**
+- Stage 2 — Simulation kernel and explicit state — **NEXT; task breakdown not created yet**
 
 ## Status convention
 
