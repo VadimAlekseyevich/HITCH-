@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 18 FINITE ROPE + LMB REEL**
+**Status: READY FOR HUMAN GATE — ITERATION 19 ODM-INSPIRED REEL + GAS**
 
 ## Objective
 
@@ -1097,3 +1097,128 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36925626760
 - compact-city enclosure smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the Stage 5 gate.
+
+
+## Human gate result — iteration 18
+
+**Result: CONTROL SPLIT IS USEFUL / OVERALL SPEED TOO HIGH**
+
+Human feedback:
+
+- separating RMB attach from LMB reel is useful;
+- finite rope is the right direction;
+- the resulting movement package is still substantially too fast;
+- the next experiment should stop chasing extreme speed and instead approximate the movement logic of Attack on Titan's ODM gear;
+- the requested direction is more physical/grounded: cable tension, reel, gravity, and propulsion should combine rather than one subsystem directly assigning extreme travel speed.
+
+## Iteration 19 — ODM-inspired reel + gas propulsion
+
+This is intentionally a **single-cable approximation**, not a literal simulation of fictional hardware.
+
+### Base locomotion returned toward human scale
+
+Current values:
+
+- ground max speed: **8 m/s**;
+- ground acceleration: **50 m/s²**;
+- ground braking: **65 m/s²**;
+- gravity: **11 m/s²**;
+- ground jump: **5.8 m/s**;
+- one reduced gear-assisted air hop: **4.8 m/s**;
+- air acceleration: **6 m/s²**;
+- air-control target speed: **7.5 m/s**.
+
+The previously requested second jump remains, but is deliberately much weaker.
+
+### Rope range
+
+Maximum acquisition / deployed rope length:
+
+- **75 m**.
+
+This is long enough for urban traversal but no longer behaves like map-wide targeting.
+
+### Reel motor
+
+Default reel behavior is deliberately moderate:
+
+- short-line reel target: **9 m/s**;
+- long-line reel target: **16 m/s**;
+- long-range saturation distance: **55 m**;
+- radial reel acceleration: **40 m/s²**.
+
+The old artificial launch profile is neutralized:
+
+- immediate multiplier: **1.0×**;
+- peak multiplier: **1.0×**.
+
+There is no default scripted launch explosion.
+
+### Gas propulsion
+
+LMB reel now combines two distinct physical roles:
+
+1. reel motor shortens the rope and creates radial work;
+2. gas-like propulsion accelerates along the cable tangent.
+
+Current gas tuning:
+
+- tangential acceleration: **14 m/s²**;
+- full gas authority through roughly **18 m/s** player speed;
+- smooth fade from 18 to **34 m/s**;
+- zero **added gas acceleration** at/above ~34 m/s.
+
+34 m/s is **not** a hard speed cap.
+
+Gravity, stored momentum, and favorable swing geometry may still produce greater speed; the gas simply stops injecting additional energy itself.
+
+The gas direction is based on view direction projected onto the cable tangent plane. If that projection is degenerate, existing tangential motion is used as fallback.
+
+### Why this should feel more like ODM
+
+The intended energy flow is now:
+
+```text
+attach cable
+  ↓
+gravity starts/continues the arc
+  ↓
+LMB:
+  reel shortens radius
+  +
+  gas accelerates tangent
+  ↓
+swing converts geometry + timing into speed
+  ↓
+Space releases accumulated velocity
+```
+
+The player should no longer receive extreme speed merely because reel started.
+
+### Presentation
+
+Speed FOV is also calmer:
+
+- baseline: **80°**;
+- maximum: **96°**;
+- FOV response begins around **12 m/s**;
+- maximum speed-FOV response is reached around **36 m/s**.
+
+This avoids visually exaggerating moderate velocity into the old rocket-like sensation.
+
+### Technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36929379224
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: **96 passed / 0 failed**;
+- gas authority fade covered;
+- tangential gas acceleration covered;
+- default reel profile has no artificial launch multiplier;
+- free-fall test now follows configured gravity rather than a hard-coded old value;
+- finite-range attach/detach scenarios remain covered;
+- spawn smoke: stable and grounded;
+- city enclosure smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
