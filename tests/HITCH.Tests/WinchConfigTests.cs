@@ -12,6 +12,7 @@ public sealed class WinchConfigTests
 
         config.Validate();
 
+        Assert.True(config.MaxRopeLength > 0f);
         Assert.True(config.PullInitialImpulse > 0f);
         Assert.True(config.PullRadialAcceleration > 0f);
         Assert.True(config.PullTargetInwardSpeed > 0f);
@@ -27,6 +28,8 @@ public sealed class WinchConfigTests
         Assert.True(config.RopeEndpointTolerance > 0f);
         Assert.True(config.RopeMinimumContactSpacing > 0f);
         Assert.True(config.RopeContactEdgeSearchDistance > 0f);
+        Assert.True(config.RopeConstraintCorrectionSpeed > 0f);
+        Assert.True(config.RopeTautTolerance >= 0f);
     }
 
     [Fact]
@@ -76,6 +79,29 @@ public sealed class WinchConfigTests
 
         Assert.Throws<ArgumentOutOfRangeException>(
             config.Validate);
+    }
+
+    [Fact]
+    public void MaximumRopeLengthMustBePositive()
+    {
+        var config = new WinchConfig
+        {
+            MaxRopeLength = 0f,
+        };
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            config.Validate);
+    }
+
+    [Fact]
+    public void RopeTautToleranceMayBeZero()
+    {
+        var config = new WinchConfig
+        {
+            RopeTautTolerance = 0f,
+        };
+
+        config.Validate();
     }
 
     [Fact]
