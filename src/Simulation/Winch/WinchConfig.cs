@@ -1,14 +1,12 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 iteration 4: one-click grapple + automatic pull.
+/// Stage 5 iteration 6: one-click grapple + automatic pull.
 ///
 /// One RMB click raycasts a world point, replaces any previous cable, and immediately starts a strong automatic pull.
 /// </summary>
 public sealed record WinchConfig
 {
-    public float GrappleRange { get; init; } = 72f;
-
     public uint GrappleCollisionMask { get; init; } = 1u;
 
     /// <summary>
@@ -37,7 +35,6 @@ public sealed record WinchConfig
 
     public void Validate()
     {
-        RequireFinitePositive(GrappleRange, nameof(GrappleRange));
         RequireFinitePositive(PullInitialImpulse, nameof(PullInitialImpulse));
         RequireFinitePositive(PullRadialAcceleration, nameof(PullRadialAcceleration));
         RequireFinitePositive(PullTargetInwardSpeed, nameof(PullTargetInwardSpeed));
