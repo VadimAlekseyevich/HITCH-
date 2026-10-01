@@ -80,11 +80,10 @@ internal sealed class DeviceInputAdapter
                 return true;
             }
 
-            if (mouseButton.ButtonIndex == MouseButton.Right)
+            if (mouseButton.ButtonIndex == MouseButton.Right
+                && mouseButton.Pressed)
             {
-                _pendingButtons |= mouseButton.Pressed
-                    ? PlayerButtons.PullPressed
-                    : PlayerButtons.PullReleased;
+                _pendingButtons |= PlayerButtons.PullPressed;
                 return true;
             }
         }
