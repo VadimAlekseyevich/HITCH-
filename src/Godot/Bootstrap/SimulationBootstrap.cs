@@ -2,6 +2,7 @@ using Godot;
 using Hitch.GodotIntegration.Input;
 using Hitch.GodotIntegration.World;
 using Hitch.Simulation;
+using Hitch.Simulation.Input;
 using Hitch.Simulation.State;
 
 namespace Hitch.GodotIntegration.Bootstrap;
@@ -28,7 +29,7 @@ public partial class SimulationBootstrap : Node
 
         _input.CaptureMouse();
         ApplySimulationView();
-        UpdateStatus(PlayerInputSnapshot.Neutral);
+        UpdateStatus(PlayerInput.Neutral);
     }
 
     public override void _Input(InputEvent @event)
@@ -44,7 +45,7 @@ public partial class SimulationBootstrap : Node
         _ = delta;
 
         var input = _input.ConsumePhysicsTickInput();
-        _simulation.Step(input.Value, _world);
+        _simulation.Step(input, _world);
 
         ApplySimulationView();
 
@@ -63,7 +64,7 @@ public partial class SimulationBootstrap : Node
         _pitchPivot.Rotation = new Vector3(player.ViewPitchRadians, 0f, 0f);
     }
 
-    private void UpdateStatus(PlayerInputSnapshot input)
+    private void UpdateStatus(PlayerInput input)
     {
         var state = _simulation.State.Player;
 
@@ -71,13 +72,6 @@ public partial class SimulationBootstrap : Node
             "Stage 3 input/camera shell\n" +
             $"Tick: {_simulation.State.Tick.Value} | {_simulation.Config.TickRateHz} Hz\n" +
             $"Yaw: {state.ViewYawRadians:F2} | Pitch: {state.ViewPitchRadians:F2}\n" +
-            $"Move: ({input.Value.Move.X:F2}, {input.Value.Move.Y:F2}) | Mouse captured: {_input.IsMouseCaptured}";
-    }
-
-    private readonly record struct PlayerInputSnapshot(Hitch.Simulation.Input.PlayerInput Value)
-    {
-        public static PlayerInputSnapshot Neutral => new(Hitch.Simulation.Input.PlayerInput.Neutral);
-
-        public static implicit operator PlayerInputSnapshot(Hitch.Simulation.Input.PlayerInput value) => new(value);
+            $"Move: ({input.Move.X:F2}, {input.Move.Y:F2}) | Mouse captured: {_input.IsMouseCaptured}";
     }
 }
