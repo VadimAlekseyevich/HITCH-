@@ -61,7 +61,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | LMB throws/replaces an idle cable and cancels any active pull without deleting momentum. One RMB click starts automatic pull: immediate impulse + continued acceleration toward the anchor while tangential momentum is preserved. LMB during pull cancels it and requires another RMB click for the new cable. |
+| Current Stage 5 pull model | HYPOTHESIS | RMB is the only grapple input: each click raycasts a fresh anchor, replaces any previous cable, and immediately starts strong automatic pull in the same tick. Current playtest values: 72 m range, 30 m/s initial impulse, 60 m/s² continued pull acceleration. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
