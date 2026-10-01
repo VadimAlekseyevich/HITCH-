@@ -196,7 +196,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 16, COMPACT CITY + GRAVITY-DRIVEN SWING.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 17, COMPACT CITY + PIECEWISE ROPE WRAP.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
