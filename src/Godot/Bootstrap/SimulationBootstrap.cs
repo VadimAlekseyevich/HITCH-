@@ -140,12 +140,14 @@ public partial class SimulationBootstrap : Node
         if (state.Winch.HasTarget)
         {
             var anchor = ToGodot(state.Winch.Path.CurrentPullPoint);
-            var playerCenter = ToGodot(player.Position);
 
-            _debugLines.DrawLine(
-                playerCenter,
-                anchor,
-                Colors.Yellow);
+            if (state.Winch.IsPulling)
+            {
+                _debugLines.DrawLine(
+                    ToGodot(player.Position),
+                    anchor,
+                    Colors.Yellow);
+            }
 
             const float markerSize = 0.35f;
             _debugLines.DrawLine(
