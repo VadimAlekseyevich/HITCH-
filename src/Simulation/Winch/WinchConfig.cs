@@ -1,10 +1,9 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 iteration 3: selected point + one-click automatic pull.
+/// Stage 5 iteration 4: one-click grapple + automatic pull.
 ///
-/// LMB selects a world point and cancels any previous pull.
-/// One RMB click starts a strong automatic pull until the target is reached or LMB is clicked again.
+/// One RMB click raycasts a world point, replaces any previous cable, and immediately starts a strong automatic pull.
 /// </summary>
 public sealed record WinchConfig
 {
@@ -16,13 +15,13 @@ public sealed record WinchConfig
     /// Immediate delta-velocity applied once when RMB starts the pull.
     /// This removes the slow spool-up feel from the previous prototype.
     /// </summary>
-    public float PullInitialImpulse { get; init; } = 18f;
+    public float PullInitialImpulse { get; init; } = 30f;
 
     /// <summary>
     /// Continuous acceleration toward the selected target while automatic pull is active.
     /// Existing tangential momentum is preserved instead of being replaced every tick.
     /// </summary>
-    public float PullAcceleration { get; init; } = 32f;
+    public float PullAcceleration { get; init; } = 60f;
 
     /// <summary>
     /// Target surface points cannot be reached by the capsule center exactly.
