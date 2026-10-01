@@ -23,6 +23,9 @@ public sealed class WinchConfigTests
         Assert.True(config.PullLaunchDecaySeconds > 0f);
         Assert.True(config.ArrivalContactTolerance >= 0f);
         Assert.True(config.ArrivalSurfaceCaptureRadius > 0f);
+        Assert.True(config.RopeContactSurfaceOffset > 0f);
+        Assert.True(config.RopeEndpointTolerance > 0f);
+        Assert.True(config.RopeMinimumContactSpacing > 0f);
     }
 
     [Fact]
