@@ -5,20 +5,20 @@
     "capsuleHeight": 1.8,
     "eyeOffsetFromCapsuleCenter": 0.65,
     "gravity": 18,
-    "groundAcceleration": 80,
-    "groundMaxSpeed": 6,
-    "groundBraking": 100,
-    "jumpSpeed": 4.2,
-    "airAcceleration": 5,
-    "airControlMaxSpeed": 5,
+    "groundAcceleration": 150,
+    "groundMaxSpeed": 13,
+    "groundBraking": 160,
+    "jumpSpeed": 10,
+    "airAcceleration": 20,
+    "airControlMaxSpeed": 12,
     "groundProbeDistance": 0.08,
     "collisionMargin": 0.02,
     "maxGroundSlopeDegrees": 50,
     "maxSlideIterations": 4,
-    "worldCollisionMask": 3
+    "worldCollisionMask": 3,
+    "airJumpSpeed": 9.5
   },
   "winch": {
-    "grappleRange": 72,
     "grappleCollisionMask": 1,
     "pullInitialImpulse": 24,
     "pullRadialAcceleration": 300,
@@ -34,6 +34,9 @@
     "ropeContactSurfaceOffset": 0.08,
     "ropeEndpointTolerance": 0.22,
     "ropeMinimumContactSpacing": 0.35,
-    "ropeContactEdgeSearchDistance": 16
+    "ropeContactEdgeSearchDistance": 16,
+    "maxRopeLength": 100,
+    "ropeConstraintCorrectionSpeed": 18,
+    "ropeTautTolerance": 0.05
   }
 }
