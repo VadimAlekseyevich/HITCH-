@@ -14,6 +14,11 @@ public sealed record SimulationConfig
 
     public int TickRateHz { get; init; } = TemporaryDefaultTickRateHz;
 
+    /// <summary>
+    /// Prevents the first-person view from reaching the exact vertical singularity.
+    /// </summary>
+    public float ViewPitchLimitRadians { get; init; } = (MathF.PI / 2f) - 0.01f;
+
     public double FixedDeltaSeconds => 1.0 / TickRateHz;
 
     public void Validate()
@@ -24,6 +29,16 @@ public sealed record SimulationConfig
                 nameof(TickRateHz),
                 TickRateHz,
                 "Simulation tick rate must be greater than zero.");
+        }
+
+        if (!float.IsFinite(ViewPitchLimitRadians)
+            || ViewPitchLimitRadians <= 0f
+            || ViewPitchLimitRadians >= MathF.PI / 2f)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(ViewPitchLimitRadians),
+                ViewPitchLimitRadians,
+                "View pitch limit must be finite, positive, and lower than PI/2.");
         }
     }
 }
