@@ -101,7 +101,10 @@ public static class WinchSystem
         // Zero-inertia remains, but iteration 12 raises actual traversal speed into an
         // intentionally exaggerated ODM-like range. Long lines are faster than short lines so
         // crossing the large movement lab feels like high-speed aerial traversal rather than a zipline.
-        var pullSpeed = ComputeDirectPullSpeed(distance, config);
+        var pullSpeed = ComputeDirectPullSpeed(
+            distance,
+            winch.PullElapsedSeconds,
+            config);
         var velocity = distance > 0f
             ? direction * pullSpeed
             : Vector3.Zero;
@@ -123,11 +126,52 @@ public static class WinchSystem
             {
                 LastActualDistance = distance,
                 LastPullAcceleration = appliedRadialAcceleration,
+                PullElapsedSeconds =
+                    winch.PullElapsedSeconds + fixedDeltaSeconds,
             },
             false);
     }
 
     public static float ComputeDirectPullSpeed(
+        float distance,
+        WinchConfig config) =>
+        ComputeDistancePullSpeed(distance, config);
+
+    public static float ComputeDirectPullSpeed(
+        float distance,
+        float pullElapsedSeconds,
+        WinchConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        var distanceSpeed =
+            ComputeDistancePullSpeed(distance, config);
+
+        if (distanceSpeed <= 0f)
+        {
+            return 0f;
+        }
+
+        var normalizedAge = Math.Clamp(
+            pullElapsedSeconds / config.PullLaunchDecaySeconds,
+            0f,
+            1f);
+
+        // Start at full launch boost and ease smoothly back to normal pull speed.
+        var decayBlend =
+            normalizedAge
+            * normalizedAge
+            * (3f - (2f * normalizedAge));
+
+        var launchMultiplier =
+            config.PullLaunchSpeedMultiplier
+            + ((1f - config.PullLaunchSpeedMultiplier)
+               * decayBlend);
+
+        return distanceSpeed * launchMultiplier;
+    }
+
+    private static float ComputeDistancePullSpeed(
         float distance,
         WinchConfig config)
     {
