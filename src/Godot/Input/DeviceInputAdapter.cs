@@ -73,11 +73,19 @@ internal sealed class DeviceInputAdapter
         }
 
         if (@event is InputEventMouseButton mouseButton
-            && mouseButton.Pressed
-            && mouseButton.ButtonIndex == MouseButton.Right)
+            && mouseButton.Pressed)
         {
-            _pendingButtons |= PlayerButtons.GrapplePullPressed;
-            return true;
+            if (mouseButton.ButtonIndex == MouseButton.Right)
+            {
+                _pendingButtons |= PlayerButtons.GrappleShootPressed;
+                return true;
+            }
+
+            if (mouseButton.ButtonIndex == MouseButton.Left)
+            {
+                _pendingButtons |= PlayerButtons.GrappleReelPressed;
+                return true;
+            }
         }
 
         if (@event is InputEventKey keyEvent
@@ -117,7 +125,7 @@ internal sealed class DeviceInputAdapter
             move = NumericsVector2.Normalize(move);
         }
 
-        // Reel-in/out is intentionally disabled in the current direct-pull playtest.
+        // Reel-in is click-driven in Stage 5; continuous reel axis remains unused.
         var reelAxis = 0f;
 
         // Mouse right/down are positive pixels. HITCH! maps them to negative yaw/pitch radians
