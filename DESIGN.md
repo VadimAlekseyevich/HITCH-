@@ -118,14 +118,13 @@ Camera architecture should not make a future third-person experiment unnecessari
 
 **DECIDED:**
 
-- walking exists, but is intentionally slow;
-- jumping exists, but is intentionally weak;
-- the winch is the primary movement method;
-- **CURRENT STAGE 5 OVERRIDE:** carried grapple inertia is disabled in the active prototype;
-- RMB miss/release clears grapple-carried velocity instead of preserving it;
+- the winch remains the primary movement method;
+- **CURRENT STAGE 5 OVERRIDE:** ordinary locomotion is deliberately much faster than the original slow/weak baseline while movement feel is being tested;
+- current ground speed target is about **13 m/s** with strong acceleration/braking;
+- ground jump is intentionally strong (**10 m/s** launch speed);
+- exactly one air jump is currently available per airborne sequence (**9.5 m/s** launch speed), restored on landing;
 - wall/ceiling contacts remove only velocity into the surface; tangential motion survives so grapple swing/wrap can continue along geometry;
-- direct air control outside grapple remains deliberately limited;
-- a very small amount of air steering is allowed as hidden usability assistance.
+- air steering is stronger than the original baseline but still does not clamp already-earned high momentum.
 
 The player should not feel like a normal FPS character with a grapple added on top.
 
@@ -196,39 +195,45 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 17, COMPACT CITY + PIECEWISE ROPE WRAP.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 18, FINITE ROPE + EXPLICIT LMB REEL.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
-The active local movement prototype uses **one cable on RMB**:
+The active local movement prototype uses **one finite cable**:
 
-- RMB raycasts a fresh world anchor;
-- any previous cable is replaced;
-- pull starts immediately in the same simulation tick;
-- RMB does not need to be held;
-- another RMB click immediately retargets;
-- a miss clears the cable and clears carried grapple velocity;
-- LMB currently has no grapple action.
+- RMB raycasts and attaches/replaces a world anchor;
+- RMB by itself does **not** start reel-in;
+- another RMB click retargets;
+- an RMB miss leaves an existing cable attached;
+- LMB starts automatic reel-in for the existing cable;
+- repeated LMB clicks while already reeling do not restart the launch envelope;
+- Space detaches and preserves the current full flight velocity.
 
-### Unlimited gameplay rope length
+### Finite gameplay rope length
 
-There is no gameplay rope-length cap in the active prototype.
+The active Stage 5 tuning uses a **100 m maximum rope/acquisition length**.
 
-The physics query still uses a large finite endpoint because the world-query API requires one. That endpoint is an implementation detail and must not be exposed as a gameplay range.
+This is intentionally large relative to individual city blocks but not large enough to grapple arbitrarily across the whole 200 × 250 m test city. The exact final maximum remains a tuning hypothesis, not a locked balance value.
 
-### Current pull model
+### Current rope / reel model
 
-During travel:
+When attached but not reeling:
 
-- the cable directly owns player velocity;
-- every simulation tick sets velocity directly toward the active anchor;
-- existing tangential/orbital velocity is discarded;
-- ordinary gravity and air control are not mixed into active grapple travel;
-- direct pull speed is distance-scaled from roughly **90 m/s** on short lines to **160 m/s** on long lines;
-- wall/ceiling contacts project velocity onto the allowed surface tangent instead of forcing a full stop;
-- RMB miss/release clears carried grapple velocity.
+- gravity remains active;
+- the rope keeps its deployed length;
+- tangential swing momentum is preserved;
+- when taut, the rope prevents further outward radial motion rather than continuously pulling inward.
 
-This is intentionally arcade-direct. The earlier momentum-preserving hypothesis is rejected for the active Stage 5 prototype because human testing found the resulting inertia frustrating and difficult to read.
+After LMB starts reel-in:
+
+- deployed rope length decreases over time;
+- the reel target remains distance-scaled at roughly **30–52 m/s** in current city tuning;
+- the restrained reel-start envelope is still **1.35× immediate → 2.0× peak → sustained**;
+- radial velocity changes are acceleration-bounded by the reel motor rather than snapping instantly to a new direction;
+- a newly created bend may pay out only the geometric length needed by the new polyline, up to the global maximum, specifically to prevent corner creation from becoming a catapult;
+- gravity and tangential swing momentum remain active during reel-in.
+
+World collision removes only velocity into a surface; legal tangential motion survives. This is intended to support wall-adjacent swing/wrap instead of making contact an automatic stop.
 
 ### Capsule-aware completion
 
@@ -249,7 +254,7 @@ When the capsule has effectively reached the grapple surface:
 - the cable remains latched;
 - **all player velocity is cleared and held at zero**;
 - gravity/air control stay suppressed while latched;
-- another RMB retargets; an RMB miss releases.
+- another RMB retargets; Space releases.
 
 This rule exists specifically to prevent the rejected behavior where the player looked fully reeled in but continued to orbit/rotate because the cable never formally reached an unreachable surface point.
 
@@ -300,15 +305,19 @@ Implementation expectation:
 
 ## 5.3 Grapple range
 
-**DECIDED:** no gameplay rope-length limit in the active MVP movement prototype.
+**CURRENT STAGE 5 HYPOTHESIS:** finite maximum rope length.
 
-Implementation note:
+Current playtest value:
 
-- world-query APIs may still require a finite ray endpoint;
-- use a sufficiently large engine-only query distance;
-- do not expose that technical distance as gameplay balance.
+- maximum acquisition/deployed rope length: **100 m**.
 
-This decision may be revisited later if unlimited reach proves harmful to PvP/map design, but agents must not silently reintroduce a gameplay range cap.
+Intent:
+
+- large enough for aggressive city traversal;
+- not large enough to target arbitrary geometry across the entire arena;
+- use the same gameplay limit for the acquisition ray and deployed-rope state.
+
+The exact final range remains open to human feel testing.
 
 ---
 
@@ -328,11 +337,11 @@ Intent:
 
 ## 5.5 Rope length control
 
-**DECIDED:** reel-in and reel-out are core movement actions.
+**CURRENT STAGE 5 CONTROL:** RMB attaches/retargets; LMB starts reel-in; Space detaches.
 
-They must be directly controllable by the player.
+Reel-in is directly controllable by the player. Reel-out is not currently bound as an active input in the Stage 5 prototype; geometry may pay out limited rope when a new bend makes the piecewise path longer.
 
-The winch must not instantly change rope length.
+The winch must not instantly rotate/snap the player's full velocity when rope direction changes.
 
 ### Reel motor behavior
 
