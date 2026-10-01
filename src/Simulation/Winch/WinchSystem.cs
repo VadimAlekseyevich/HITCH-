@@ -23,11 +23,23 @@ public static class WinchSystem
         WinchConfig config,
         PlayerLocomotionConfig locomotionConfig,
         IWorldQuery world,
-        float fixedDeltaSeconds)
+        float fixedDeltaSeconds,
+        bool applyGravity = true,
+        float motorScale = 1f)
     {
         ArgumentNullException.ThrowIfNull(config);
         ArgumentNullException.ThrowIfNull(locomotionConfig);
         ArgumentNullException.ThrowIfNull(world);
+
+        if (!float.IsFinite(motorScale)
+            || motorScale <= 0f
+            || motorScale > 1f)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(motorScale),
+                motorScale,
+                "Motor scale must be finite and in (0, 1].");
+        }
 
         var winch = previousWinch;
         var updatedPlayer = player;
@@ -178,11 +190,13 @@ public static class WinchSystem
         }
 
         var gravityVelocity =
-            updatedPlayer.Velocity
-            + new Vector3(
-                0f,
-                -locomotionConfig.Gravity * fixedDeltaSeconds,
-                0f);
+            applyGravity
+                ? updatedPlayer.Velocity
+                  + new Vector3(
+                      0f,
+                      -locomotionConfig.Gravity * fixedDeltaSeconds,
+                      0f)
+                : updatedPlayer.Velocity;
 
         var velocity = gravityVelocity;
         var appliedRadialAcceleration = 0f;
@@ -225,6 +239,7 @@ public static class WinchSystem
                     var addedRadialSpeed = MathF.Min(
                         neededDelta,
                         config.PullRadialAcceleration
+                        * motorScale
                         * fixedDeltaSeconds);
 
                     radialSpeed += addedRadialSpeed;
@@ -275,6 +290,7 @@ public static class WinchSystem
                     velocity +=
                         gasDirection
                         * config.GasAcceleration
+                        * motorScale
                         * gasAuthority
                         * fixedDeltaSeconds;
                 }
