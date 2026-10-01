@@ -41,9 +41,17 @@ public sealed class WinchGameSimulationIntegrationTests
             world);
 
         Assert.True(pulling.Winch.IsPulling);
-        Assert.InRange(Math.Abs(pulling.Player.Velocity.Z + 12f), 0f, 1e-5f);
+        Assert.InRange(
+            Math.Abs(pulling.Player.Velocity.Length() - 12f),
+            0f,
+            1e-5f);
+
+        var towardTarget = Vector3.Normalize(
+            selected.Winch.Path.CurrentPullPoint - selected.Player.Position);
+        var actualDirection = Vector3.Normalize(pulling.Player.Velocity);
+
+        Assert.True(Vector3.Dot(towardTarget, actualDirection) > 0.9999f);
         Assert.True(pulling.Player.Position.Z < selected.Player.Position.Z);
-        Assert.Equal(selected.Player.Position.Y, pulling.Player.Position.Y);
     }
 
     [Fact]
