@@ -7,7 +7,7 @@ using Hitch.Simulation.World;
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 iteration 4.
+/// Stage 5 iteration 6.
 ///
 /// Every RMB click raycasts a fresh world point, replaces any previous cable, and immediately
 /// starts automatic pull in the same simulation tick. There is no separate cable-placement action.
@@ -15,6 +15,11 @@ namespace Hitch.Simulation.Winch;
 public static class WinchSystem
 {
     private const float TinyDistanceSquared = 1e-10f;
+
+    // IWorldQuery raycasts require a finite endpoint. This is deliberately not gameplay tuning:
+    // the enclosed Stage 5 room is far smaller, so every visible room surface is reachable.
+    // Do not treat this as a rope-length cap.
+    private const float EngineSafeRaycastDistance = 10_000f;
 
     public static WinchStepResult Step(
         in PlayerState player,
@@ -140,7 +145,7 @@ public static class WinchSystem
 
         return new RayQuery(
             eye,
-            eye + (direction * config.GrappleRange),
+            eye + (direction * EngineSafeRaycastDistance),
             config.GrappleCollisionMask);
     }
 
