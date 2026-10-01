@@ -12,10 +12,9 @@ script = ExtResource("1_sim")
 script = ExtResource("2_lab")
 
 [node name="PlayerView" type="Node3D" parent="."]
-position = Vector3(0, 0, 32)
+position = Vector3(0, 0.9, 32)
 
 [node name="Yaw" type="Node3D" parent="PlayerView"]
-position = Vector3(0, 1.6, 0)
 
 [node name="Pitch" type="Node3D" parent="PlayerView/Yaw"]
 
