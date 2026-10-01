@@ -254,6 +254,10 @@ The answer must not be "inside whatever Godot node currently happens to own it."
 
 # Stage 3 — Greybox world, first-person shell, and debug instrumentation
 
+**Status: DONE — 2026-10-01**
+
+**Task breakdown:** [docs/stages/03-greybox-shell/README.md](./stages/03-greybox-shell/README.md)
+
 ## Goal
 
 Create the environment in which movement experiments can be performed quickly.
