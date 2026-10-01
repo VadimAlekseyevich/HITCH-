@@ -9,58 +9,46 @@ They are **not** the final control scheme.
 | Mouse | Look |
 | W / A / S / D | Responsive ground movement + limited air steering |
 | Space | Weak jump |
-| Left mouse button | Shoot/replace the **left** cable and immediately start its pull |
-| Right mouse button | Shoot/replace the **right** cable and immediately start its pull |
+| Right mouse button | Shoot/replace the single grapple cable and immediately start pulling |
 | F | Reserved melee intent for later combat work |
 | Escape | Release mouse cursor |
-| Left click while cursor is released | Recapture mouse only; does not fire a cable |
+| Left click while cursor is released | Recapture mouse only |
+
+LMB has no grapple action in the active prototype.
 
 Q/E reel controls remain disabled.
 
-## Dual-cable loop
+## Current grapple loop
 
-Each mouse button owns one independent cable.
-
-### LMB
-
-- raycasts a new left anchor;
-- replaces only the previous left cable;
-- starts left-cable pull in the same simulation tick;
-- a miss clears only the left cable.
-
-### RMB
-
-- raycasts a new right anchor;
-- replaces only the previous right cable;
-- starts right-cable pull in the same simulation tick;
-- a miss clears only the right cable.
-
-Both cables may be active simultaneously.
-
-When both are active:
-
-- both pull contributions are applied in the same fixed tick;
-- left/right processing is symmetric;
-- tangential momentum remains available for swinging;
-- the result is intentionally more action-oriented than a realistic rope simulation.
+1. Aim with the center crosshair.
+2. Click RMB.
+3. A hitscan grapple immediately selects the surface under the crosshair.
+4. Any previous cable is replaced.
+5. Pull begins in the same simulation tick.
+6. No button hold is required.
+7. Clicking RMB again immediately retargets the cable.
+8. A miss clears the cable and preserves current momentum.
 
 ## Rope length
 
-There is **no gameplay rope-length limit** in the current prototype.
+There is **no gameplay rope-length limit**.
 
-The simulation ray query uses a very large finite endpoint internally because the physics API requires one. That number is an engine implementation detail, not a gameplay range.
+The physics API still needs a finite ray endpoint internally, so the implementation uses a very large engine-only query distance. It must not be treated as gameplay range.
 
-Any visible valid surface in the enclosed Stage 5 movement room should be reachable.
+## Pull completion
 
-## Arrival behavior
+During travel, tangential momentum is preserved so swinging/curved trajectories remain possible.
 
-Each cable ends independently when its anchor is reached.
+When the body actually reaches the grapple surface:
 
-- If one cable finishes while the other still pulls, only that cable clears.
-- When the **last active cable** finishes, player velocity is cleared completely.
-- Ordinary gravity/locomotion then resume.
+- pull ends;
+- the cable clears;
+- all residual velocity is cleared;
+- ordinary gravity/locomotion resume.
 
-This avoids endless orbiting after a completed pull while still allowing two-cable traversal.
+Completion is **capsule-aware**. It accounts for the player's collision shape, so a ceiling/wall can end the pull even though the capsule center cannot physically reach the exact surface hit point.
+
+This specifically prevents the rejected behavior where the player appeared fully reeled in but continued orbiting/rotating around the anchor.
 
 ## Architecture rule
 
