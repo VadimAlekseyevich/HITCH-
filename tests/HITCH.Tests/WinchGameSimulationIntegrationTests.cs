@@ -21,9 +21,9 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 30f,
-                PullRadialAcceleration = 420f,
-                PullTargetInwardSpeed = 55f,
+                PullInitialImpulse = 24f,
+                PullRadialAcceleration = 300f,
+                PullTargetInwardSpeed = 42f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -37,7 +37,7 @@ public sealed class WinchGameSimulationIntegrationTests
 
         Assert.True(started.Winch.HasTarget);
         Assert.True(started.Winch.IsPulling);
-        Assert.True(started.Player.Velocity.Z < -35f);
+        Assert.True(started.Player.Velocity.Z < -28f);
 
         var initialDistance = started.Winch.LastActualDistance;
 
@@ -49,8 +49,8 @@ public sealed class WinchGameSimulationIntegrationTests
         var later = simulation.State;
 
         Assert.True(later.Winch.IsPulling);
-        Assert.True(later.Winch.LastActualDistance < initialDistance - 8f);
-        Assert.True(later.Player.Velocity.Z <= -54f);
+        Assert.True(later.Winch.LastActualDistance < initialDistance - 7f);
+        Assert.True(later.Player.Velocity.Z <= -41f);
     }
 
     [Fact]
@@ -65,9 +65,9 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 30f,
-                PullRadialAcceleration = 420f,
-                PullTargetInwardSpeed = 55f,
+                PullInitialImpulse = 24f,
+                PullRadialAcceleration = 300f,
+                PullTargetInwardSpeed = 42f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -93,7 +93,7 @@ public sealed class WinchGameSimulationIntegrationTests
             Math.Abs(after.Player.Velocity.X - 18f),
             0f,
             0.05f);
-        Assert.True(after.Player.Velocity.Z < -35f);
+        Assert.True(after.Player.Velocity.Z < -28f);
     }
 
     [Fact]
@@ -108,9 +108,9 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 30f,
-                PullRadialAcceleration = 420f,
-                PullTargetInwardSpeed = 55f,
+                PullInitialImpulse = 24f,
+                PullRadialAcceleration = 300f,
+                PullTargetInwardSpeed = 42f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -146,9 +146,9 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 30f,
-                PullRadialAcceleration = 420f,
-                PullTargetInwardSpeed = 55f,
+                PullInitialImpulse = 24f,
+                PullRadialAcceleration = 300f,
+                PullTargetInwardSpeed = 42f,
                 ArrivalDistance = 0.9f,
             },
         };
@@ -158,7 +158,7 @@ public sealed class WinchGameSimulationIntegrationTests
             Player = SimulationState.Initial.Player with
             {
                 Position = new Vector3(0f, 5f, 0f),
-                Velocity = new Vector3(0f, 0f, -20f),
+                Velocity = new Vector3(9f, 7f, -20f),
                 IsGrounded = false,
             },
             Winch = new WinchState(
@@ -176,8 +176,12 @@ public sealed class WinchGameSimulationIntegrationTests
 
         Assert.False(after.Winch.HasTarget);
         Assert.False(after.Winch.IsPulling);
+        Assert.InRange(Math.Abs(after.Player.Velocity.X), 0f, 1e-5f);
         Assert.InRange(Math.Abs(after.Player.Velocity.Z), 0f, 1e-5f);
+
+        // WinchSystem fully stops at arrival; GameSimulation then applies one gravity tick.
         Assert.True(after.Player.Velocity.Y < 0f);
+        Assert.True(after.Player.Velocity.Y > -1f);
     }
 
     private static GameSimulation CreateAirborneSimulation(
