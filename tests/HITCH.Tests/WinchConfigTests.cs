@@ -15,6 +15,8 @@ public sealed class WinchConfigTests
         Assert.True(config.PullInitialImpulse > 0f);
         Assert.True(config.PullRadialAcceleration > 0f);
         Assert.True(config.PullTargetInwardSpeed > 0f);
+        Assert.True(config.PullLongRangeInwardSpeed >= config.PullTargetInwardSpeed);
+        Assert.True(config.PullLongRangeDistance > 0f);
         Assert.True(config.ArrivalContactTolerance >= 0f);
         Assert.True(config.ArrivalSurfaceCaptureRadius > 0f);
     }
@@ -28,6 +30,19 @@ public sealed class WinchConfigTests
         };
 
         config.Validate();
+    }
+
+    [Fact]
+    public void LongRangeSpeedCannotBeSlowerThanBaseSpeed()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 100f,
+            PullLongRangeInwardSpeed = 90f,
+        };
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            config.Validate);
     }
 
     [Fact]
