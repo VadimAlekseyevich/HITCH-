@@ -77,3 +77,16 @@ The next human test should first verify:
 2. the player can actually remain stopped at the reached point;
 3. the room finally feels large enough for sustained aerial traversal;
 4. the lighting is readable without being washed out.
+
+
+### Iteration 10 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36912647386
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 60 passed / 0 failed;
+- spawn smoke: `tick=45 y=0.9150 grounded=True`;
+- large-room smoke: west/east/back/front/ceiling all detected.
+
+This technical result does not close the human gate. The iteration is only successful if the actual playtest no longer shows residual oscillation and the arena/lighting feel materially better.
