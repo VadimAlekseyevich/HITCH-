@@ -6,6 +6,34 @@ The current project goal is **not to build the final game**. The goal is to buil
 
 > Is PvP built around physically expressive winch movement fun even with primitive graphics?
 
+## One-click Windows build
+
+After cloning the repository on Windows, double-click:
+
+```text
+build_and_run.bat
+```
+
+The script will:
+
+1. use .NET SDK 8.0.425 if it is already installed, otherwise install it locally under `.tools/`;
+2. restore and build the C# project;
+3. restore and run automated tests;
+4. download Godot 4.7.2 .NET locally under `.tools/` if needed;
+5. launch HITCH!.
+
+Nothing is installed system-wide and administrator privileges are not required for the intended path.
+
+Optional command-line modes:
+
+```text
+build_and_run.bat build
+build_and_run.bat test
+build_and_run.bat run
+```
+
+See [docs/TOOLCHAIN.md](./docs/TOOLCHAIN.md) for pinned versions and bootstrap details.
+
 ## Start here
 
 Humans and AI agents should read project documents in this order:
@@ -49,6 +77,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-The project is in **pre-implementation planning / roadmap definition**.
+The project is in **Stage 1 — Godot/C# project bootstrap**.
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
