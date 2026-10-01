@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 17 PIECEWISE ROPE WRAP**
+**Status: READY FOR HUMAN GATE — ITERATION 18 FINITE ROPE + LMB REEL**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
@@ -429,7 +429,7 @@ No networking and no combat are needed.
 ### Grapple targeting
 
 - hitscan/raycast targeting;
-- no gameplay rope-length cap in the active prototype;
+- current Stage 5 hypothesis uses a finite **100 m** maximum deployed rope/acquisition range; exact final balance remains open;
 - valid vs forbidden grapple surfaces;
 - debug visualization of hit/anchor.
 
@@ -479,9 +479,9 @@ Exact math is experimental.
 
 ### Momentum behavior
 
-**Current Stage 5 experiment:** carried grapple inertia is disabled. Active grapple travel directly owns velocity, wall/ceiling impacts hard-stop, and RMB miss/release clears grapple-carried velocity.
+**Current Stage 5 experiment:** the attached rope is a finite, gravity-driven constraint rather than a direct-velocity rail. Tangential swing momentum is preserved; collision removes only velocity into the contacted surface; bend changes cannot instantly snap the full velocity vector.
 
-The earlier momentum-preservation hypothesis is reopened and may only return if human movement testing specifically supports it.
+RMB only attaches/retargets. LMB starts reel-in. Space detaches and preserves current flight velocity. The exact tension/reel coefficients remain experimental.
 
 ### High-speed reel falloff experiment
 
