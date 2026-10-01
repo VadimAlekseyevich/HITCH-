@@ -318,11 +318,12 @@ public static class WinchSystem
             return path;
         }
 
-        var normal = hit.Normal.LengthSquared() > TinyDistanceSquared
-            ? Vector3.Normalize(hit.Normal)
-            : Vector3.Zero;
-        var contact =
-            hit.Position + (normal * config.RopeContactSurfaceOffset);
+        var contact = FindWrapContact(
+            playerPosition,
+            currentTarget,
+            hit,
+            config,
+            world);
 
         if (Vector3.Distance(
                 contact,
@@ -342,6 +343,120 @@ public static class WinchSystem
         }
 
         return path.PushContact(contact);
+    }
+
+    private static Vector3 FindWrapContact(
+        Vector3 playerPosition,
+        Vector3 currentTarget,
+        WorldHit hit,
+        WinchConfig config,
+        IWorldQuery world)
+    {
+        var normal = hit.Normal.LengthSquared() > TinyDistanceSquared
+            ? Vector3.Normalize(hit.Normal)
+            : Vector3.Zero;
+        var baseContact =
+            hit.Position + (normal * config.RopeContactSurfaceOffset);
+
+        if (HasClearRopeSegment(
+                playerPosition,
+                baseContact,
+                config,
+                world)
+            && HasClearRopeSegment(
+                baseContact,
+                currentTarget,
+                config,
+                world))
+        {
+            return baseContact;
+        }
+
+        // Move along the contacted surface toward the old target. For box-like city geometry
+        // this converges on the silhouette edge/corner where both straight rope pieces clear.
+        var towardTarget =
+            currentTarget - hit.Position;
+        var tangent =
+            towardTarget
+            - (normal * Vector3.Dot(towardTarget, normal));
+
+        if (tangent.LengthSquared() <= TinyDistanceSquared)
+        {
+            return baseContact;
+        }
+
+        tangent = Vector3.Normalize(tangent);
+
+        var maximum =
+            config.RopeContactEdgeSearchDistance;
+        var low = 0f;
+        var high = MathF.Min(0.25f, maximum);
+        var foundClearCandidate = false;
+
+        while (high <= maximum)
+        {
+            var candidate =
+                baseContact + (tangent * high);
+
+            if (HasClearRopeSegment(
+                    playerPosition,
+                    candidate,
+                    config,
+                    world)
+                && HasClearRopeSegment(
+                    candidate,
+                    currentTarget,
+                    config,
+                    world))
+            {
+                foundClearCandidate = true;
+                break;
+            }
+
+            if (high >= maximum)
+            {
+                break;
+            }
+
+            low = high;
+            high = MathF.Min(
+                high * 2f,
+                maximum);
+        }
+
+        if (!foundClearCandidate)
+        {
+            return baseContact;
+        }
+
+        // Refine back toward the surface edge instead of leaving a coarse bend floating
+        // several meters away from the actual corner.
+        for (var i = 0; i < 6; i++)
+        {
+            var middle = (low + high) * 0.5f;
+            var candidate =
+                baseContact + (tangent * middle);
+
+            if (HasClearRopeSegment(
+                    playerPosition,
+                    candidate,
+                    config,
+                    world)
+                && HasClearRopeSegment(
+                    candidate,
+                    currentTarget,
+                    config,
+                    world))
+            {
+                high = middle;
+            }
+            else
+            {
+                low = middle;
+            }
+        }
+
+        return baseContact + (tangent * high);
     }
 
     public static float ComputeRopePathLength(
