@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 14: a two-stage explosive grapple launch plus Space detach. Fresh RMB starts immediately boosted, surges to a much stronger peak about 0.10 s later, then decays naturally; Space removes the current cable while preserving current flight velocity. Damage remains deliberately out of scope while core movement feel is being fixed.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 15: compact enclosed city scale. The test volume is reduced to about 200 × 250 × 80 m, filled with varied greybox buildings and streets; sustained grapple speed is scaled down to 22.5–40 m/s while the relative launch surge is increased to 2× immediate / 4× peak. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
