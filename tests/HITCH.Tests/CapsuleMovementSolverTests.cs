@@ -27,7 +27,7 @@ public sealed class CapsuleMovementSolverTests
     }
 
     [Fact]
-    public void WallCollisionKillsAllMomentum()
+    public void WallCollisionRemovesOnlyVelocityIntoSurface()
     {
         var config = new PlayerLocomotionConfig();
         var player = PlayerState.Initial with
@@ -44,7 +44,30 @@ public sealed class CapsuleMovementSolverTests
             world,
             1f);
 
-        Assert.Equal(new Vector3(5f, 0f, 5f), result.Position);
+        Assert.Equal(new Vector3(5f, 0f, 10f), result.Position);
+        Assert.Equal(new Vector3(0f, 0f, 10f), result.Velocity);
+        Assert.Equal(2, world.SweepCount);
+    }
+
+    [Fact]
+    public void PureHeadOnWallImpactStopsOnlyBecauseNoTangentExists()
+    {
+        var config = new PlayerLocomotionConfig();
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(10f, 0f, 0f),
+        };
+        var world = new FirstSweepHitWorld(
+            0.5f,
+            -Vector3.UnitX);
+
+        var result = CapsuleMovementSolver.Move(
+            player,
+            config,
+            world,
+            1f);
+
+        Assert.Equal(new Vector3(5f, 0f, 0f), result.Position);
         Assert.Equal(Vector3.Zero, result.Velocity);
         Assert.Equal(1, world.SweepCount);
     }
