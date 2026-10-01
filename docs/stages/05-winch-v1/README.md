@@ -412,6 +412,16 @@ Iteration 9 treats completion as an explicit hard-settle event:
 
 Automated coverage includes both immediate ceiling contact and high-speed arrival that occurs during the movement step.
 
+### Iteration 9 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36911381535
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 58 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- expanded-room smoke: west/east/back/front/ceiling all detected.
+
 ### Human gate focus
 
 Do not proceed to Stage 6 yet.
