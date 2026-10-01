@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 9 EXPANDED LAB + HARD SETTLE**
+**Status: READY FOR HUMAN GATE — ITERATION 10 SURFACE LATCH + LARGE ARENA**
 
 ## Objective
 
@@ -434,3 +434,76 @@ The next playtest should answer:
 - does movement begin to feel exciting on its own before damage, combat pressure, VFX, or audio are added.
 
 If the answer to the last question is still no, continue iterating Stage 5 rather than adding damage as compensation.
+
+
+## Human gate result — iteration 9
+
+**Result: FAILED BADLY / SUPERSEDED**
+
+Human feedback:
+
+- the new lighting was overexposed and made the room effectively white and painful to read;
+- the room still felt small for the intended movement fantasy;
+- the player still oscillated around the target after visually reaching it;
+- iteration 9 did not solve the reported problems and made presentation worse.
+
+Root-cause correction:
+
+- the remaining oscillation was not primarily a one-tick timing problem;
+- arrival still depended on capsule-center distance to one exact anchor point;
+- collision removes velocity into a wall/ceiling but preserves tangential velocity, so the player can touch the target surface, slide sideways, move outside the exact point-distance threshold, and remain under winch force;
+- additionally, the implementation cleared the cable after completion and resumed gravity, so a genuine persistent stop was impossible even when velocity briefly reached zero.
+
+## Iteration 10 — surface-aware latch + genuinely large arena
+
+### Grapple arrival
+
+The grapple raycast now stores both:
+
+- anchor point;
+- anchor surface normal.
+
+Arrival against a real surface is evaluated as:
+
+- capsule support distance to the anchor's surface plane;
+- plus the existing contact tolerance;
+- plus a separate tangential capture radius around the chosen point.
+
+This allows a high-speed player who has physically reached the selected wall/ceiling near the anchor to complete the pull even if collision has preserved some sideways velocity.
+
+Touching the same surface far away from the selected anchor does not count.
+
+### Persistent stop
+
+Completion no longer clears the cable.
+
+A completed cable becomes **latched**:
+
+- pull force stops;
+- player velocity is exactly zero;
+- gravity and air control are suppressed;
+- position remains fixed while latched;
+- another RMB click retargets immediately;
+- an RMB miss releases the latch and ordinary locomotion/gravity resumes.
+
+This is the first iteration where "pull to the point and actually stop there" is an explicit gameplay state rather than a one-frame side effect.
+
+### Arena and lighting
+
+The Stage 5 shell is now approximately:
+
+- width: **800 m**;
+- depth: **1000 m**;
+- height: **320 m**.
+
+Major landmarks are hundreds of meters apart.
+
+Iteration 9's bright materials and strong ambient/fill lighting were removed. The current lab uses:
+
+- dark blue-grey floor;
+- distinct medium-dark walls/ceiling;
+- moderately brighter obstacles for silhouette separation;
+- low ambient energy;
+- restrained shadowless fill only for minimum interior readability.
+
+Damage/fall damage is still intentionally not added. First verify that the movement and arrival behavior themselves are correct.
