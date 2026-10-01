@@ -7,17 +7,12 @@ public enum PlayerButtons : ushort
     JumpPressed = 1 << 0,
 
     /// <summary>
-    /// LMB: cancel any active pull and select/replace the grapple point.
+    /// RMB click: raycast a new grapple point and immediately start pulling toward it.
+    /// Replaces any previous cable/pull in the same simulation tick.
     /// </summary>
-    SelectGrapplePointPressed = 1 << 1,
-
-    /// <summary>
-    /// RMB click: start automatic pull toward the selected point.
-    /// No hold/release state is required.
-    /// </summary>
-    PullPressed = 1 << 2,
+    GrapplePullPressed = 1 << 1,
 
     // Reserved for later combat stages.
-    FirePressed = 1 << 3,
-    MeleePressed = 1 << 4,
+    FirePressed = 1 << 2,
+    MeleePressed = 1 << 3,
 }
