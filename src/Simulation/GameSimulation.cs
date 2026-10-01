@@ -92,16 +92,21 @@ public sealed class GameSimulation
             world,
             (float)FixedDeltaSeconds);
 
-        var movedPlayer = PlayerLocomotionSystem.Step(
-            winchResult.Player,
-            input,
-            Config.Locomotion,
-            world,
-            (float)FixedDeltaSeconds,
-            suppressGroundBraking: winchResult.Winch.IsAttached);
+        var movedPlayer = winchResult.Winch.IsPulling
+            ? CapsuleMovementSolver.Move(
+                winchResult.Player,
+                Config.Locomotion,
+                world,
+                (float)FixedDeltaSeconds)
+            : PlayerLocomotionSystem.Step(
+                winchResult.Player,
+                input,
+                Config.Locomotion,
+                world,
+                (float)FixedDeltaSeconds);
 
         var finalWinch = winchResult.Winch;
-        if (finalWinch.IsAttached)
+        if (finalWinch.HasTarget)
         {
             finalWinch = finalWinch with
             {
