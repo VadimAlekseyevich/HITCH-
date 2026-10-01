@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 5**
+**Status: READY FOR HUMAN GATE — ITERATION 7 DUAL CABLE**
 
 ## Objective
 
@@ -241,3 +241,65 @@ Technical evidence:
 - spawn smoke: `tick=45 y=0.9150 grounded=True`.
 
 Iteration 5 is ready for human feel testing.
+
+
+## Human gate result — iteration 5
+
+**Result: ITERATE / ARRIVAL AND TEST-SPACE PROBLEMS**
+
+Human feedback:
+
+- strong radial contraction finally made the cable visibly pull toward the anchor;
+- the extreme pull values could now be reduced somewhat;
+- completed pull still left unwanted motion/orbiting around the anchor;
+- high-speed testing could leave the movement lab.
+
+## Iteration 6 — enclosed room + completed-pull stop
+
+Changes retained in the current build:
+
+- pull initial impulse reduced to 24 m/s;
+- radial acceleration reduced to 300 m/s²;
+- target inward radial speed reduced to 42 m/s;
+- movement lab enclosed with four continuous walls and a ceiling;
+- when the last active cable reaches its anchor, player velocity is cleared completely;
+- ordinary gravity resumes immediately afterward.
+
+The headless smoke now verifies all four room walls and the ceiling.
+
+## Human correction after iteration 6
+
+Additional requested changes:
+
+- gameplay rope length should be unlimited;
+- add a second independent cable;
+- LMB controls one cable and RMB controls the other;
+- movement should feel inspired by fast dual-cable aerial traversal, but more action-oriented and less physically strict where useful.
+
+## Iteration 7 — dual cable + unlimited gameplay length
+
+Current active behavior:
+
+- LMB shoots/replaces the left cable and immediately pulls;
+- RMB shoots/replaces the right cable and immediately pulls;
+- both cables can remain active simultaneously;
+- missing with one side clears only that side;
+- there is no gameplay rope-length cap;
+- both pull corrections are computed symmetrically and summed;
+- tangential momentum remains available for swinging;
+- if one cable reaches its anchor while the other remains active, only the arrived cable clears;
+- when the last active cable completes, player velocity is fully stopped.
+
+### Iteration 7 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36809172303
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 58 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- enclosed-room smoke: west/east/back/front/ceiling all detected;
+- unlimited gameplay range: old grapple-range tuning removed;
+- dual-cable state/input/physics covered by automated tests.
+
+Iteration 7 is ready for human movement testing.
