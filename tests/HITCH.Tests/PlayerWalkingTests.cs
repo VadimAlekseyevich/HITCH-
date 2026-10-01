@@ -89,7 +89,7 @@ public sealed class PlayerWalkingTests
     }
 
     [Fact]
-    public void NeutralWalkingDoesNotClampExistingHighMomentum()
+    public void NeutralGroundedMovementBrakesExistingMomentum()
     {
         var config = new SimulationConfig();
         var initial = SimulationState.Initial with
@@ -107,7 +107,41 @@ public sealed class PlayerWalkingTests
             PlayerInput.Neutral,
             new FlatFloorWorld());
 
-        Assert.InRange(Math.Abs(after.Player.Velocity.X - 20f), 0f, 1e-5f);
+        var expected =
+            20f - (config.Locomotion.GroundBraking / config.TickRateHz);
+
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.X - expected),
+            0f,
+            1e-5f);
+        Assert.True(after.Player.Velocity.X < 20f);
+    }
+
+    [Fact]
+    public void ChangingDirectionReducesOldLateralVelocityInsteadOfSlidingForever()
+    {
+        var config = new SimulationConfig();
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new Vector3(0f, 0.92f, 0f),
+                Velocity = new Vector3(3.5f, 0f, 0f),
+                IsGrounded = true,
+            },
+        };
+        var simulation = new GameSimulation(config, initial);
+
+        var after = simulation.Step(
+            new PlayerInput(
+                new Vector2(0f, 1f),
+                Vector2.Zero,
+                0f,
+                PlayerButtons.None),
+            new FlatFloorWorld());
+
+        Assert.True(after.Player.Velocity.X < 3.5f);
+        Assert.True(after.Player.Velocity.Z < 0f);
     }
 
     private static GameSimulation CreateGroundedSimulation(SimulationConfig config)
