@@ -76,15 +76,15 @@ internal sealed class DeviceInputAdapter
         {
             if (mouseButton.ButtonIndex == MouseButton.Left && mouseButton.Pressed)
             {
-                _pendingButtons |= PlayerButtons.FirePressed;
+                _pendingButtons |= PlayerButtons.SelectGrapplePointPressed;
                 return true;
             }
 
             if (mouseButton.ButtonIndex == MouseButton.Right)
             {
                 _pendingButtons |= mouseButton.Pressed
-                    ? PlayerButtons.GrapplePressed
-                    : PlayerButtons.GrappleReleased;
+                    ? PlayerButtons.PullPressed
+                    : PlayerButtons.PullReleased;
                 return true;
             }
         }
@@ -122,9 +122,8 @@ internal sealed class DeviceInputAdapter
             move = NumericsVector2.Normalize(move);
         }
 
-        var reelAxis =
-            (Godot.Input.IsPhysicalKeyPressed(Key.E) ? 1f : 0f)
-            - (Godot.Input.IsPhysicalKeyPressed(Key.Q) ? 1f : 0f);
+        // Reel-in/out is intentionally disabled in the current direct-pull playtest.
+        var reelAxis = 0f;
 
         // Mouse right/down are positive pixels. HITCH! maps them to negative yaw/pitch radians
         // so Godot's -Z forward camera follows conventional FPS mouse direction.
