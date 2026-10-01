@@ -61,7 +61,7 @@ public partial class SimulationDebugOverlay : Label
             $"Velocity: ({player.Velocity.X:F2}, {player.Velocity.Y:F2}, {player.Velocity.Z:F2}) | Speed: {speed:F2}\n" +
             $"Grounded: {player.IsGrounded} | Move: ({input.Move.X:F2}, {input.Move.Y:F2})\n" +
             cableLine + "\n" +
-            $"Pull: sustained {config.Winch.PullTargetInwardSpeed:F1}-{config.Winch.PullLongRangeInwardSpeed:F1} m/s | burst {config.Winch.PullLaunchInitialMultiplier:F2}x->{config.Winch.PullLaunchPeakMultiplier:F2}x | gravity ON while pulling\n" +
+            $"ODM: reel {config.Winch.PullTargetInwardSpeed:F1}-{config.Winch.PullLongRangeInwardSpeed:F1} m/s | gas {config.Winch.GasAcceleration:F1} m/s² | gas fade {config.Winch.GasFullAccelerationSpeed:F0}->{config.Winch.GasCutoffSpeed:F0} m/s\n" +
             $"Arrival contact tolerance: {config.Winch.ArrivalContactTolerance:F2}m\n" +
             $"Telemetry — peak speed: {telemetry.PeakPlayerSpeed:F2} | avg speed: {telemetry.AveragePlayerSpeed:F2} | peak pull accel: {telemetry.PeakPullAcceleration:F1}\n" +
             $"Cable starts/stops: {telemetry.PullStartCount}/{telemetry.PullStopCount} | Mouse: {mouseCaptured}";
