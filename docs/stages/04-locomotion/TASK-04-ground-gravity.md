@@ -1,6 +1,6 @@
 # Task 04 — Add Ground Detection and Gravity
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 03
 
 ## Goal
