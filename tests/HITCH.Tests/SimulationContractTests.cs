@@ -61,6 +61,7 @@ public sealed class SimulationContractTests
             Vector3.UnitX,
             0f,
             0.5f,
+            0.02f,
             uint.MaxValue);
 
         Assert.Throws<ArgumentOutOfRangeException>(query.Validate);
