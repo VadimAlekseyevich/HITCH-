@@ -3,24 +3,24 @@ using Hitch.Simulation.State;
 namespace Hitch.Simulation.Debug;
 
 /// <summary>
-/// Development-only in-memory metrics for local movement tuning.
-///
-/// This is intentionally not part of authoritative SimulationState and is not a production
-/// analytics system.
+/// Development-only in-memory movement metrics.
 /// </summary>
 public sealed class SimulationTelemetry
 {
     private double _speedSampleSum;
     private ulong _speedSampleCount;
-    private bool _wasAttached;
+    private bool _hadTarget;
+    private bool _wasPulling;
 
     public float PeakPlayerSpeed { get; private set; }
 
-    public float PeakWinchTensionAcceleration { get; private set; }
+    public float PeakPullSpeed { get; private set; }
 
-    public ulong AttachCount { get; private set; }
+    public ulong TargetSelectionCount { get; private set; }
 
-    public ulong DetachCount { get; private set; }
+    public ulong PullStartCount { get; private set; }
+
+    public ulong PullStopCount { get; private set; }
 
     public float AveragePlayerSpeed =>
         _speedSampleCount == 0
@@ -32,34 +32,41 @@ public sealed class SimulationTelemetry
         var speed = state.Player.Velocity.Length();
 
         PeakPlayerSpeed = MathF.Max(PeakPlayerSpeed, speed);
-        PeakWinchTensionAcceleration = MathF.Max(
-            PeakWinchTensionAcceleration,
-            state.Winch.LastTensionAcceleration);
+        PeakPullSpeed = MathF.Max(
+            PeakPullSpeed,
+            state.Winch.LastPullSpeed);
 
         _speedSampleSum += speed;
         _speedSampleCount++;
 
-        var attached = state.Winch.IsAttached;
-        if (attached && !_wasAttached)
+        if (state.Winch.HasTarget && !_hadTarget)
         {
-            AttachCount++;
-        }
-        else if (!attached && _wasAttached)
-        {
-            DetachCount++;
+            TargetSelectionCount++;
         }
 
-        _wasAttached = attached;
+        if (state.Winch.IsPulling && !_wasPulling)
+        {
+            PullStartCount++;
+        }
+        else if (!state.Winch.IsPulling && _wasPulling)
+        {
+            PullStopCount++;
+        }
+
+        _hadTarget = state.Winch.HasTarget;
+        _wasPulling = state.Winch.IsPulling;
     }
 
     public void Reset()
     {
         PeakPlayerSpeed = 0f;
-        PeakWinchTensionAcceleration = 0f;
-        AttachCount = 0;
-        DetachCount = 0;
+        PeakPullSpeed = 0f;
+        TargetSelectionCount = 0;
+        PullStartCount = 0;
+        PullStopCount = 0;
         _speedSampleSum = 0d;
         _speedSampleCount = 0;
-        _wasAttached = false;
+        _hadTarget = false;
+        _wasPulling = false;
     }
 }
