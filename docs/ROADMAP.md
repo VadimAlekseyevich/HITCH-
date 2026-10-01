@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 5**
+**Status: READY FOR HUMAN GATE — ITERATION 7 DUAL CABLE**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
