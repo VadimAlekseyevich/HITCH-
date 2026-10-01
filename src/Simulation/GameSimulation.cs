@@ -2,6 +2,7 @@ using Hitch.Simulation.Input;
 using Hitch.Simulation.Player;
 using Hitch.Simulation.State;
 using Hitch.Simulation.World;
+using Hitch.Simulation.Winch;
 
 namespace Hitch.Simulation;
 
@@ -78,17 +79,39 @@ public sealed class GameSimulation
             ViewPitchRadians = pitch,
         };
 
-        var movedPlayer = PlayerLocomotionSystem.Step(
+        var winchResult = WinchSystem.Step(
             viewUpdatedPlayer,
+            State.Winch,
             input,
+            Config.Winch,
             Config.Locomotion,
             world,
             (float)FixedDeltaSeconds);
+
+        var movedPlayer = PlayerLocomotionSystem.Step(
+            winchResult.Player,
+            input,
+            Config.Locomotion,
+            world,
+            (float)FixedDeltaSeconds,
+            suppressGroundBraking: winchResult.Winch.IsAttached);
+
+        var finalWinch = winchResult.Winch;
+        if (finalWinch.IsAttached)
+        {
+            finalWinch = finalWinch with
+            {
+                LastActualDistance = System.Numerics.Vector3.Distance(
+                    movedPlayer.Position,
+                    finalWinch.Path.CurrentPullPoint),
+            };
+        }
 
         State = State with
         {
             Tick = State.Tick.Next(),
             Player = movedPlayer,
+            Winch = finalWinch,
         };
 
         return State;
