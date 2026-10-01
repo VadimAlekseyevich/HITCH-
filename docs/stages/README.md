@@ -12,7 +12,7 @@ A stage breakdown is created only when that stage is about to begin. We intentio
 - [Stage 2 — Simulation kernel and explicit state](./02-simulation-kernel/README.md) — **DONE**
 - [Stage 3 — Greybox world, first-person shell, and debug instrumentation](./03-greybox-shell/README.md) — **DONE**
 - [Stage 4 — Base player locomotion](./04-locomotion/README.md) — **DONE**
-- [Stage 5 — Winch v1: world-anchor movement](./05-winch-v1/README.md) — **READY FOR HUMAN GATE, ITERATION 10 SURFACE LATCH + LARGE ARENA**
+- [Stage 5 — Winch v1: world-anchor movement](./05-winch-v1/README.md) — **READY FOR HUMAN GATE, ITERATION 11 ZERO INERTIA**
 
 ## Status convention
 
