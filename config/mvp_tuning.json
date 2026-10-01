@@ -27,7 +27,9 @@
     "arrivalSurfaceCaptureRadius": 1.75,
     "pullLongRangeInwardSpeed": 160,
     "pullLongRangeDistance": 250,
-    "pullLaunchSpeedMultiplier": 1.45,
-    "pullLaunchDecaySeconds": 0.75
+    "pullLaunchDecaySeconds": 0.7,
+    "pullLaunchInitialMultiplier": 1.75,
+    "pullLaunchPeakMultiplier": 2.75,
+    "pullLaunchPeakSeconds": 0.1
   }
 }
