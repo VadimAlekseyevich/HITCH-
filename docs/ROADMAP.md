@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 19 ODM-INSPIRED REEL + GAS**
+**Status: READY FOR HUMAN GATE — ITERATION 20 DUAL-HOOK ODM**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
@@ -429,7 +429,7 @@ No networking and no combat are needed.
 ### Grapple targeting
 
 - hitscan/raycast targeting;
-- current Stage 5 hypothesis uses a finite **75 m** maximum deployed rope/acquisition range; exact final balance remains open;
+- current Stage 5 hypothesis uses two finite cables with **150 m** maximum deployed/acquisition length each; exact final balance remains open;
 - valid vs forbidden grapple surfaces;
 - debug visualization of hit/anchor.
 
