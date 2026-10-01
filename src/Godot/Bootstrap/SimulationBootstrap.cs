@@ -6,6 +6,7 @@ using Hitch.Simulation;
 using Hitch.Simulation.Input;
 using Hitch.Simulation.State;
 using Hitch.Simulation.Winch;
+using Hitch.Simulation.World;
 using NumericsVector3 = System.Numerics.Vector3;
 
 namespace Hitch.GodotIntegration.Bootstrap;
@@ -179,10 +180,51 @@ public partial class SimulationBootstrap : Node
             return true;
         }
 
+        if (!ValidateClosedRoomBounds())
+        {
+            GetTree().Quit(1);
+            return true;
+        }
+
         GD.Print(
             $"HITCH_SMOKE_SPAWN_STABLE tick={_simulation.State.Tick.Value} " +
             $"y={player.Position.Y:F4} grounded={player.IsGrounded}");
+        GD.Print("HITCH_SMOKE_ROOM_CLOSED west/east/back/front/ceiling=True");
         GetTree().Quit(0);
+        return true;
+    }
+
+    private bool ValidateClosedRoomBounds()
+    {
+        const uint collisionMask = 0b11u;
+        var origin = new NumericsVector3(0f, 80f, 0f);
+
+        var checks = new (string Name, NumericsVector3 End)[]
+        {
+            ("west", new NumericsVector3(-70f, 80f, 0f)),
+            ("east", new NumericsVector3(70f, 80f, 0f)),
+            ("back", new NumericsVector3(0f, 80f, -85f)),
+            ("front", new NumericsVector3(0f, 80f, 85f)),
+            ("ceiling", new NumericsVector3(0f, 95f, 0f)),
+        };
+
+        foreach (var check in checks)
+        {
+            var query = new RayQuery(
+                origin,
+                check.End,
+                collisionMask);
+
+            if (_world.TryRaycast(query, out _))
+            {
+                continue;
+            }
+
+            GD.PushError(
+                $"HITCH_SMOKE_ROOM_OPEN missing={check.Name}");
+            return false;
+        }
+
         return true;
     }
 
