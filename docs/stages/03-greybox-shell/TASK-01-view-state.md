@@ -1,6 +1,6 @@
 # Task 01 — Add Simulation-Owned First-Person View State
 
-**Status:** PLANNED
+**Status:** DONE
 
 ## Goal
 
