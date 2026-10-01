@@ -8,17 +8,17 @@ namespace Hitch.Tests;
 public sealed class SimulationTelemetryTests
 {
     [Fact]
-    public void TelemetryTracksSpeedTargetAndPullTransitions()
+    public void TelemetryTracksSpeedTargetAndAutomaticPullTransitions()
     {
         var telemetry = new SimulationTelemetry();
 
-        telemetry.Observe(State(3f, hasTarget: false, pulling: false, pullSpeed: 0f));
-        telemetry.Observe(State(5f, hasTarget: true, pulling: false, pullSpeed: 0f));
-        telemetry.Observe(State(8f, hasTarget: true, pulling: true, pullSpeed: 18f));
-        telemetry.Observe(State(4f, hasTarget: true, pulling: false, pullSpeed: 0f));
+        telemetry.Observe(State(3f, hasTarget: false, pulling: false, pullAcceleration: 0f));
+        telemetry.Observe(State(5f, hasTarget: true, pulling: false, pullAcceleration: 0f));
+        telemetry.Observe(State(8f, hasTarget: true, pulling: true, pullAcceleration: 32f));
+        telemetry.Observe(State(4f, hasTarget: true, pulling: false, pullAcceleration: 0f));
 
         Assert.Equal(8f, telemetry.PeakPlayerSpeed);
-        Assert.Equal(18f, telemetry.PeakPullSpeed);
+        Assert.Equal(32f, telemetry.PeakPullAcceleration);
         Assert.Equal(5f, telemetry.AveragePlayerSpeed);
         Assert.Equal(1UL, telemetry.TargetSelectionCount);
         Assert.Equal(1UL, telemetry.PullStartCount);
@@ -29,12 +29,12 @@ public sealed class SimulationTelemetryTests
     public void ResetClearsDevelopmentMetrics()
     {
         var telemetry = new SimulationTelemetry();
-        telemetry.Observe(State(10f, true, true, 18f));
+        telemetry.Observe(State(10f, true, true, 32f));
 
         telemetry.Reset();
 
         Assert.Equal(0f, telemetry.PeakPlayerSpeed);
-        Assert.Equal(0f, telemetry.PeakPullSpeed);
+        Assert.Equal(0f, telemetry.PeakPullAcceleration);
         Assert.Equal(0f, telemetry.AveragePlayerSpeed);
         Assert.Equal(0UL, telemetry.TargetSelectionCount);
         Assert.Equal(0UL, telemetry.PullStartCount);
@@ -45,7 +45,7 @@ public sealed class SimulationTelemetryTests
         float speed,
         bool hasTarget,
         bool pulling,
-        float pullSpeed)
+        float pullAcceleration)
     {
         var winch = hasTarget
             ? new WinchState(
@@ -53,7 +53,7 @@ public sealed class SimulationTelemetryTests
                 WinchPathState.AtWorldAnchor(new Vector3(0f, 0f, -5f)),
                 pulling,
                 5f,
-                pullSpeed)
+                pullAcceleration)
             : WinchState.Initial;
 
         return SimulationState.Initial with
