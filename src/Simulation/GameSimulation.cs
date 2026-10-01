@@ -83,6 +83,10 @@ public sealed class GameSimulation
             ViewPitchRadians = pitch,
         };
 
+        var detachConsumed =
+            State.Winch.HasTarget
+            && input.Has(PlayerButtons.GrappleDetachPressed);
+
         var winchResult = WinchSystem.Step(
             viewUpdatedPlayer,
             State.Winch,
@@ -120,9 +124,18 @@ public sealed class GameSimulation
             }
             else
             {
+                var locomotionInput = detachConsumed
+                    ? input with
+                    {
+                        Buttons =
+                            input.Buttons
+                            & ~PlayerButtons.JumpPressed,
+                    }
+                    : input;
+
                 movedPlayer = PlayerLocomotionSystem.Step(
                     winchResult.Player,
-                    input,
+                    locomotionInput,
                     Config.Locomotion,
                     world,
                     (float)FixedDeltaSeconds);
