@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING — ITERATION 5 BUILD READY  
+**Status:** WAITING — ITERATION 7 DUAL CABLE BUILD READY
 **Depends on:** Task 08
 
 ## Goal
@@ -95,3 +95,31 @@ Evaluate:
 - is 60 m/s² continued pull acceleration strong enough?
 - does repeated RMB retargeting preserve useful momentum?
 - does the player still retain understandable control at the higher pull strength?
+
+
+## Iteration 5 result
+
+**ITERATE — contraction worked, but completed pull and test-space behavior still needed correction.**
+
+## Iteration 6 result
+
+Retained changes:
+
+- enclosed room;
+- reduced pull values;
+- full stop when the last cable completes.
+
+## Iteration 7 focus
+
+Evaluate only the current dual-cable build:
+
+- does LMB clearly feel like the left cable and RMB like the right cable?
+- can both cables stay active at once without feeling random?
+- does firing the second cable produce a useful controllable change in trajectory?
+- does one side retarget without destroying the other side?
+- does missing with one side correctly clear only that side?
+- does unlimited rope length remove arbitrary range frustration?
+- does the closed room reliably contain high-speed movement?
+- when one cable finishes and the other still pulls, does movement continue naturally?
+- when the last cable finishes, does the complete stop feel correct rather than sticky or orbiting?
+- does the dual-cable movement feel fast/action-oriented enough while still being understandable?
