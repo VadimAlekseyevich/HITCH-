@@ -112,10 +112,10 @@ public sealed class GameSimulation
         }
         else
         {
-            if (finalWinch.IsPulling)
+            if (finalWinch.HasTarget)
             {
-                // Active grapple velocity already contains gravity plus cable radial control.
-                // Move/collide directly here so ordinary locomotion does not apply gravity twice.
+                // Attached rope physics already contains gravity and rope tension whether or not
+                // reel-in has started. Move/collide directly so locomotion does not apply gravity twice.
                 movedPlayer = CapsuleMovementSolver.Move(
                     winchResult.Player,
                     Config.Locomotion,
@@ -151,6 +151,7 @@ public sealed class GameSimulation
                 finalWinch = finalWinch with
                 {
                     IsPulling = false,
+                    IsArrivedLatched = true,
                     LastActualDistance = WinchSystem.ComputeRopePathLength(
                         movedPlayer.Position,
                         finalWinch.Path),
