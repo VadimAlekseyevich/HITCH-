@@ -15,8 +15,11 @@ public sealed class PlayerLocomotionConfigTests
         Assert.Equal(0.45f, config.CapsuleRadius);
         Assert.Equal(1.80f, config.CapsuleHeight);
         Assert.Equal(0.45f, config.CapsuleHalfSegmentLength, 5);
-        Assert.InRange(config.GroundMaxSpeed, 5f, 7f);
+        Assert.InRange(config.GroundMaxSpeed, 12f, 14f);
+        Assert.True(config.JumpSpeed >= 9f);
+        Assert.True(config.AirJumpSpeed >= 9f);
         Assert.True(config.AirAcceleration < config.GroundAcceleration);
+        Assert.True(config.AirControlMaxSpeed >= 10f);
         Assert.True(config.GroundBraking > config.GroundAcceleration);
     }
 
