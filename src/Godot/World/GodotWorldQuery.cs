@@ -77,11 +77,41 @@ internal sealed class GodotWorldQuery : IWorldQuery
         var motion = ToGodot(query.Displacement);
 
         _shapeQuery.Transform = new Transform3D(Basis.Identity, start);
-        _shapeQuery.Motion = motion;
+        _shapeQuery.Motion = Vector3.Zero;
         _shapeQuery.Margin = query.Margin;
         _shapeQuery.CollisionMask = query.CollisionMask;
 
-        var fractions = _worldNode.GetWorld3D().DirectSpaceState.CastMotion(_shapeQuery);
+        var spaceState = _worldNode.GetWorld3D().DirectSpaceState;
+
+        // Godot CastMotion intentionally ignores shapes that the query shape already overlaps.
+        // With a positive margin, merely resting within the skin distance can count as overlap.
+        // If the requested motion points into that contact, report an immediate hit instead of
+        // letting the capsule tunnel a little farther into the surface every tick.
+        var startRest = spaceState.GetRestInfo(_shapeQuery);
+        if (startRest.Count > 0 && startRest.ContainsKey("normal"))
+        {
+            var startNormal = startRest["normal"].AsVector3();
+
+            if (!startNormal.IsZeroApprox()
+                && motion.Dot(startNormal) < -1e-6f)
+            {
+                var startPoint = startRest.ContainsKey("point")
+                    ? startRest["point"].AsVector3()
+                    : start;
+
+                hit = new WorldHit(
+                    ToNumerics(startPoint),
+                    ToNumerics(startNormal.Normalized()),
+                    0f,
+                    0u);
+
+                return true;
+            }
+        }
+
+        _shapeQuery.Motion = motion;
+
+        var fractions = spaceState.CastMotion(_shapeQuery);
 
         if (fractions.Length < 2 || fractions[0] >= 1f)
         {
@@ -98,7 +128,7 @@ internal sealed class GodotWorldQuery : IWorldQuery
         _shapeQuery.Transform = new Transform3D(Basis.Identity, unsafeCenter);
         _shapeQuery.Motion = Vector3.Zero;
 
-        var rest = _worldNode.GetWorld3D().DirectSpaceState.GetRestInfo(_shapeQuery);
+        var rest = spaceState.GetRestInfo(_shapeQuery);
 
         var normal = Vector3.Zero;
         var point = start + (motion * safeFraction);
