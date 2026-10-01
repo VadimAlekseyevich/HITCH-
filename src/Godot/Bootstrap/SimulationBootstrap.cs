@@ -178,26 +178,52 @@ public partial class SimulationBootstrap : Node
             return;
         }
 
-        var anchor = ToGodot(cable.Path.CurrentPullPoint);
+        var from = playerPosition;
 
-        _debugLines.DrawLine(
-            playerPosition,
-            anchor,
-            cableColor);
+        for (var i = 0; i <= cable.Path.ContactCount; i++)
+        {
+            var point = ToGodot(
+                cable.Path.GetPathPointFromPlayer(i));
 
-        const float markerSize = 0.35f;
+            _debugLines.DrawLine(
+                from,
+                point,
+                cableColor);
+
+            if (i < cable.Path.ContactCount)
+            {
+                DrawCableMarker(
+                    point,
+                    Colors.Cyan,
+                    0.22f);
+            }
+
+            from = point;
+        }
+
+        DrawCableMarker(
+            ToGodot(cable.Path.WorldAnchor),
+            cableColor,
+            0.35f);
+    }
+
+    private void DrawCableMarker(
+        Vector3 point,
+        Color color,
+        float markerSize)
+    {
         _debugLines.DrawLine(
-            anchor - (Vector3.Right * markerSize),
-            anchor + (Vector3.Right * markerSize),
-            cableColor);
+            point - (Vector3.Right * markerSize),
+            point + (Vector3.Right * markerSize),
+            color);
         _debugLines.DrawLine(
-            anchor - (Vector3.Up * markerSize),
-            anchor + (Vector3.Up * markerSize),
-            cableColor);
+            point - (Vector3.Up * markerSize),
+            point + (Vector3.Up * markerSize),
+            color);
         _debugLines.DrawLine(
-            anchor - (Vector3.Back * markerSize),
-            anchor + (Vector3.Back * markerSize),
-            cableColor);
+            point - (Vector3.Back * markerSize),
+            point + (Vector3.Back * markerSize),
+            color);
     }
 
     private bool ValidateSpawnSmokeIfRequested()
