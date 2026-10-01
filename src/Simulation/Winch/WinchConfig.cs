@@ -8,6 +8,12 @@ public sealed record WinchConfig
 {
     public uint GrappleCollisionMask { get; init; } = 1u;
 
+    /// <summary>
+    /// Maximum deployed rope length and grapple acquisition range.
+    /// Large enough for the compact city, but deliberately not map-wide.
+    /// </summary>
+    public float MaxRopeLength { get; init; } = 100f;
+
     public float PullInitialImpulse { get; init; } = 24f;
 
     public float PullRadialAcceleration { get; init; } = 300f;
@@ -86,8 +92,22 @@ public sealed record WinchConfig
     /// </summary>
     public float RopeContactEdgeSearchDistance { get; init; } = 16f;
 
+    /// <summary>
+    /// Maximum extra inward correction speed used only when geometry temporarily makes the
+    /// polyline longer than the deployed rope. Keeps wrap changes from becoming catapults.
+    /// </summary>
+    public float RopeConstraintCorrectionSpeed { get; init; } = 18f;
+
+    /// <summary>
+    /// Small slack band before the rope is considered taut.
+    /// </summary>
+    public float RopeTautTolerance { get; init; } = 0.05f;
+
     public void Validate()
     {
+        RequireFinitePositive(
+            MaxRopeLength,
+            nameof(MaxRopeLength));
         RequireFinitePositive(
             PullInitialImpulse,
             nameof(PullInitialImpulse));
@@ -157,6 +177,12 @@ public sealed record WinchConfig
         RequireFinitePositive(
             RopeContactEdgeSearchDistance,
             nameof(RopeContactEdgeSearchDistance));
+        RequireFinitePositive(
+            RopeConstraintCorrectionSpeed,
+            nameof(RopeConstraintCorrectionSpeed));
+        RequireFiniteNonNegative(
+            RopeTautTolerance,
+            nameof(RopeTautTolerance));
     }
 
     private static void RequireFinitePositive(
