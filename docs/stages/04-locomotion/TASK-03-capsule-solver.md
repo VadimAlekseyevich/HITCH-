@@ -1,6 +1,6 @@
 # Task 03 — Implement Capsule Sweep/Slide Solver
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 02
 
 ## Goal
