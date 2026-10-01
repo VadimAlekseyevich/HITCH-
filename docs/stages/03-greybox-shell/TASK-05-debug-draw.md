@@ -1,6 +1,6 @@
 # Task 05 — Add 3D Debug Drawing Hooks
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 03
 
 ## Goal
