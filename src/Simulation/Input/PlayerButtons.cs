@@ -11,7 +11,14 @@ public enum PlayerButtons : ushort
     /// </summary>
     GrapplePullPressed = 1 << 1,
 
+    /// <summary>
+    /// Space while a grapple exists: fully detach while preserving current flight velocity.
+    /// Device input may emit this together with JumpPressed; simulation suppresses the jump
+    /// when the same Space press is consumed as a detach.
+    /// </summary>
+    GrappleDetachPressed = 1 << 2,
+
     // Reserved for later combat stages.
-    FirePressed = 1 << 2,
-    MeleePressed = 1 << 3,
+    FirePressed = 1 << 3,
+    MeleePressed = 1 << 4,
 }
