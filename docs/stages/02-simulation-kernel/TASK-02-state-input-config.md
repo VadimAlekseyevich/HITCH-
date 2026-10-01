@@ -1,6 +1,6 @@
 # Task 02 — Define Config, Input, and Explicit State Contracts
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 01
 
 ## Goal
