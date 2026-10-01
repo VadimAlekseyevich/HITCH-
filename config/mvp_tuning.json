@@ -22,8 +22,10 @@
     "grappleCollisionMask": 1,
     "pullInitialImpulse": 24,
     "pullRadialAcceleration": 300,
-    "pullTargetInwardSpeed": 42,
+    "pullTargetInwardSpeed": 90,
     "arrivalContactTolerance": 0.06,
-    "arrivalSurfaceCaptureRadius": 1.75
+    "arrivalSurfaceCaptureRadius": 1.75,
+    "pullLongRangeInwardSpeed": 160,
+    "pullLongRangeDistance": 250
   }
 }
