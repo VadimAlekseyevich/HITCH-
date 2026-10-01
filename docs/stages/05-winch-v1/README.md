@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 2**
+**Status: READY FOR HUMAN GATE — ITERATION 3**
 
 ## Objective
 
@@ -112,3 +112,55 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36804660303
 - ground locomotion: responsive desired-velocity control with active braking.
 
 Iteration 2 is now ready for the next human movement test.
+
+
+## Human gate result — iteration 2
+
+**Result: ITERATE / MISUNDERSTOOD CONTROL MODEL**
+
+Human correction:
+
+- LMB should behave like throwing/placing the cable point;
+- RMB should be clicked once, not held;
+- one RMB click should start strong automatic pull;
+- clicking LMB during pull should retract/cancel the current pull and preserve inertia;
+- the newly placed cable should remain idle until another RMB click;
+- ordinary movement still needed faster acceleration and better control;
+- grapple range should be much longer;
+- the lab needed significantly more vertical geometry;
+- aiming needed a small center-screen point.
+
+Iteration 2 hold-to-pull semantics are superseded.
+
+## Iteration 3 — click-to-start automatic pull
+
+Current active loop:
+
+1. LMB throws/selects a cable point and cancels any existing pull.
+2. The cable is visible but idle.
+3. One RMB click starts automatic pull.
+4. Pull begins with an immediate impulse and continues with acceleration toward the anchor.
+5. Existing tangential momentum is preserved.
+6. LMB during pull cancels the pull immediately and preserves inertia while placing/replacing the cable.
+7. Another RMB click is required to pull toward the new cable.
+8. Reaching the anchor ends the pull automatically.
+
+Current playtest changes:
+
+- grapple range: 72 m;
+- ground acceleration/braking greatly increased;
+- limited air steering increased;
+- movement lab enlarged to 120 × 150 m with towers reaching up to roughly 72 m;
+- center-screen crosshair dot added.
+
+## Iteration 3 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36805953261
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 57 passed / 0 failed;
+- headless spawn stability: `tick=45 y=0.9150 grounded=True`;
+- one-click bootstrap remains `build_and_run.bat`.
+
+Iteration 3 is technically ready. Stage 5 remains blocked on human movement feel.
