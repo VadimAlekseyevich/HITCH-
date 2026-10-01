@@ -8,7 +8,7 @@ config/mvp_tuning.json
 
 The Godot runner loads and validates this file at startup.
 
-## Stage 5 iteration 4
+## Stage 5 iteration 5
 
 The active prototype now uses a single grapple input:
 
@@ -25,7 +25,8 @@ Current winch fields:
 - `grappleRange`;
 - `grappleCollisionMask`;
 - `pullInitialImpulse`;
-- `pullAcceleration`;
+- `pullRadialAcceleration`;
+- `pullTargetInwardSpeed`;
 - `arrivalDistance`.
 
 Current values:
@@ -33,11 +34,20 @@ Current values:
 ```text
 grappleRange        = 72 m
 pullInitialImpulse  = 30 m/s
-pullAcceleration    = 60 m/s²
+pullRadialAcceleration = 420 m/s²
+pullTargetInwardSpeed  = 55 m/s
 arrivalDistance     = 0.9 m
 ```
 
-The stronger values deliberately test a fast/aggressive baseline rather than slowly increasing an underpowered pull.
+Iteration 5 changes the force model, not just the coefficient:
+
+- tangential velocity is preserved for swinging;
+- the cable explicitly drives the radial component toward the anchor;
+- it tries to establish at least 55 m/s inward radial speed;
+- radial speed can change at up to 420 m/s²;
+- already-faster inward radial speed is not clamped down.
+
+This is meant to make cable length visibly contract even when the player has strong sideways or outward momentum.
 
 ## Locomotion
 
