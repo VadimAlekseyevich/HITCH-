@@ -16,11 +16,26 @@ public readonly record struct WinchState(
     /// </summary>
     public float PullElapsedSeconds { get; init; }
 
+    /// <summary>
+    /// Current deployed rope length along the full piecewise path.
+    /// RMB initializes it; LMB reel-in reduces it.
+    /// </summary>
+    public float RopeLength { get; init; }
+
+    /// <summary>
+    /// True only after actual arrival at the selected grapple surface.
+    /// Attached-but-not-reeling is no longer treated as a frozen latch.
+    /// </summary>
+    public bool IsArrivedLatched { get; init; }
+
     public bool HasTarget =>
         TargetState == WinchTargetState.Selected;
 
     public bool IsLatched =>
-        HasTarget && !IsPulling;
+        HasTarget && IsArrivedLatched;
+
+    public bool IsAttachedFree =>
+        HasTarget && !IsPulling && !IsArrivedLatched;
 
     public static WinchState Initial => new(
         WinchTargetState.None,
