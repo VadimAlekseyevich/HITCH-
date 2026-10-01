@@ -74,12 +74,26 @@ public static class WinchSystem
                 false);
         }
 
+        var updatedPath = UpdateRopePath(
+            updatedPlayer.Position,
+            winch.Path,
+            config,
+            world);
+        winch = winch with
+        {
+            Path = updatedPath,
+        };
+
         var toTarget =
-            winch.Path.CurrentPullPoint - player.Position;
+            winch.Path.CurrentPullPoint - updatedPlayer.Position;
         var distanceSquared = toTarget.LengthSquared();
         var distance = distanceSquared <= TinyDistanceSquared
             ? 0f
             : MathF.Sqrt(distanceSquared);
+        var ropePathLength =
+            ComputeRopePathLength(
+                updatedPlayer.Position,
+                winch.Path);
 
         var direction = distance > 0f
             ? toTarget / distance
@@ -104,7 +118,7 @@ public static class WinchSystem
                 winch with
                 {
                     IsPulling = false,
-                    LastActualDistance = distance,
+                    LastActualDistance = ropePathLength,
                     LastPullAcceleration = 0f,
                 },
                 true);
@@ -114,7 +128,7 @@ public static class WinchSystem
         // Gravity acts while attached. The cable owns only the radial component toward the
         // anchor; tangential velocity survives so the player can arc around the hook point.
         var pullSpeed = ComputeDirectPullSpeed(
-            distance,
+            ropePathLength,
             winch.PullElapsedSeconds,
             config);
 
@@ -154,7 +168,7 @@ public static class WinchSystem
             updatedPlayer,
             winch with
             {
-                LastActualDistance = distance,
+                LastActualDistance = ropePathLength,
                 LastPullAcceleration = appliedRadialAcceleration,
                 PullElapsedSeconds =
                     winch.PullElapsedSeconds + fixedDeltaSeconds,
@@ -256,6 +270,125 @@ public static class WinchSystem
                * speedBlend);
     }
 
+    public static WinchPathState UpdateRopePath(
+        Vector3 playerPosition,
+        WinchPathState path,
+        WinchConfig config,
+        IWorldQuery world)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        ArgumentNullException.ThrowIfNull(world);
+
+        // Unwrap as soon as the player regains a clear segment to the point behind the
+        // current bend. Multiple now-redundant bends can disappear in the same tick.
+        while (path.ContactCount > 0
+               && HasClearRopeSegment(
+                   playerPosition,
+                   path.PointBehindCurrent,
+                   config,
+                   world))
+        {
+            path = path.PopContact();
+        }
+
+        var currentTarget = path.CurrentPullPoint;
+        var segment = currentTarget - playerPosition;
+        if (segment.LengthSquared() <= TinyDistanceSquared)
+        {
+            return path;
+        }
+
+        var query = new RayQuery(
+            playerPosition,
+            currentTarget,
+            config.GrappleCollisionMask);
+
+        if (!world.TryRaycast(query, out var hit))
+        {
+            return path;
+        }
+
+        // Hitting the requested endpoint is expected for the anchor or an existing contact
+        // resting on geometry. That is not a new wrap.
+        if (Vector3.Distance(
+                hit.Position,
+                currentTarget)
+            <= config.RopeEndpointTolerance)
+        {
+            return path;
+        }
+
+        var normal = hit.Normal.LengthSquared() > TinyDistanceSquared
+            ? Vector3.Normalize(hit.Normal)
+            : Vector3.Zero;
+        var contact =
+            hit.Position + (normal * config.RopeContactSurfaceOffset);
+
+        if (Vector3.Distance(
+                contact,
+                currentTarget)
+            < config.RopeMinimumContactSpacing)
+        {
+            return path;
+        }
+
+        if (path.ContactCount > 0
+            && Vector3.Distance(
+                contact,
+                path.CurrentPullPoint)
+               < config.RopeMinimumContactSpacing)
+        {
+            return path;
+        }
+
+        return path.PushContact(contact);
+    }
+
+    public static float ComputeRopePathLength(
+        Vector3 playerPosition,
+        WinchPathState path)
+    {
+        var length = 0f;
+        var from = playerPosition;
+
+        for (var i = 0; i <= path.ContactCount; i++)
+        {
+            var to = path.GetPathPointFromPlayer(i);
+            length += Vector3.Distance(from, to);
+            from = to;
+        }
+
+        return length;
+    }
+
+    private static bool HasClearRopeSegment(
+        Vector3 from,
+        Vector3 to,
+        WinchConfig config,
+        IWorldQuery world)
+    {
+        if (Vector3.DistanceSquared(from, to)
+            <= TinyDistanceSquared)
+        {
+            return true;
+        }
+
+        var query = new RayQuery(
+            from,
+            to,
+            config.GrappleCollisionMask);
+
+        if (!world.TryRaycast(query, out var hit))
+        {
+            return true;
+        }
+
+        return Vector3.Distance(
+                   hit.Position,
+                   to)
+               <= config.RopeEndpointTolerance;
+    }
+
     public static RayQuery BuildAimRay(
         in PlayerState player,
         WinchConfig config,
@@ -285,7 +418,12 @@ public static class WinchSystem
             return false;
         }
 
-        var anchor = winch.Path.CurrentPullPoint;
+        if (winch.Path.ContactCount > 0)
+        {
+            return false;
+        }
+
+        var anchor = winch.Path.WorldAnchor;
         var fromAnchorToPlayer = player.Position - anchor;
 
         if (winch.Path.HasAnchorSurfaceNormal)
