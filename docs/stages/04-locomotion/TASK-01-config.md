@@ -1,6 +1,6 @@
 # Task 01 — Define Locomotion Tuning and Capsule Semantics
 
-**Status:** PLANNED
+**Status:** DONE
 
 ## Goal
 
