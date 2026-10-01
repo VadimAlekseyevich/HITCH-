@@ -109,3 +109,22 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36934949332
 3. Is the 1000 × 1200 m city large enough for sustained practice?
 4. Can tuning one parameter at a time in F2 make cause/effect understandable?
 5. Is clipboard export convenient enough to replace rebuild-based micro-tuning?
+
+
+### Iteration 21 panel usability follow-up
+
+Human feedback after the first tuning-panel build:
+
+- the left-side panel overlapped the debug telemetry;
+- reel-speed naming was ambiguous;
+- exact numeric entry should not be constrained by the convenience slider range;
+- a clear reset-to-defaults action is required.
+
+Current behavior:
+
+- panel is anchored to the **top-right** of the viewport;
+- reel target fields are labeled **Скорость стяжки: ближняя** and **Скорость стяжки: дальняя**;
+- slider ranges are convenience ranges only;
+- direct numeric entry may exceed the slider min/max;
+- direct values still pass normal SimulationConfig validity rules;
+- **Сбросить по умолчанию** restores a fresh default `SimulationConfig` while preserving simulation state.
