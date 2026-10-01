@@ -1,6 +1,6 @@
 # Task 04 — Implement One-Tick Simulation Kernel
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Tasks 02 and 03
 
 ## Goal
