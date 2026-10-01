@@ -301,7 +301,7 @@ public sealed class WinchGameSimulationIntegrationTests
     {
         var config = TestSimulationConfig();
         var world = new MutableGrappleWorld(
-            new Vector3(0f, 5f, -200f));
+            new Vector3(0f, 5f, -80f));
         var simulation = CreateAirborneSimulation(config);
 
         simulation.Step(
