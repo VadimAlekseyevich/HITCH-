@@ -1,4 +1,5 @@
 using Hitch.Simulation.Input;
+using Hitch.Simulation.Player;
 using Hitch.Simulation.State;
 using Hitch.Simulation.World;
 
@@ -8,7 +9,7 @@ namespace Hitch.Simulation;
 /// Owns authoritative gameplay state for one simulation instance.
 ///
 /// One call to Step advances exactly one fixed simulation tick.
-/// The kernel intentionally has no movement behavior yet.
+/// Movement behavior remains explicit and engine-independent; Godot only supplies world queries.
 /// </summary>
 public sealed class GameSimulation
 {
@@ -44,14 +45,22 @@ public sealed class GameSimulation
             -Config.ViewPitchLimitRadians,
             Config.ViewPitchLimitRadians);
 
+        var viewUpdatedPlayer = player with
+        {
+            ViewYawRadians = yaw,
+            ViewPitchRadians = pitch,
+        };
+
+        var movedPlayer = CapsuleMovementSolver.Move(
+            viewUpdatedPlayer,
+            Config.Locomotion,
+            world,
+            (float)FixedDeltaSeconds);
+
         State = State with
         {
             Tick = State.Tick.Next(),
-            Player = player with
-            {
-                ViewYawRadians = yaw,
-                ViewPitchRadians = pitch,
-            },
+            Player = movedPlayer,
         };
 
         return State;
