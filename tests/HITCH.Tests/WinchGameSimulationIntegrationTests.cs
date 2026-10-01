@@ -199,7 +199,7 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
-    public void RetargetPreservesExistingMomentumAndStartsNewPull()
+    public void RetargetDiscardsExistingMomentumAndStartsNewDirectPull()
     {
         var config = TestSimulationConfig();
         var world = new MutableGrappleWorld(
@@ -210,8 +210,6 @@ public sealed class WinchGameSimulationIntegrationTests
             Input(PlayerButtons.GrapplePullPressed),
             world);
 
-        var before = simulation.State.Player.Velocity;
-
         world.Anchor = new Vector3(-25f, 20f, 10f);
         var retargeted = simulation.Step(
             Input(PlayerButtons.GrapplePullPressed),
@@ -221,12 +219,18 @@ public sealed class WinchGameSimulationIntegrationTests
         Assert.Equal(
             world.Anchor,
             retargeted.Winch.Path.CurrentPullPoint);
-        Assert.NotEqual(
-            Vector3.Zero,
+
+        var direction = Vector3.Normalize(
+            world.Anchor - retargeted.Player.Position);
+        var velocityDirection = Vector3.Normalize(
             retargeted.Player.Velocity);
-        Assert.NotEqual(
-            before,
-            retargeted.Player.Velocity);
+
+        Assert.True(
+            Vector3.Dot(direction, velocityDirection) > 0.999f);
+        Assert.InRange(
+            retargeted.Player.Velocity.Length(),
+            41.99f,
+            42.01f);
     }
 
     private static SimulationConfig TestSimulationConfig() =>
