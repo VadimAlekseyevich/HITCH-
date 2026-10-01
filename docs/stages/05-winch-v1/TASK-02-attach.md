@@ -1,6 +1,6 @@
 # Task 02 — Implement Hitscan Attach/Detach State Machine
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 01
 
 ## Goal
