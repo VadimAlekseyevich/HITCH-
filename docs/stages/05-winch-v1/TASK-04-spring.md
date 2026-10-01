@@ -1,6 +1,6 @@
 # Task 04 — Implement Elastic Tension Model v1
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 03
 
 ## Goal
