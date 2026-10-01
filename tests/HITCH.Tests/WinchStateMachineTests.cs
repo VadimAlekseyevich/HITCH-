@@ -20,7 +20,8 @@ public sealed class WinchStateMachineTests
         {
             GrappleRange = 72f,
             PullInitialImpulse = 30f,
-            PullAcceleration = 60f,
+            PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
         };
         var locomotion = new PlayerLocomotionConfig
         {
@@ -80,7 +81,8 @@ public sealed class WinchStateMachineTests
             new WinchConfig
             {
                 PullInitialImpulse = 30f,
-                PullAcceleration = 60f,
+                PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
             },
             new PlayerLocomotionConfig(),
             world,
@@ -102,7 +104,7 @@ public sealed class WinchStateMachineTests
             WinchPathState.AtWorldAnchor(point),
             true,
             Vector3.Distance(Vector3.Zero, point),
-            60f);
+            420f);
 
     private sealed class RecordingRayWorld : IWorldQuery
     {
