@@ -10,12 +10,13 @@ namespace Hitch.Tests;
 public sealed class WinchDirectPullTests
 {
     [Fact]
-    public void RmbShotAppliesImmediateImpulseAndAcceleration()
+    public void RmbShotImmediatelyEstablishesStrongInwardSpeed()
     {
         var config = new WinchConfig
         {
             PullInitialImpulse = 30f,
-            PullAcceleration = 60f,
+            PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
             ArrivalDistance = 0.5f,
         };
 
@@ -30,41 +31,98 @@ public sealed class WinchDirectPullTests
 
         Assert.True(result.Winch.IsPulling);
         AssertVectorClose(
-            new Vector3(0f, 0f, -36f),
+            new Vector3(0f, 0f, -55f),
             result.Player.Velocity);
-        Assert.Equal(60f, result.Winch.LastPullAcceleration);
+        Assert.True(result.Winch.LastPullAcceleration > 0f);
     }
 
     [Fact]
-    public void AutomaticPullContinuesOnNeutralTicks()
+    public void PullPreservesTangentialSwingWhileForcingInwardRadialSpeed()
     {
         var config = new WinchConfig
         {
             PullInitialImpulse = 30f,
-            PullAcceleration = 20f,
+            PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
             ArrivalDistance = 0.5f,
         };
         var player = PlayerState.Initial with
         {
-            Velocity = new Vector3(5f, 0f, 0f),
+            // X is tangential to a target straight down -Z.
+            Velocity = new Vector3(17f, 0f, 0f),
         };
 
         var result = WinchSystem.Step(
             player,
-            ActiveAt(new Vector3(0f, 0f, -20f), 20f),
+            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.2f);
+
+        Assert.True(result.Winch.IsPulling);
+        Assert.InRange(Math.Abs(result.Player.Velocity.X - 17f), 0f, 1e-5f);
+        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 55f), 0f, 1e-5f);
+    }
+
+    [Fact]
+    public void PullRapidlyReversesVelocityMovingAwayFromAnchor()
+    {
+        var config = new WinchConfig
+        {
+            PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
+            ArrivalDistance = 0.5f,
+        };
+        var player = PlayerState.Initial with
+        {
+            // Target is -Z, so +Z is moving directly away from the anchor.
+            Velocity = new Vector3(0f, 0f, 30f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
             PlayerInput.Neutral,
             config,
             new PlayerLocomotionConfig(),
             new NoHitWorld(),
             0.1f);
 
-        Assert.True(result.Winch.IsPulling);
-        Assert.InRange(Math.Abs(result.Player.Velocity.X - 5f), 0f, 1e-5f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 2f), 0f, 1e-5f);
+        Assert.True(result.Player.Velocity.Z < 0f);
+        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 12f), 0f, 1e-5f);
     }
 
     [Fact]
-    public void NewRmbShotPreservesOldMomentumThenAddsNewImpulse()
+    public void ExistingFasterInwardSpeedIsNotClampedDown()
+    {
+        var config = new WinchConfig
+        {
+            PullRadialAcceleration = 420f,
+            PullTargetInwardSpeed = 55f,
+        };
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(8f, 0f, -80f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.InRange(Math.Abs(result.Player.Velocity.X - 8f), 0f, 1e-5f);
+        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 80f), 0f, 1e-5f);
+        Assert.Equal(0f, result.Winch.LastPullAcceleration);
+    }
+
+    [Fact]
+    public void NewRmbShotPreservesOldMomentumThenAddsNewPull()
     {
         var velocity = new Vector3(14f, 3f, -9f);
         var player = PlayerState.Initial with { Velocity = velocity };
@@ -72,12 +130,13 @@ public sealed class WinchDirectPullTests
 
         var result = WinchSystem.Step(
             player,
-            ActiveAt(new Vector3(0f, 10f, -20f), 60f),
+            ActiveAt(new Vector3(0f, 10f, -20f), 0f),
             Input(PlayerButtons.GrapplePullPressed),
             new WinchConfig
             {
                 PullInitialImpulse = 30f,
-                PullAcceleration = 60f,
+                PullRadialAcceleration = 420f,
+                PullTargetInwardSpeed = 55f,
             },
             new PlayerLocomotionConfig(),
             new FixedHitWorld(newTarget),
@@ -101,7 +160,7 @@ public sealed class WinchDirectPullTests
 
         var result = WinchSystem.Step(
             player,
-            ActiveAt(new Vector3(0f, 10f, -20f), 60f),
+            ActiveAt(new Vector3(0f, 10f, -20f), 0f),
             Input(PlayerButtons.GrapplePullPressed),
             new WinchConfig(),
             new PlayerLocomotionConfig(),
@@ -129,7 +188,7 @@ public sealed class WinchDirectPullTests
 
         var result = WinchSystem.Step(
             player,
-            ActiveAt(point, 60f),
+            ActiveAt(point, 0f),
             PlayerInput.Neutral,
             config,
             new PlayerLocomotionConfig(),
