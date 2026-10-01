@@ -8,41 +8,66 @@ config/mvp_tuning.json
 
 The Godot runner loads and validates this file at startup.
 
-## Current Stage 5 iteration
+## Stage 5 iteration 3
 
-The previous elastic spring + reel motor experiment failed the first human movement gate.
+Iteration 2 misunderstood the requested controls by requiring RMB to be held.
 
-The active prototype is intentionally simpler:
+The current active prototype is:
 
-- LMB selects a point;
-- RMB directly pulls toward it;
-- pull speed is immediate rather than accelerated;
-- reaching the point consumes it and drops the player;
-- releasing RMB early preserves current momentum;
-- retargeting with LMB works while pulling.
+- LMB throws/selects a cable point and cancels any previous pull;
+- RMB is a **single click** that starts automatic pull;
+- pull starts with an immediate velocity impulse;
+- continuous pull acceleration then bends the existing trajectory toward the anchor;
+- tangential momentum is preserved instead of replacing the full velocity vector;
+- LMB during pull stops the force and preserves inertia before placing a new idle cable;
+- arrival stops the pull automatically.
 
 Current winch fields:
 
-- `grappleRange`
-- `grappleCollisionMask`
-- `pullSpeed`
-- `arrivalDistance`
+- `grappleRange` — **72 m** in the current playtest;
+- `grappleCollisionMask`;
+- `pullInitialImpulse` — immediate delta-velocity on RMB click;
+- `pullAcceleration` — continuous acceleration while automatic pull is active;
+- `arrivalDistance`.
 
-The removed spring/reel parameters are not part of the active prototype.
+Current values:
 
-## Ground locomotion
+```text
+grappleRange        = 72 m
+pullInitialImpulse  = 18 m/s
+pullAcceleration    = 32 m/s²
+arrivalDistance     = 0.9 m
+```
 
-Important fields:
+These are playtest values, not final game balance.
 
-- `groundAcceleration`
-- `groundMaxSpeed`
-- `groundBraking`
-- `gravity`
-- `jumpSpeed`
-- `airAcceleration`
-- `airControlMaxSpeed`
+## Locomotion
 
-Ground control now moves horizontal velocity toward the desired movement velocity and brakes excess velocity on the ground. This was changed after the first playtest reported an ice-like/slippery feel.
+The first playtests reported slow/floaty/ice-like ordinary control.
+
+Current values intentionally favor responsiveness:
+
+```text
+groundMaxSpeed      = 6 m/s
+groundAcceleration  = 80 m/s²
+groundBraking       = 100 m/s²
+airAcceleration     = 5 m/s²
+airControlMaxSpeed  = 5 m/s
+```
+
+The winch remains much more powerful than walking, but ordinary WASD should no longer feel sluggish.
+
+## Movement lab
+
+The engineering arena is temporarily larger and much more vertical:
+
+- 120 × 150 m floor;
+- several 44–72 m towers/spires;
+- bridges and sky bars at multiple heights;
+- small aerial stepping targets;
+- long-range thin grapple targets.
+
+This is test geometry, not the final MVP arena.
 
 ## Tick rate
 
