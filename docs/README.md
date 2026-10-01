@@ -39,6 +39,14 @@ This file should answer:
 - what state must be replayable/networkable;
 - which Godot features are adapters rather than gameplay truth.
 
+### [TOOLCHAIN.md](./TOOLCHAIN.md)
+
+Pins Godot, .NET, Jolt, the bootstrap platform, and one-click setup behavior.
+
+### [CONVENTIONS.md](./CONVENTIONS.md)
+
+Defines gameplay tuning ownership and diagnostics/assertion conventions.
+
 ### [ROADMAP.md](./ROADMAP.md)
 
 Defines the ordered development stages to the first networked MVP.
