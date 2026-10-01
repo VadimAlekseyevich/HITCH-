@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING — ITERATION 2 BUILD READY  
+**Status:** WAITING — ITERATION 3 BUILD READY  
 **Depends on:** Task 08
 
 ## Goal
@@ -57,3 +57,25 @@ Evaluate only:
 - whether reaching a point cleanly drops the player instead of sticking;
 - whether ordinary WASD ground motion no longer feels like ice;
 - whether early RMB release creates useful, understandable momentum.
+
+
+## Iteration 2 result
+
+**ITERATE — control model misunderstood.**
+
+Holding/releasing RMB is explicitly not the intended control scheme.
+
+## Iteration 3 focus
+
+Evaluate:
+
+- does LMB feel like simply throwing/placing a cable?
+- does one RMB click start a strong pull immediately?
+- does the automatic pull continue correctly without holding RMB?
+- does LMB during pull cancel force instantly while preserving useful inertia?
+- does the new cable remain idle until the next RMB click?
+- is ordinary WASD now responsive instead of sluggish/ice-like?
+- is 72 m grapple range useful rather than excessive?
+- does the taller arena create enough vertical flight opportunities?
+- is the center crosshair accurate enough for deliberate cable placement?
+- does preserving tangential momentum make trajectories feel player-authored instead of automated?
