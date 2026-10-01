@@ -34,7 +34,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Base walking | DECIDED | Slow. |
 | Base jump | DECIDED | Weak. |
 | Primary traversal | DECIDED | Winch/grapple. |
-| Momentum on detach | DECIDED | Preserve almost completely. |
+| Momentum on detach | HYPOTHESIS | Reopened in Stage 5 iteration 11. Active prototype clears grapple-carried velocity on release/miss instead of preserving inertia. |
 | Air control | DECIDED | Very weak hidden correction only. |
 | Player locomotion model | DECIDED | Custom-controlled capsule. |
 | Player/player collision | DECIDED | Players physically push each other. |
@@ -51,7 +51,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Current grapple control | DECIDED | RMB shoots/replaces the single active cable and starts pull immediately; LMB has no grapple action in the active prototype. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
 | Range | DECIDED | No gameplay rope-length limit in the active MVP movement prototype. Finite ray length is engine-only. |
-| Pull completion geometry | DECIDED | Completion must account for capsule geometry rather than a fixed center-to-anchor distance; full completion clears all residual velocity. |
+| Pull completion geometry | DECIDED | Completion uses anchor surface geometry plus capsule support; completion becomes a latched zero-velocity stop. |
 | Reattachment delay | TBD | Previous cooldown model is not used by the active direct-pull playtest. |
 | Reel control | TBD | Reopened after first human movement gate; Q/E reel controls are disabled in the current direct-pull iteration. |
 | Reel behavior | TBD | Previous accelerating reel motor was rejected for the active playtest iteration. |
@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | One unlimited-length RMB cable. Pull preserves tangential momentum in flight while aggressively building inward radial speed. Completion is capsule-aware; when the body physically reaches the anchor surface, the cable clears and all residual velocity is removed. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 11: one unlimited-length RMB cable with zero carried inertia. While pulling, velocity is set directly toward the anchor at the configured pull speed; prior tangential velocity is discarded, gravity/air control are suppressed, wall/ceiling impacts hard-stop, arrival latches at zero velocity, and RMB miss releases with zero carried grapple velocity. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
