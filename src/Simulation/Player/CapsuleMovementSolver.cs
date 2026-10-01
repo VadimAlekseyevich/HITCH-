@@ -67,6 +67,17 @@ public static class CapsuleMovementSolver
 
             normal = Vector3.Normalize(normal);
 
+            // Stage 5 arcade collision rule:
+            // walkable ground may slide so ordinary locomotion still works;
+            // walls, ceilings, and steep faces kill carried momentum completely.
+            // This prevents a high-speed impact from converting into a long sideways drift.
+            if (normal.Y < config.MinGroundNormalY)
+            {
+                velocity = Vector3.Zero;
+                remaining = Vector3.Zero;
+                break;
+            }
+
             var velocityIntoSurface = Vector3.Dot(velocity, normal);
             if (velocityIntoSurface < 0f)
             {
