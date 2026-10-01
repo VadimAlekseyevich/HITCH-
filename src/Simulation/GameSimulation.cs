@@ -114,8 +114,8 @@ public sealed class GameSimulation
         {
             if (finalWinch.IsPulling)
             {
-                // Grapple movement is deliberately arcade-direct in iteration 11.
-                // Do not mix ordinary air control or gravity into the cable-owned velocity.
+                // Active grapple velocity already contains gravity plus cable radial control.
+                // Move/collide directly here so ordinary locomotion does not apply gravity twice.
                 movedPlayer = CapsuleMovementSolver.Move(
                     winchResult.Player,
                     Config.Locomotion,
