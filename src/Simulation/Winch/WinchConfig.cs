@@ -14,39 +14,39 @@ public sealed record WinchConfig
 
     /// <summary>
     /// Direct grapple speed for short/medium pulls.
-    /// Iteration 12 deliberately starts far above ordinary FPS traversal speed.
+    /// Iteration 15 scales absolute speed down with the compact city while preserving strong relative motion.
     /// </summary>
-    public float PullTargetInwardSpeed { get; init; } = 90f;
+    public float PullTargetInwardSpeed { get; init; } = 22.5f;
 
     /// <summary>
     /// Maximum direct grapple speed reached on long lines.
     /// </summary>
-    public float PullLongRangeInwardSpeed { get; init; } = 160f;
+    public float PullLongRangeInwardSpeed { get; init; } = 40f;
 
     /// <summary>
     /// Anchor distance at which the long-range grapple speed reaches its maximum.
     /// </summary>
-    public float PullLongRangeDistance { get; init; } = 250f;
+    public float PullLongRangeDistance { get; init; } = 62.5f;
 
     /// <summary>
     /// Immediate speed multiplier on the exact tick a fresh grapple starts.
     /// </summary>
-    public float PullLaunchInitialMultiplier { get; init; } = 1.75f;
+    public float PullLaunchInitialMultiplier { get; init; } = 2.0f;
 
     /// <summary>
     /// Stronger multiplier reached shortly after launch, creating a distinct second-stage blast.
     /// </summary>
-    public float PullLaunchPeakMultiplier { get; init; } = 2.75f;
+    public float PullLaunchPeakMultiplier { get; init; } = 4.0f;
 
     /// <summary>
     /// Time from grapple fire to the second-stage launch peak.
     /// </summary>
-    public float PullLaunchPeakSeconds { get; init; } = 0.10f;
+    public float PullLaunchPeakSeconds { get; init; } = 0.12f;
 
     /// <summary>
     /// Time after the peak for the launch bonus to decay naturally back to sustained pull speed.
     /// </summary>
-    public float PullLaunchDecaySeconds { get; init; } = 0.70f;
+    public float PullLaunchDecaySeconds { get; init; } = 0.65f;
 
     /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
