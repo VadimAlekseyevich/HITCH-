@@ -42,7 +42,7 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
-    public void PullRapidlyReversesMotionAwayFromAnchor()
+    public void PullReversesAwayMotionWithinRadialAccelerationLimit()
     {
         var player = PlayerState.Initial with
         {
@@ -58,8 +58,10 @@ public sealed class WinchDirectPullTests
             new NoHitWorld(),
             0.2f);
 
+        // Initial radial speed is -30 m/s (away). At 300 m/s² for 0.2 s,
+        // the solver may add at most 60 m/s inward this tick, reaching +30 m/s.
         Assert.InRange(
-            Math.Abs(result.Player.Velocity.Z + 42f),
+            Math.Abs(result.Player.Velocity.Z + 30f),
             0f,
             1e-5f);
         Assert.InRange(
@@ -142,7 +144,7 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
-    public void LongRangeStepActuallyMovesAtExtremeSpeed()
+    public void LongRangeStepRampsTowardTargetInsteadOfSnappingToIt()
     {
         var config = new WinchConfig
         {
@@ -164,11 +166,14 @@ public sealed class WinchDirectPullTests
             1f / 60f);
 
         Assert.True(result.Winch.IsPulling);
+        var maximumFirstTickRadialChange =
+            config.PullRadialAcceleration / 60f;
         Assert.InRange(
             result.Player.Velocity.Length(),
-            159.99f,
-            160.01f);
-        Assert.True(result.Player.Velocity.Z < -159f);
+            maximumFirstTickRadialChange - 0.02f,
+            maximumFirstTickRadialChange + 0.02f);
+        Assert.True(result.Player.Velocity.Z < 0f);
+        Assert.True(result.Player.Velocity.Length() < 160f);
     }
 
     [Fact]
@@ -240,7 +245,7 @@ public sealed class WinchDirectPullTests
             0.05f);
 
         var second = WinchSystem.Step(
-            player,
+            first.Player,
             first.Winch,
             PlayerInput.Neutral,
             config,
@@ -249,7 +254,7 @@ public sealed class WinchDirectPullTests
             0.05f);
 
         var third = WinchSystem.Step(
-            player,
+            second.Player,
             second.Winch,
             PlayerInput.Neutral,
             config,
