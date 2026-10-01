@@ -35,6 +35,18 @@ public static class WinchSystem
 
         var winch = previousWinch;
         var updatedPlayer = player;
+
+        if (input.Has(PlayerButtons.GrappleDetachPressed)
+            && previousWinch.HasTarget)
+        {
+            // Explicit Space detach: remove the cable but preserve the exact current velocity.
+            // Ordinary locomotion/gravity resumes after this step.
+            return new WinchStepResult(
+                updatedPlayer,
+                WinchState.Initial,
+                false);
+        }
+
         if (input.Has(PlayerButtons.GrapplePullPressed))
         {
             winch = TryShootActiveCable(
@@ -152,21 +164,47 @@ public static class WinchSystem
             return 0f;
         }
 
-        var normalizedAge = Math.Clamp(
-            pullElapsedSeconds / config.PullLaunchDecaySeconds,
-            0f,
-            1f);
+        var age = MathF.Max(0f, pullElapsedSeconds);
+        float launchMultiplier;
 
-        // Start at full launch boost and ease smoothly back to normal pull speed.
-        var decayBlend =
-            normalizedAge
-            * normalizedAge
-            * (3f - (2f * normalizedAge));
+        if (age <= config.PullLaunchPeakSeconds)
+        {
+            // Stage 1: the cable already launches hard on frame zero, then surges into a
+            // noticeably stronger peak a fraction of a second later.
+            var riseT = Math.Clamp(
+                age / config.PullLaunchPeakSeconds,
+                0f,
+                1f);
+            var riseBlend =
+                riseT
+                * riseT
+                * (3f - (2f * riseT));
 
-        var launchMultiplier =
-            config.PullLaunchSpeedMultiplier
-            + ((1f - config.PullLaunchSpeedMultiplier)
-               * decayBlend);
+            launchMultiplier =
+                config.PullLaunchInitialMultiplier
+                + ((config.PullLaunchPeakMultiplier
+                    - config.PullLaunchInitialMultiplier)
+                   * riseBlend);
+        }
+        else
+        {
+            // Stage 2: after the peak, ease naturally back to sustained pull speed.
+            var decayAge =
+                age - config.PullLaunchPeakSeconds;
+            var decayT = Math.Clamp(
+                decayAge / config.PullLaunchDecaySeconds,
+                0f,
+                1f);
+            var decayBlend =
+                decayT
+                * decayT
+                * (3f - (2f * decayT));
+
+            launchMultiplier =
+                config.PullLaunchPeakMultiplier
+                + ((1f - config.PullLaunchPeakMultiplier)
+                   * decayBlend);
+        }
 
         return distanceSpeed * launchMultiplier;
     }
