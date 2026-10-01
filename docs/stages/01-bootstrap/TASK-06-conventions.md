@@ -1,6 +1,6 @@
 # Task 06 — Define Configuration and Diagnostics Conventions
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap  
 **Depends on:** Task 04
 
