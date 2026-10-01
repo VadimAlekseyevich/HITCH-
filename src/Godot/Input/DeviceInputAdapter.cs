@@ -87,7 +87,11 @@ internal sealed class DeviceInputAdapter
             switch (keyEvent.PhysicalKeycode)
             {
                 case Key.Space:
-                    _pendingButtons |= PlayerButtons.JumpPressed;
+                    // Space is context-sensitive in simulation:
+                    // jump while free, detach while a grapple is active.
+                    _pendingButtons |=
+                        PlayerButtons.JumpPressed
+                        | PlayerButtons.GrappleDetachPressed;
                     return true;
                 case Key.F:
                     _pendingButtons |= PlayerButtons.MeleePressed;
