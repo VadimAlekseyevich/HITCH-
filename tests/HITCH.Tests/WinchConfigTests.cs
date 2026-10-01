@@ -17,6 +17,8 @@ public sealed class WinchConfigTests
         Assert.True(config.PullTargetInwardSpeed > 0f);
         Assert.True(config.PullLongRangeInwardSpeed >= config.PullTargetInwardSpeed);
         Assert.True(config.PullLongRangeDistance > 0f);
+        Assert.True(config.PullLaunchSpeedMultiplier >= 1f);
+        Assert.True(config.PullLaunchDecaySeconds > 0f);
         Assert.True(config.ArrivalContactTolerance >= 0f);
         Assert.True(config.ArrivalSurfaceCaptureRadius > 0f);
     }
@@ -39,6 +41,18 @@ public sealed class WinchConfigTests
         {
             PullTargetInwardSpeed = 100f,
             PullLongRangeInwardSpeed = 90f,
+        };
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            config.Validate);
+    }
+
+    [Fact]
+    public void LaunchMultiplierCannotReduceInitialSpeed()
+    {
+        var config = new WinchConfig
+        {
+            PullLaunchSpeedMultiplier = 0.99f,
         };
 
         Assert.Throws<ArgumentOutOfRangeException>(
