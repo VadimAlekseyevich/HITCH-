@@ -29,6 +29,17 @@ public sealed record WinchConfig
     public float PullLongRangeDistance { get; init; } = 250f;
 
     /// <summary>
+    /// Multiplier applied at the instant a new grapple pull starts.
+    /// It smoothly decays back to 1 over PullLaunchDecaySeconds.
+    /// </summary>
+    public float PullLaunchSpeedMultiplier { get; init; } = 1.45f;
+
+    /// <summary>
+    /// Duration of the launch-speed bonus after each fresh grapple/retarget.
+    /// </summary>
+    public float PullLaunchDecaySeconds { get; init; } = 0.75f;
+
+    /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
     /// the body has effectively reached the grapple surface.
     ///
@@ -60,6 +71,20 @@ public sealed record WinchConfig
         RequireFinitePositive(
             PullLongRangeDistance,
             nameof(PullLongRangeDistance));
+        RequireFinitePositive(
+            PullLaunchSpeedMultiplier,
+            nameof(PullLaunchSpeedMultiplier));
+        RequireFinitePositive(
+            PullLaunchDecaySeconds,
+            nameof(PullLaunchDecaySeconds));
+
+        if (PullLaunchSpeedMultiplier < 1f)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(PullLaunchSpeedMultiplier),
+                PullLaunchSpeedMultiplier,
+                "Launch speed multiplier must be at least 1.");
+        }
 
         if (PullLongRangeInwardSpeed < PullTargetInwardSpeed)
         {
