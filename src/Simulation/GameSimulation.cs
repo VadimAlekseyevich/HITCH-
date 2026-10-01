@@ -108,16 +108,27 @@ public sealed class GameSimulation
         }
         else
         {
-            movedPlayer = PlayerLocomotionSystem.Step(
-                winchResult.Player,
-                input,
-                Config.Locomotion,
-                world,
-                (float)FixedDeltaSeconds);
+            if (finalWinch.IsPulling)
+            {
+                // Grapple movement is deliberately arcade-direct in iteration 11.
+                // Do not mix ordinary air control or gravity into the cable-owned velocity.
+                movedPlayer = CapsuleMovementSolver.Move(
+                    winchResult.Player,
+                    Config.Locomotion,
+                    world,
+                    (float)FixedDeltaSeconds);
+            }
+            else
+            {
+                movedPlayer = PlayerLocomotionSystem.Step(
+                    winchResult.Player,
+                    input,
+                    Config.Locomotion,
+                    world,
+                    (float)FixedDeltaSeconds);
+            }
 
-            // High-speed movement can reach/collide with the anchor surface during locomotion,
-            // after the winch's pre-move distance check. Re-check here so the cable cannot stay
-            // active for an extra tick and create the small post-arrival orbit/jitter.
+            // High-speed movement can reach/collide with the anchor surface during movement.
             if (WinchSystem.HasReachedAnchor(
                     movedPlayer,
                     finalWinch,
