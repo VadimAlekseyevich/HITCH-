@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchStateMachineTests
 {
     [Fact]
-    public void LeftClickSelectsPointWithoutStartingPull()
+    public void LmbSelectsPointWithoutStartingPull()
     {
         var player = PlayerState.Initial with
         {
@@ -18,13 +18,13 @@ public sealed class WinchStateMachineTests
         };
         var config = new WinchConfig
         {
-            GrappleRange = 20f,
+            GrappleRange = 72f,
         };
         var locomotion = new PlayerLocomotionConfig
         {
             EyeOffsetFromCapsuleCenter = 0.65f,
         };
-        var hit = new Vector3(2f, 3.65f, -6f);
+        var hit = new Vector3(2f, 3.65f, -26f);
         var world = new RecordingRayWorld(hit);
 
         var result = WinchSystem.Step(
@@ -42,11 +42,11 @@ public sealed class WinchStateMachineTests
         Assert.Equal(player.Velocity, result.Player.Velocity);
 
         Assert.Equal(new Vector3(2f, 3.65f, 4f), world.LastRay.From);
-        Assert.Equal(new Vector3(2f, 3.65f, -16f), world.LastRay.To);
+        Assert.Equal(new Vector3(2f, 3.65f, -68f), world.LastRay.To);
     }
 
     [Fact]
-    public void PullPressWithoutTargetDoesNothing()
+    public void RmbWithoutTargetDoesNothing()
     {
         var result = WinchSystem.Step(
             PlayerState.Initial,
@@ -63,70 +63,45 @@ public sealed class WinchStateMachineTests
     }
 
     [Fact]
-    public void PullReleaseStopsForceButKeepsSelectedTargetAndVelocity()
+    public void LmbWhilePullingCancelsPullAndArmsNewCable()
     {
-        var player = PlayerState.Initial with
-        {
-            Velocity = new Vector3(12f, 5f, -7f),
-        };
-        var state = SelectedAt(
-            new Vector3(0f, 0f, -20f),
-            pulling: true);
-
-        var result = WinchSystem.Step(
-            player,
-            state,
-            Input(PlayerButtons.PullReleased),
-            new WinchConfig(),
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            1f / 60f);
-
-        Assert.True(result.Winch.HasTarget);
-        Assert.False(result.Winch.IsPulling);
-        Assert.Equal(player.Velocity, result.Player.Velocity);
-    }
-
-    [Fact]
-    public void LeftClickWhilePullingReplacesTargetImmediately()
-    {
-        var oldTarget = new Vector3(0f, 0f, -20f);
-        var newTarget = new Vector3(20f, 0f, 0f);
-        var config = new WinchConfig { PullSpeed = 10f };
+        var oldTarget = new Vector3(0f, 10f, -20f);
+        var newTarget = new Vector3(20f, 15f, 0f);
+        var velocity = new Vector3(11f, 4f, -8f);
         var world = new RecordingRayWorld(newTarget);
 
         var result = WinchSystem.Step(
-            PlayerState.Initial,
+            PlayerState.Initial with { Velocity = velocity },
             SelectedAt(oldTarget, pulling: true),
             Input(PlayerButtons.SelectGrapplePointPressed),
-            config,
+            new WinchConfig(),
             new PlayerLocomotionConfig(),
             world,
             1f / 60f);
 
         Assert.True(result.Winch.HasTarget);
-        Assert.True(result.Winch.IsPulling);
+        Assert.False(result.Winch.IsPulling);
         Assert.Equal(newTarget, result.Winch.Path.CurrentPullPoint);
-        Assert.Equal(new Vector3(10f, 0f, 0f), result.Player.Velocity);
+        Assert.Equal(velocity, result.Player.Velocity);
     }
 
     [Fact]
-    public void MissedSelectionKeepsExistingTarget()
+    public void LmbMissWhilePullingRetractsCable()
     {
-        var target = new Vector3(0f, 0f, -10f);
-        var state = SelectedAt(target, pulling: false);
+        var velocity = new Vector3(8f, 3f, -6f);
 
         var result = WinchSystem.Step(
-            PlayerState.Initial,
-            state,
+            PlayerState.Initial with { Velocity = velocity },
+            SelectedAt(new Vector3(0f, 10f, -20f), pulling: true),
             Input(PlayerButtons.SelectGrapplePointPressed),
             new WinchConfig(),
             new PlayerLocomotionConfig(),
             new NoHitWorld(),
             1f / 60f);
 
-        Assert.True(result.Winch.HasTarget);
-        Assert.Equal(target, result.Winch.Path.CurrentPullPoint);
+        Assert.False(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(velocity, result.Player.Velocity);
     }
 
     private static PlayerInput Input(PlayerButtons buttons) =>
@@ -138,7 +113,7 @@ public sealed class WinchStateMachineTests
             WinchPathState.AtWorldAnchor(point),
             pulling,
             Vector3.Distance(Vector3.Zero, point),
-            0f);
+            pulling ? 1f : 0f);
 
     private sealed class RecordingRayWorld : IWorldQuery
     {
