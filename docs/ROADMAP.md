@@ -330,6 +330,10 @@ Iteration must be cheap.
 
 # Stage 4 — Base player locomotion
 
+**Status: DONE — 2026-10-01**
+
+**Task breakdown:** [docs/stages/04-locomotion/README.md](./stages/04-locomotion/README.md)
+
 ## Goal
 
 Implement the non-winch movement foundation without accidentally making ordinary FPS movement overshadow the grapple.
