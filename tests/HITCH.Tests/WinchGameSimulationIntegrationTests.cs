@@ -88,9 +88,99 @@ public sealed class WinchGameSimulationIntegrationTests
             0f,
             1e-5f);
 
-        // Then one ordinary gravity tick is applied.
-        Assert.True(after.Player.Velocity.Y < 0f);
-        Assert.True(after.Player.Velocity.Y > -1f);
+        // Completion itself is now a hard settle: locomotion/gravity resumes next tick.
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.Y),
+            0f,
+            1e-5f);
+    }
+
+    [Fact]
+    public void HighSpeedArrivalDuringMovementSettlesInSameTick()
+    {
+        var config = TestSimulationConfig() with
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 1f,
+                AirAcceleration = 0f,
+            },
+        };
+
+        var playerPosition = new Vector3(0f, 5f, 0f);
+        var target = playerPosition + new Vector3(0f, 0f, -1.15f);
+
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = playerPosition,
+                Velocity = new Vector3(8f, 0f, -42f),
+                IsGrounded = false,
+            },
+            Winch = new WinchState(
+                WinchTargetState.Selected,
+                WinchPathState.AtWorldAnchor(target),
+                true,
+                1.15f,
+                config.Winch.PullRadialAcceleration),
+        };
+
+        var simulation = new GameSimulation(config, initial);
+
+        var after = simulation.Step(
+            PlayerInput.Neutral,
+            new NoHitWorld());
+
+        Assert.False(after.Winch.HasTarget);
+        Assert.False(after.Winch.IsPulling);
+        Assert.Equal(Vector3.Zero, after.Player.Velocity);
+    }
+
+    [Fact]
+    public void GravityResumesOnTickAfterHardSettle()
+    {
+        var config = TestSimulationConfig() with
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 12f,
+                AirAcceleration = 0f,
+            },
+        };
+
+        var playerPosition = new Vector3(0f, 5f, 0f);
+        var ceilingPoint = playerPosition + new Vector3(0f, 0.95f, 0f);
+
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = playerPosition,
+                Velocity = new Vector3(9f, 7f, 6f),
+                IsGrounded = false,
+            },
+            Winch = new WinchState(
+                WinchTargetState.Selected,
+                WinchPathState.AtWorldAnchor(ceilingPoint),
+                true,
+                0.95f,
+                config.Winch.PullRadialAcceleration),
+        };
+
+        var simulation = new GameSimulation(config, initial);
+
+        var settled = simulation.Step(
+            PlayerInput.Neutral,
+            new NoHitWorld());
+        Assert.Equal(Vector3.Zero, settled.Player.Velocity);
+
+        var resumed = simulation.Step(
+            PlayerInput.Neutral,
+            new NoHitWorld());
+
+        Assert.True(resumed.Player.Velocity.Y < 0f);
+        Assert.True(resumed.Player.Velocity.Y > -1f);
     }
 
     [Fact]
