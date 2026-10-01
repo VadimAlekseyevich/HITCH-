@@ -121,8 +121,10 @@ Camera architecture should not make a future third-person experiment unnecessari
 - walking exists, but is intentionally slow;
 - jumping exists, but is intentionally weak;
 - the winch is the primary movement method;
-- natural momentum is preserved almost completely after detaching;
-- direct air control is very weak;
+- **CURRENT STAGE 5 OVERRIDE:** carried grapple inertia is disabled in the active prototype;
+- RMB miss/release clears grapple-carried velocity instead of preserving it;
+- wall/ceiling impacts hard-stop carried velocity instead of converting it into sideways sliding;
+- direct air control outside grapple remains deliberately limited;
 - a very small amount of air steering is allowed as hidden usability assistance.
 
 The player should not feel like a normal FPS character with a grapple added on top.
@@ -194,7 +196,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 8.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 11, ZERO INERTIA.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
@@ -205,7 +207,7 @@ The active local movement prototype uses **one cable on RMB**:
 - pull starts immediately in the same simulation tick;
 - RMB does not need to be held;
 - another RMB click immediately retargets;
-- a miss clears the cable and preserves current momentum;
+- a miss clears the cable and clears carried grapple velocity;
 - LMB currently has no grapple action.
 
 ### Unlimited gameplay rope length
@@ -218,17 +220,15 @@ The physics query still uses a large finite endpoint because the world-query API
 
 During travel:
 
-- apply a one-time initial impulse toward the anchor when fired;
-- continuously increase radial speed toward the anchor;
-- preserve tangential momentum for swing/arc movement;
-- do not reduce already-faster inward radial speed.
+- the cable directly owns player velocity;
+- every simulation tick sets velocity directly toward the active anchor;
+- existing tangential/orbital velocity is discarded;
+- ordinary gravity and air control are not mixed into active grapple travel;
+- current direct pull speed is **42 m/s**;
+- wall/ceiling impacts hard-stop velocity instead of preserving tangential slide;
+- RMB miss/release clears carried grapple velocity.
 
-Current playtest values:
-
-- initial impulse: **24 m/s**;
-- radial acceleration: **300 m/s²**;
-- target inward radial speed: **42 m/s**;
-- arrival contact tolerance: **0.06 m** beyond the capsule's geometric support distance.
+This is intentionally arcade-direct. The earlier momentum-preserving hypothesis is rejected for the active Stage 5 prototype because human testing found the resulting inertia frustrating and difficult to read.
 
 ### Capsule-aware completion
 
@@ -246,9 +246,10 @@ Therefore completion distance must account for:
 When the capsule has effectively reached the grapple surface:
 
 - the pull ends;
-- the cable clears;
-- **all player velocity is cleared**;
-- ordinary gravity/locomotion resume immediately.
+- the cable remains latched;
+- **all player velocity is cleared and held at zero**;
+- gravity/air control stay suppressed while latched;
+- another RMB retargets; an RMB miss releases.
 
 This rule exists specifically to prevent the rejected behavior where the player looked fully reeled in but continued to orbit/rotate because the cable never formally reached an unreachable surface point.
 
