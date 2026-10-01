@@ -15,7 +15,7 @@ internal static class SimulationConfigLoader
 
     public static SimulationConfig Load(string path = DefaultPath)
     {
-        var json = FileAccess.GetFileAsString(path);
+        var json = Godot.FileAccess.GetFileAsString(path);
 
         if (string.IsNullOrWhiteSpace(json))
         {
