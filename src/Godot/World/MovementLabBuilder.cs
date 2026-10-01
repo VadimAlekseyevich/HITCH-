@@ -11,9 +11,9 @@ namespace Hitch.GodotIntegration.World;
 /// </summary>
 public partial class MovementLabBuilder : Node3D
 {
-    public const float RoomHalfWidth = 100f;
-    public const float RoomHalfDepth = 125f;
-    public const float RoomHeight = 80f;
+    public const float RoomHalfWidth = 320f;
+    public const float RoomHalfDepth = 400f;
+    public const float RoomHeight = 180f;
 
     private readonly StandardMaterial3D _floorMaterial = new()
     {
@@ -158,78 +158,113 @@ public partial class MovementLabBuilder : Node3D
 
     private void BuildStreetMarkers()
     {
-        // Flat, non-colliding-looking visual strips built as ultra-thin colliders.
-        // They make the city scale immediately readable from ground level and rooftops.
+        // Wide visual streets keep scale readable across the ~10x larger city footprint.
+        AddRoad("MainAvenue", 0f, 0f, 24f, 760f);
+        AddRoad("WestAvenue", -168f, 0f, 16f, 760f);
+        AddRoad("EastAvenue", 168f, 0f, 16f, 760f);
+
+        AddRoad("CrossStreetNorth", 0f, -290f, 600f, 16f);
+        AddRoad("CrossStreetCenter", 0f, 0f, 600f, 16f);
+        AddRoad("CrossStreetSouth", 0f, 290f, 600f, 16f);
+    }
+
+    private void AddRoad(
+        string name,
+        float x,
+        float z,
+        float width,
+        float depth)
+    {
         AddBox(
-            "MainAvenue",
-            new Vector3(0f, 0.015f, 0f),
-            new Vector3(13f, 0.03f, 230f),
-            _roadMarkerMaterial,
-            useCollision: false);
-        AddBox(
-            "CrossStreetNorth",
-            new Vector3(0f, 0.02f, -48f),
-            new Vector3(188f, 0.04f, 11f),
-            _roadMarkerMaterial,
-            useCollision: false);
-        AddBox(
-            "CrossStreetCenter",
-            new Vector3(0f, 0.02f, 12f),
-            new Vector3(188f, 0.04f, 11f),
-            _roadMarkerMaterial,
-            useCollision: false);
-        AddBox(
-            "CrossStreetSouth",
-            new Vector3(0f, 0.02f, 72f),
-            new Vector3(188f, 0.04f, 11f),
+            name,
+            new Vector3(x, 0.015f, z),
+            new Vector3(width, 0.03f, depth),
             _roadMarkerMaterial,
             useCollision: false);
     }
 
     private void BuildCity()
     {
-        // West side: dense mid-rise blocks with narrow alleys.
-        AddBuilding("W01", -76f, -98f, 24f, 20f, 22f, _buildingMaterialA);
-        AddBuilding("W02", -48f, -98f, 18f, 22f, 36f, _buildingMaterialB);
-        AddBuilding("W03", -76f, -66f, 22f, 20f, 48f, _buildingMaterialC);
-        AddBuilding("W04", -48f, -67f, 19f, 19f, 26f, _buildingMaterialA);
+        // Deterministic procedural greybox city. The footprint is ~10.2x the iteration-18
+        // compact city area, but local street/building scale stays similar so motion still reads.
+        var columnIndex = 0;
 
-        AddBuilding("W05", -76f, -20f, 23f, 28f, 58f, _buildingMaterialB);
-        AddBuilding("W06", -48f, -23f, 18f, 24f, 32f, _buildingMaterialC);
-        AddBuilding("W07", -75f, 43f, 25f, 26f, 42f, _buildingMaterialA);
-        AddBuilding("W08", -46f, 44f, 20f, 25f, 64f, _buildingMaterialB);
-        AddBuilding("W09", -76f, 101f, 24f, 28f, 30f, _buildingMaterialC);
-        AddBuilding("W10", -47f, 103f, 18f, 24f, 50f, _buildingMaterialA);
+        for (var x = -280f; x <= 280f; x += 56f)
+        {
+            if (IsNorthSouthAvenue(x))
+            {
+                columnIndex++;
+                continue;
+            }
 
-        // East side: more varied footprints and heights for rooftop retargeting.
-        AddBuilding("E01", 47f, -101f, 18f, 24f, 46f, _buildingMaterialC);
-        AddBuilding("E02", 76f, -98f, 24f, 27f, 28f, _buildingMaterialA);
-        AddBuilding("E03", 48f, -69f, 19f, 19f, 60f, _buildingMaterialB);
-        AddBuilding("E04", 77f, -66f, 23f, 21f, 38f, _buildingMaterialC);
+            var rowIndex = 0;
 
-        AddBuilding("E05", 49f, -20f, 20f, 28f, 34f, _buildingMaterialA);
-        AddBuilding("E06", 77f, -18f, 24f, 31f, 68f, _buildingMaterialB);
-        AddBuilding("E07", 47f, 42f, 18f, 24f, 54f, _buildingMaterialC);
-        AddBuilding("E08", 76f, 43f, 24f, 25f, 40f, _buildingMaterialA);
-        AddBuilding("E09", 48f, 101f, 20f, 27f, 24f, _buildingMaterialB);
-        AddBuilding("E10", 77f, 101f, 24f, 28f, 56f, _buildingMaterialC);
+            for (var z = -350f; z <= 350f; z += 58f)
+            {
+                if (IsCrossStreet(z))
+                {
+                    rowIndex++;
+                    continue;
+                }
 
-        // Inner blocks close to the main avenue create fast street-canyon decisions.
-        AddBuilding("InnerNW", -24f, -82f, 19f, 30f, 44f, _buildingMaterialA);
-        AddBuilding("InnerNE", 24f, -82f, 19f, 30f, 30f, _buildingMaterialB);
-        AddBuilding("InnerW", -24f, -20f, 18f, 27f, 34f, _buildingMaterialC);
-        AddBuilding("InnerE", 24f, -18f, 18f, 31f, 52f, _buildingMaterialA);
-        AddBuilding("InnerSW", -24f, 45f, 18f, 26f, 28f, _buildingMaterialB);
-        AddBuilding("InnerSE", 24f, 45f, 18f, 26f, 46f, _buildingMaterialC);
-        AddBuilding("InnerSouthW", -24f, 100f, 18f, 25f, 38f, _buildingMaterialA);
-        AddBuilding("InnerSouthE", 24f, 101f, 18f, 26f, 62f, _buildingMaterialB);
+                var hash = Math.Abs(
+                    ((columnIndex + 17) * 73856093)
+                    ^ ((rowIndex + 31) * 19349663));
 
-        // A few rooftop masses break perfectly rectangular silhouettes and provide short anchors.
-        AddRooftopBox("RoofUnitW05", -76f, -20f, 11f, 9f, 58f);
-        AddRooftopBox("RoofUnitE06", 77f, -18f, 12f, 10f, 68f);
-        AddRooftopBox("RoofUnitInnerE", 24f, -18f, 9f, 8f, 52f);
-        AddRooftopBox("RoofUnitInnerSouthE", 24f, 101f, 8f, 9f, 62f);
+                var width =
+                    27f + (hash % 14);
+                var depth =
+                    29f + ((hash / 17) % 17);
+                var height =
+                    24f + ((hash / 113) % 82);
+
+                var material =
+                    (hash % 3) switch
+                    {
+                        0 => _buildingMaterialA,
+                        1 => _buildingMaterialB,
+                        _ => _buildingMaterialC,
+                    };
+
+                var name =
+                    $"City_{columnIndex:D2}_{rowIndex:D2}";
+
+                AddBuilding(
+                    name,
+                    x,
+                    z,
+                    width,
+                    depth,
+                    height,
+                    material);
+
+                if (hash % 5 == 0)
+                {
+                    AddRooftopBox(
+                        $"{name}_Utility",
+                        x,
+                        z,
+                        MathF.Min(12f, width * 0.38f),
+                        MathF.Min(10f, depth * 0.34f),
+                        height);
+                }
+
+                rowIndex++;
+            }
+
+            columnIndex++;
+        }
     }
+
+    private static bool IsNorthSouthAvenue(float x) =>
+        MathF.Abs(x) < 20f
+        || MathF.Abs(x + 168f) < 12f
+        || MathF.Abs(x - 168f) < 12f;
+
+    private static bool IsCrossStreet(float z) =>
+        MathF.Abs(z) < 12f
+        || MathF.Abs(z + 290f) < 12f
+        || MathF.Abs(z - 290f) < 12f;
 
     private void BuildSpecialTraversalTargets()
     {
@@ -285,9 +320,20 @@ public partial class MovementLabBuilder : Node3D
             _roofMaterial);
 
         AddBox(
+            "FarNorthSpire",
+            new Vector3(-250f, 70f, -345f),
+            new Vector3(8f, 140f, 8f),
+            _roofMaterial);
+        AddBox(
+            "FarSouthSpire",
+            new Vector3(250f, 62f, 345f),
+            new Vector3(8f, 124f, 8f),
+            _roofMaterial);
+
+        AddBox(
             "NoGrappleBillboard",
-            new Vector3(89f, 9f, 111f),
-            new Vector3(7f, 18f, 2f),
+            new Vector3(300f, 12f, 370f),
+            new Vector3(10f, 24f, 3f),
             _forbiddenMaterial,
             collisionLayer: 2u);
     }
