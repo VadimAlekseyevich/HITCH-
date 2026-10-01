@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 13: launch-burst grapple profile on top of the ODM-speed model. Every fresh RMB/retarget starts about 45% faster and smoothly decays over 0.75 s, while zero-inertia steering, hard-stop impacts, speed-responsive FOV, and the persistent surface latch remain. Damage remains deliberately out of scope while core movement feel is being fixed.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 14: a two-stage explosive grapple launch plus Space detach. Fresh RMB starts immediately boosted, surges to a much stronger peak about 0.10 s later, then decays naturally; Space removes the current cable while preserving current flight velocity. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
