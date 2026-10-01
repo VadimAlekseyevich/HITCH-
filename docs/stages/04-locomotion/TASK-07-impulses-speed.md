@@ -1,6 +1,6 @@
 # Task 07 — Add External Impulses and High-Speed/Timestep Checks
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 06
 
 ## Goal
