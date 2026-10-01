@@ -31,22 +31,22 @@ public sealed record WinchConfig
     /// <summary>
     /// Immediate speed multiplier on the exact tick a fresh grapple starts.
     /// </summary>
-    public float PullLaunchInitialMultiplier { get; init; } = 2.25f;
+    public float PullLaunchInitialMultiplier { get; init; } = 1.35f;
 
     /// <summary>
     /// Stronger multiplier reached shortly after launch, creating a distinct second-stage blast.
     /// </summary>
-    public float PullLaunchPeakMultiplier { get; init; } = 4.5f;
+    public float PullLaunchPeakMultiplier { get; init; } = 2.0f;
 
     /// <summary>
     /// Time from grapple fire to the second-stage launch peak.
     /// </summary>
-    public float PullLaunchPeakSeconds { get; init; } = 0.12f;
+    public float PullLaunchPeakSeconds { get; init; } = 0.14f;
 
     /// <summary>
     /// Time after the peak for the launch bonus to decay naturally back to sustained pull speed.
     /// </summary>
-    public float PullLaunchDecaySeconds { get; init; } = 0.72f;
+    public float PullLaunchDecaySeconds { get; init; } = 0.60f;
 
     /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
@@ -62,6 +62,23 @@ public sealed record WinchConfig
     /// preserving tangential velocity while still requiring the player to reach the anchor area.
     /// </summary>
     public float ArrivalSurfaceCaptureRadius { get; init; } = 1.75f;
+
+    /// <summary>
+    /// Small outward offset applied to a rope bend so the next visibility ray starts outside
+    /// the obstacle surface rather than immediately re-hitting the same face.
+    /// </summary>
+    public float RopeContactSurfaceOffset { get; init; } = 0.08f;
+
+    /// <summary>
+    /// A ray hit this close to the requested segment endpoint is treated as reaching that
+    /// endpoint rather than discovering a new obstruction.
+    /// </summary>
+    public float RopeEndpointTolerance { get; init; } = 0.22f;
+
+    /// <summary>
+    /// Prevents near-identical contacts from being appended on consecutive ticks.
+    /// </summary>
+    public float RopeMinimumContactSpacing { get; init; } = 0.35f;
 
     public void Validate()
     {
@@ -122,6 +139,15 @@ public sealed record WinchConfig
         RequireFinitePositive(
             ArrivalSurfaceCaptureRadius,
             nameof(ArrivalSurfaceCaptureRadius));
+        RequireFinitePositive(
+            RopeContactSurfaceOffset,
+            nameof(RopeContactSurfaceOffset));
+        RequireFinitePositive(
+            RopeEndpointTolerance,
+            nameof(RopeEndpointTolerance));
+        RequireFinitePositive(
+            RopeMinimumContactSpacing,
+            nameof(RopeMinimumContactSpacing));
     }
 
     private static void RequireFinitePositive(
