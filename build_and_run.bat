@@ -61,7 +61,7 @@ if errorlevel 1 goto :fail
 if /I "%MODE%"=="smoke" (
     echo.
     echo [HITCH] Running headless Godot smoke check...
-    "!GODOT_EXE!" --headless --path "%ROOT%" --quit-after 2
+    "!GODOT_EXE!" --headless --path "%ROOT%" --quit-after 180 -- --hitch-smoke
     if errorlevel 1 goto :fail
     goto :success
 )
