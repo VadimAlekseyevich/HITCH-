@@ -8,38 +8,36 @@ config/mvp_tuning.json
 
 The Godot runner loads and validates this file at startup.
 
-## Stage 5 iteration 3
+## Stage 5 iteration 4
 
-Iteration 2 misunderstood the requested controls by requiring RMB to be held.
+The active prototype now uses a single grapple input:
 
-The current active prototype is:
-
-- LMB throws/selects a cable point and cancels any previous pull;
-- RMB is a **single click** that starts automatic pull;
-- pull starts with an immediate velocity impulse;
-- continuous pull acceleration then bends the existing trajectory toward the anchor;
-- tangential momentum is preserved instead of replacing the full velocity vector;
-- LMB during pull stops the force and preserves inertia before placing a new idle cable;
-- arrival stops the pull automatically.
+- RMB raycasts a fresh target;
+- the previous cable is replaced immediately;
+- pull begins in the same tick;
+- there is no separate cable-placement button;
+- repeated RMB clicks retarget and pull immediately;
+- a missed RMB shot clears the previous cable;
+- tangential momentum remains preserved.
 
 Current winch fields:
 
-- `grappleRange` — **72 m** in the current playtest;
+- `grappleRange`;
 - `grappleCollisionMask`;
-- `pullInitialImpulse` — immediate delta-velocity on RMB click;
-- `pullAcceleration` — continuous acceleration while automatic pull is active;
+- `pullInitialImpulse`;
+- `pullAcceleration`;
 - `arrivalDistance`.
 
 Current values:
 
 ```text
 grappleRange        = 72 m
-pullInitialImpulse  = 18 m/s
-pullAcceleration    = 32 m/s²
+pullInitialImpulse  = 30 m/s
+pullAcceleration    = 60 m/s²
 arrivalDistance     = 0.9 m
 ```
 
-These are playtest values, not final game balance.
+The stronger values deliberately test a fast/aggressive baseline rather than slowly increasing an underpowered pull.
 
 ## Locomotion
 
