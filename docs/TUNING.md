@@ -8,52 +8,57 @@ config/mvp_tuning.json
 
 The Godot runner loads and validates this file at startup.
 
-## Stage 5 iteration 5
+## Stage 5 current dual-cable iteration
 
-The active prototype now uses a single grapple input:
+The active prototype is intentionally action-oriented and inspired by the feel of dual-cable traversal systems rather than by a fully realistic rope simulation.
 
-- RMB raycasts a fresh target;
-- the previous cable is replaced immediately;
-- pull begins in the same tick;
-- there is no separate cable-placement button;
-- repeated RMB clicks retarget and pull immediately;
-- a missed RMB shot clears the previous cable;
-- tangential momentum remains preserved.
+Controls:
 
-Current winch fields:
+- LMB owns the left cable;
+- RMB owns the right cable;
+- clicking a side raycasts/replaces that side and immediately starts pull;
+- both cables can pull simultaneously.
 
-- `grappleRange`;
-- `grappleCollisionMask`;
-- `pullInitialImpulse`;
-- `pullRadialAcceleration`;
-- `pullTargetInwardSpeed`;
-- `arrivalDistance`.
+## Rope range
 
-Current values:
+There is currently **no gameplay rope-length tuning parameter**.
+
+The old `grappleRange` setting has been removed.
+
+A large finite ray endpoint exists only because the world-query API requires one. It is not a gameplay cap.
+
+## Pull values
+
+Current shared per-cable values:
 
 ```text
-grappleRange        = 72 m
-pullInitialImpulse  = 30 m/s
-pullRadialAcceleration = 420 m/s²
-pullTargetInwardSpeed  = 55 m/s
-arrivalDistance     = 0.9 m
+pullInitialImpulse       = 24 m/s
+pullRadialAcceleration   = 300 m/s²
+pullTargetInwardSpeed    = 42 m/s
+arrivalDistance          = 0.9 m
 ```
 
-Iteration 5 changes the force model, not just the coefficient:
+Each active cable independently tries to establish inward radial speed toward its own anchor.
 
-- tangential velocity is preserved for swinging;
-- the cable explicitly drives the radial component toward the anchor;
-- it tries to establish at least 55 m/s inward radial speed;
-- radial speed can change at up to 420 m/s²;
-- already-faster inward radial speed is not clamped down.
+With two cables active, both velocity corrections are computed symmetrically from the same base velocity and then summed.
 
-This is meant to make cable length visibly contract even when the player has strong sideways or outward momentum.
+## Momentum rule
 
-## Locomotion
+During pull:
 
-The first playtests reported slow/floaty/ice-like ordinary control.
+- tangential momentum is preserved for swinging;
+- radial speed toward each anchor is aggressively increased;
+- faster existing inward speed is not clamped down.
 
-Current values intentionally favor responsiveness:
+At arrival:
+
+- one arrived cable clears independently if the other is still active;
+- when the last active cable finishes, all player velocity is cleared;
+- gravity and ordinary locomotion resume.
+
+## Base locomotion
+
+Current responsive prototype values:
 
 ```text
 groundMaxSpeed      = 6 m/s
@@ -63,19 +68,16 @@ airAcceleration     = 5 m/s²
 airControlMaxSpeed  = 5 m/s
 ```
 
-The winch remains much more powerful than walking, but ordinary WASD should no longer feel sluggish.
+## Enclosed movement room
 
-## Movement lab
+The Stage 5 test lab is physically enclosed:
 
-The engineering arena is temporarily larger and much more vertical:
+- floor: about 120 × 150 m;
+- four continuous perimeter walls;
+- ceiling above the tallest test structures;
+- multiple vertical towers/spires and aerial targets.
 
-- 120 × 150 m floor;
-- several 44–72 m towers/spires;
-- bridges and sky bars at multiple heights;
-- small aerial stepping targets;
-- long-range thin grapple targets.
-
-This is test geometry, not the final MVP arena.
+Headless smoke verifies that all four walls and the ceiling are present.
 
 ## Tick rate
 
