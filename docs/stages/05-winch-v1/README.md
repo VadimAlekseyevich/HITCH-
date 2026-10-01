@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 16 GRAVITY SWING**
+**Status: READY FOR HUMAN GATE — ITERATION 17 PIECEWISE ROPE WRAP**
 
 ## Objective
 
@@ -893,3 +893,80 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36921058182
 - compact city enclosure smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual Stage 5 gate.
+
+
+## Human gate result — iteration 16
+
+**Result: SWING DIRECTION IS RIGHT / BURST TOO STRONG / ROPE NEEDS GEOMETRY**
+
+Human feedback:
+
+- gravity-driven swing is a useful direction;
+- the current 2.25× → 4.5× launch surge is too aggressive and should feel more natural;
+- the next important grapple feature is conditional rope geometry;
+- the cable should be able to catch building corners / posts so the player can rotate around them;
+- do not simulate a rope as a large chain of independent physical particles;
+- represent the cable as a small piecewise-linear path with geometric bend contacts.
+
+## Iteration 17 — calmer burst + piecewise rope wrapping
+
+### Launch profile
+
+The sustained radial pull remains **30–52 m/s**.
+
+The launch is reduced to:
+
+- immediate: **1.35×**;
+- peak: **2.0×**;
+- peak delay: **0.14 s**;
+- decay: **0.60 s**.
+
+At maximum long-range pull this is approximately:
+
+- 52 m/s sustained;
+- 70 m/s immediate;
+- 104 m/s peak;
+- then back to 52 m/s.
+
+### Piecewise rope state
+
+The active cable now stores a deterministic polyline rather than only one straight segment.
+
+Maximum path:
+
+```text
+player → newest bend → bend → bend → bend → world anchor
+```
+
+The state stores at most **4 bend contacts**.
+
+This is intentionally compact for future prediction/networking and avoids a particle-chain rope.
+
+### Wrap / unwrap behavior
+
+- if the player-to-current-pull-point segment becomes blocked before its endpoint, a new bend is added at the contacted surface with a small outward offset;
+- pull direction switches to that nearest bend;
+- gravity/tangential swing continues around that bend;
+- total cable distance is the sum of every polyline segment;
+- if the player regains direct visibility to the point behind the newest bend, that bend is removed;
+- several obsolete bends may unwind in one tick;
+- reaching an intermediate bend never counts as reaching the actual grapple anchor.
+
+### Debugging
+
+- the full rope polyline is rendered;
+- intermediate bend points are cyan;
+- anchor/rope remains yellow;
+- HUD displays bend count plus radial/tangent speed.
+
+### City wrap targets
+
+Three thin columns were added to the city specifically for rope-wrap playtesting:
+
+- WrapPostA;
+- WrapPostB;
+- WrapPostC.
+
+These make it easier to test winding/unwinding without relying only on large building corners.
+
+The human gate should now focus on whether the rope actually feels like it catches and releases geometry naturally rather than whether the mathematical representation is physically exact.
