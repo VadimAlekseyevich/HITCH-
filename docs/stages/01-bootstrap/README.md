@@ -1,5 +1,7 @@
 # Stage 1 — Godot/C# Project Bootstrap
 
+**Status: DONE — 2026-10-01**
+
 Parent roadmap stage: [ROADMAP.md — Stage 1](../../ROADMAP.md)
 
 ## Stage objective
@@ -24,13 +26,13 @@ There should be no hidden editor-only ritual for basic verification when it can 
 
 | ID | Task | Status | Depends on |
 |---|---|---|---|
-| 01 | [Pin toolchain and bootstrap constraints](./TASK-01-toolchain.md) | PLANNED | Stage 0 |
-| 02 | [Create minimal Godot C# project](./TASK-02-godot-project.md) | PLANNED | 01 |
-| 03 | [Create repeatable local build/run workflow](./TASK-03-local-workflow.md) | PLANNED | 02 |
-| 04 | [Add C# automated test harness](./TASK-04-tests.md) | PLANNED | 03 |
-| 05 | [Add minimal CI](./TASK-05-ci.md) | PLANNED | 04 |
-| 06 | [Define configuration and diagnostics conventions](./TASK-06-conventions.md) | PLANNED | 04 |
-| 07 | [Verify clean-checkout bootstrap and close Stage 1](./TASK-07-stage-gate.md) | PLANNED | 05, 06 |
+| 01 | [Pin toolchain and bootstrap constraints](./TASK-01-toolchain.md) | DONE | Stage 0 |
+| 02 | [Create minimal Godot C# project](./TASK-02-godot-project.md) | DONE | 01 |
+| 03 | [Create repeatable local build/run workflow](./TASK-03-local-workflow.md) | DONE | 02 |
+| 04 | [Add C# automated test harness](./TASK-04-tests.md) | DONE | 03 |
+| 05 | [Add minimal CI](./TASK-05-ci.md) | DONE | 04 |
+| 06 | [Define configuration and diagnostics conventions](./TASK-06-conventions.md) | DONE | 04 |
+| 07 | [Verify clean-checkout bootstrap and close Stage 1](./TASK-07-stage-gate.md) | DONE | 05, 06 |
 
 ## Why this order
 
@@ -57,3 +59,21 @@ Do not implement:
 - performance optimization.
 
 A minimal startup scene is allowed only to prove the engine project can run.
+
+
+## Completion evidence
+
+Successful CI verification:
+
+https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36794551218
+
+Verified:
+
+- .NET SDK 8.0.425;
+- Godot 4.7.2 .NET;
+- C# restore/build with zero warnings and zero errors;
+- xUnit v3: 2 passed, 0 failed;
+- official Godot download through `build_and_run.bat`;
+- headless startup of the actual project/main scene.
+
+**Next:** Stage 2 — Simulation kernel and explicit state.
