@@ -128,34 +128,48 @@ public partial class SimulationBootstrap : Node
             origin + velocity,
             Colors.Orange);
 
-        if (state.Winch.HasTarget)
-        {
-            var anchor = ToGodot(state.Winch.Path.CurrentPullPoint);
-            var cableColor = state.Winch.IsPulling
-                ? Colors.Yellow
-                : new Color(0.72f, 0.78f, 0.86f, 0.8f);
-
-            _debugLines.DrawLine(
-                ToGodot(player.Position),
-                anchor,
-                cableColor);
-
-            const float markerSize = 0.35f;
-            _debugLines.DrawLine(
-                anchor - (Vector3.Right * markerSize),
-                anchor + (Vector3.Right * markerSize),
-                Colors.LimeGreen);
-            _debugLines.DrawLine(
-                anchor - (Vector3.Up * markerSize),
-                anchor + (Vector3.Up * markerSize),
-                Colors.LimeGreen);
-            _debugLines.DrawLine(
-                anchor - (Vector3.Back * markerSize),
-                anchor + (Vector3.Back * markerSize),
-                Colors.LimeGreen);
-        }
+        DrawCableDebug(
+            state.Winch.Left,
+            ToGodot(player.Position),
+            new Color(0.30f, 0.72f, 1.00f, 0.95f));
+        DrawCableDebug(
+            state.Winch.Right,
+            ToGodot(player.Position),
+            new Color(1.00f, 0.78f, 0.20f, 0.95f));
 
         _debugLines.Commit();
+    }
+
+    private void DrawCableDebug(
+        in WinchCableState cable,
+        Vector3 playerPosition,
+        Color cableColor)
+    {
+        if (!cable.HasTarget)
+        {
+            return;
+        }
+
+        var anchor = ToGodot(cable.Path.CurrentPullPoint);
+
+        _debugLines.DrawLine(
+            playerPosition,
+            anchor,
+            cableColor);
+
+        const float markerSize = 0.35f;
+        _debugLines.DrawLine(
+            anchor - (Vector3.Right * markerSize),
+            anchor + (Vector3.Right * markerSize),
+            cableColor);
+        _debugLines.DrawLine(
+            anchor - (Vector3.Up * markerSize),
+            anchor + (Vector3.Up * markerSize),
+            cableColor);
+        _debugLines.DrawLine(
+            anchor - (Vector3.Back * markerSize),
+            anchor + (Vector3.Back * markerSize),
+            cableColor);
     }
 
     private bool ValidateSpawnSmokeIfRequested()
