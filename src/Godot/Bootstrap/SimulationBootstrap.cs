@@ -24,6 +24,7 @@ public partial class SimulationBootstrap : Node
 
     public override void _Ready()
     {
+        var spawnMarker = GetNode<Marker3D>("Spawn");
         _playerRoot = GetNode<Node3D>("PlayerView");
         _yawPivot = GetNode<Node3D>("PlayerView/Yaw");
         _pitchPivot = GetNode<Node3D>("PlayerView/Yaw/Pitch");
@@ -33,12 +34,17 @@ public partial class SimulationBootstrap : Node
         var config = new SimulationConfig();
         config.Validate();
 
-        var spawn = _playerRoot.Position;
+        var spawn = spawnMarker.GlobalPosition;
+        var capsuleCenterY =
+            spawn.Y
+            + (config.Locomotion.CapsuleHeight * 0.5f)
+            + config.Locomotion.CollisionMargin;
+
         var initialState = SimulationState.Initial with
         {
             Player = SimulationState.Initial.Player with
             {
-                Position = new NumericsVector3(spawn.X, spawn.Y, spawn.Z),
+                Position = new NumericsVector3(spawn.X, capsuleCenterY, spawn.Z),
             },
         };
 
