@@ -6,7 +6,7 @@ namespace Hitch.Tests;
 public sealed class WinchConfigTests
 {
     [Fact]
-    public void DefaultDualCableConfigIsValid()
+    public void DefaultSingleCableConfigIsValid()
     {
         var config = new WinchConfig();
 
@@ -15,22 +15,22 @@ public sealed class WinchConfigTests
         Assert.True(config.PullInitialImpulse > 0f);
         Assert.True(config.PullRadialAcceleration > 0f);
         Assert.True(config.PullTargetInwardSpeed > 0f);
-        Assert.True(config.ArrivalDistance > 0f);
+        Assert.True(config.ArrivalContactTolerance >= 0f);
     }
 
     [Fact]
-    public void PullInitialImpulseMustBePositive()
+    public void ArrivalContactToleranceMayBeZero()
     {
         var config = new WinchConfig
         {
-            PullInitialImpulse = 0f,
+            ArrivalContactTolerance = 0f,
         };
 
-        Assert.Throws<ArgumentOutOfRangeException>(config.Validate);
+        config.Validate();
     }
 
     [Fact]
-    public void SimulationConfigValidatesNestedWinchConfig()
+    public void SimulationConfigRejectsInvalidWinchValues()
     {
         var config = new SimulationConfig
         {
