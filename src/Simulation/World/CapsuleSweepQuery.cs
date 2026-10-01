@@ -13,6 +13,7 @@ public readonly record struct CapsuleSweepQuery(
     Vector3 Displacement,
     float Radius,
     float HalfSegmentLength,
+    float Margin,
     uint CollisionMask)
 {
     public void Validate()
@@ -31,6 +32,14 @@ public readonly record struct CapsuleSweepQuery(
                 nameof(HalfSegmentLength),
                 HalfSegmentLength,
                 "Capsule half-segment length must be finite and non-negative.");
+        }
+
+        if (!float.IsFinite(Margin) || Margin < 0f)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(Margin),
+                Margin,
+                "Capsule sweep margin must be finite and non-negative.");
         }
     }
 }
