@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — 2026-10-01**
+**Status: ACTIVE — ITERATION 2 AFTER HUMAN GATE FAILURE**
 
 ## Objective
 
@@ -66,3 +66,34 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36800570203
 - play command: `build_and_run.bat`.
 
 **Stage 5 is not DONE yet.** Task 09 requires a human playtest of movement feel.
+
+
+## Human gate result — iteration 1
+
+**Result: ITERATE / FAILED**
+
+Observed problems from human playtest:
+
+- inertia felt broken and excessively wild;
+- the player could try to pull without feeling meaningfully pulled;
+- releasing near a wall could still feel sticky;
+- controls felt cumbersome;
+- ordinary walking felt like sliding on ice.
+
+The previous spring + accelerating reel model is no longer the active prototype.
+
+## Iteration 2 — direct selected-point pull
+
+Current active loop:
+
+1. LMB selects/replaces a hitscan world point.
+2. Selection alone applies no force.
+3. Hold RMB to immediately pull toward that point at fixed configured speed.
+4. Release RMB early to stop force and preserve momentum.
+5. LMB while pulling retargets immediately.
+6. Reaching the point consumes the target, zeroes velocity, and lets gravity make the player fall.
+7. Q/E reel controls are disabled.
+
+Ground locomotion is also being made more responsive with stronger braking and velocity-to-target control.
+
+Iteration 2 must pass its own human playtest before Stage 5 can become DONE.
