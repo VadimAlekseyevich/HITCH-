@@ -34,6 +34,7 @@ public sealed class WinchStateMachineTests
         Assert.True(result.Winch.HasTarget);
         Assert.True(result.Winch.IsPulling);
         Assert.Equal(hit, result.Winch.Path.CurrentPullPoint);
+        Assert.Equal(Vector3.UnitZ, result.Winch.Path.WorldAnchorNormal);
         Assert.True(result.Player.Velocity.Z < -23f);
 
         Assert.Equal(
