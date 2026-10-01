@@ -12,7 +12,21 @@ public sealed record WinchConfig
 
     public float PullRadialAcceleration { get; init; } = 300f;
 
-    public float PullTargetInwardSpeed { get; init; } = 42f;
+    /// <summary>
+    /// Direct grapple speed for short/medium pulls.
+    /// Iteration 12 deliberately starts far above ordinary FPS traversal speed.
+    /// </summary>
+    public float PullTargetInwardSpeed { get; init; } = 90f;
+
+    /// <summary>
+    /// Maximum direct grapple speed reached on long lines.
+    /// </summary>
+    public float PullLongRangeInwardSpeed { get; init; } = 160f;
+
+    /// <summary>
+    /// Anchor distance at which the long-range grapple speed reaches its maximum.
+    /// </summary>
+    public float PullLongRangeDistance { get; init; } = 250f;
 
     /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
@@ -40,6 +54,20 @@ public sealed record WinchConfig
         RequireFinitePositive(
             PullTargetInwardSpeed,
             nameof(PullTargetInwardSpeed));
+        RequireFinitePositive(
+            PullLongRangeInwardSpeed,
+            nameof(PullLongRangeInwardSpeed));
+        RequireFinitePositive(
+            PullLongRangeDistance,
+            nameof(PullLongRangeDistance));
+
+        if (PullLongRangeInwardSpeed < PullTargetInwardSpeed)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(PullLongRangeInwardSpeed),
+                PullLongRangeInwardSpeed,
+                "Long-range pull speed must be at least the base pull speed.");
+        }
         RequireFiniteNonNegative(
             ArrivalContactTolerance,
             nameof(ArrivalContactTolerance));
