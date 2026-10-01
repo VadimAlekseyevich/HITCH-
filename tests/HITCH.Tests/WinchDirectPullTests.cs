@@ -109,6 +109,7 @@ public sealed class WinchDirectPullTests
             PullTargetInwardSpeed = 90f,
             PullLongRangeInwardSpeed = 160f,
             PullLongRangeDistance = 250f,
+            PullLaunchSpeedMultiplier = 1f,
         };
 
         var result = WinchSystem.Step(
@@ -126,6 +127,81 @@ public sealed class WinchDirectPullTests
             159.99f,
             160.01f);
         Assert.True(result.Player.Velocity.Z < -159f);
+    }
+
+    [Fact]
+    public void FreshGrappleStartsWithBurstThenSmoothlyDecays()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 100f,
+            PullLongRangeInwardSpeed = 100f,
+            PullLongRangeDistance = 250f,
+            PullLaunchSpeedMultiplier = 1.45f,
+            PullLaunchDecaySeconds = 0.75f,
+        };
+
+        var launch = WinchSystem.ComputeDirectPullSpeed(
+            100f,
+            0f,
+            config);
+        var middle = WinchSystem.ComputeDirectPullSpeed(
+            100f,
+            0.375f,
+            config);
+        var settled = WinchSystem.ComputeDirectPullSpeed(
+            100f,
+            0.75f,
+            config);
+        var later = WinchSystem.ComputeDirectPullSpeed(
+            100f,
+            2f,
+            config);
+
+        Assert.InRange(launch, 144.99f, 145.01f);
+        Assert.True(middle < launch);
+        Assert.True(middle > settled);
+        Assert.InRange(settled, 99.99f, 100.01f);
+        Assert.InRange(later, 99.99f, 100.01f);
+    }
+
+    [Fact]
+    public void PullStateAdvancesBurstTimerEveryTick()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 100f,
+            PullLongRangeInwardSpeed = 100f,
+            PullLongRangeDistance = 250f,
+            PullLaunchSpeedMultiplier = 1.45f,
+            PullLaunchDecaySeconds = 0.75f,
+        };
+        var player = PlayerState.Initial;
+        var winch = ActiveAt(new Vector3(0f, 0f, -100f));
+
+        var first = WinchSystem.Step(
+            player,
+            winch,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.25f);
+
+        var second = WinchSystem.Step(
+            player,
+            first.Winch,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.25f);
+
+        Assert.InRange(first.Winch.PullElapsedSeconds, 0.249f, 0.251f);
+        Assert.InRange(second.Winch.PullElapsedSeconds, 0.499f, 0.501f);
+        Assert.True(
+            first.Player.Velocity.Length()
+            > second.Player.Velocity.Length());
     }
 
     [Fact]
@@ -262,6 +338,8 @@ public sealed class WinchDirectPullTests
             PullTargetInwardSpeed = 42f,
             PullLongRangeInwardSpeed = 42f,
             PullLongRangeDistance = 250f,
+            PullLaunchSpeedMultiplier = 1f,
+            PullLaunchDecaySeconds = 0.75f,
             ArrivalContactTolerance = 0.06f,
         };
 
