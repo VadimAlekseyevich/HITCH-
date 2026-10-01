@@ -603,3 +603,16 @@ Presentation now reinforces real speed:
 - FOV returns toward baseline as speed drops.
 
 This iteration is specifically testing whether extreme direct speed, while retaining the new zero-inertia control model, moves the prototype closer to the intended high-energy aerial PvP fantasy.
+
+
+### Iteration 12 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36915605205
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 65 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- large-room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual gate.
