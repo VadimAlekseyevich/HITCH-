@@ -137,7 +137,7 @@ public partial class SimulationBootstrap : Node
             origin + velocity,
             Colors.Orange);
 
-        if (state.Winch.IsAttached)
+        if (state.Winch.HasTarget)
         {
             var anchor = ToGodot(state.Winch.Path.CurrentPullPoint);
             var playerCenter = ToGodot(player.Position);
