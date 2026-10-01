@@ -1,6 +1,6 @@
 # Task 02 — Add Godot Device Input Adapter and First-Person Rig
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 01
 
 ## Goal
