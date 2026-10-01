@@ -1,6 +1,6 @@
 # Task 03 — Implement Accelerating Reel Motor
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 02
 
 ## Goal
