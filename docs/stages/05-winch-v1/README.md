@@ -507,3 +507,16 @@ Iteration 9's bright materials and strong ambient/fill lighting were removed. Th
 - restrained shadowless fill only for minimum interior readability.
 
 Damage/fall damage is still intentionally not added. First verify that the movement and arrival behavior themselves are correct.
+
+
+### Iteration 10 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36912647386
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 60 passed / 0 failed;
+- spawn smoke: `tick=45 y=0.9150 grounded=True`;
+- large-room smoke: west/east/back/front/ceiling all detected.
+
+This technical result does not close the human gate. The iteration is only successful if the actual playtest no longer shows residual oscillation and the arena/lighting feel materially better.
