@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchDirectPullTests
 {
     [Fact]
-    public void PullPreservesTangentialMomentumBeforeArrival()
+    public void PullDiscardsTangentialMomentumBeforeArrival()
     {
         var player = PlayerState.Initial with
         {
@@ -28,7 +28,7 @@ public sealed class WinchDirectPullTests
 
         Assert.True(result.Winch.IsPulling);
         Assert.InRange(
-            Math.Abs(result.Player.Velocity.X - 17f),
+            Math.Abs(result.Player.Velocity.X),
             0f,
             1e-5f);
         Assert.InRange(
@@ -54,9 +54,12 @@ public sealed class WinchDirectPullTests
             new NoHitWorld(),
             0.2f);
 
-        Assert.True(result.Player.Velocity.Z < 0f);
         Assert.InRange(
-            Math.Abs(result.Player.Velocity.Z + 30f),
+            Math.Abs(result.Player.Velocity.Z + 42f),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.X),
             0f,
             1e-5f);
     }
