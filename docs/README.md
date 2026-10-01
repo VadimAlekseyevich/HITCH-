@@ -43,6 +43,14 @@ This file should answer:
 
 Documents the current temporary development bindings. These are not final player controls.
 
+### [TUNING.md](./TUNING.md)
+
+Documents the editable `config/mvp_tuning.json` movement/winch parameters and current experimental spring interpretation.
+
+### [COLLISION_LAYERS.md](./COLLISION_LAYERS.md)
+
+Documents the current world-vs-grapple collision-layer convention.
+
 ### [TOOLCHAIN.md](./TOOLCHAIN.md)
 
 Pins Godot, .NET, Jolt, the bootstrap platform, and one-click setup behavior.
