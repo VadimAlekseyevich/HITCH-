@@ -3,37 +3,64 @@ using Godot;
 namespace Hitch.GodotIntegration.World;
 
 /// <summary>
-/// Development-only vertical greybox movement laboratory.
-/// Geometry intentionally favors long grapple lines, height changes, and retarget practice.
+/// Development-only enclosed city movement lab.
+///
+/// Stage 5 iteration 15 intentionally uses human-readable urban scale instead of a giant
+/// abstract traversal volume. Buildings remain simple greybox geometry so movement feel,
+/// sightlines, rooftop routes, and street gaps are easy to judge without art noise.
 /// </summary>
 public partial class MovementLabBuilder : Node3D
 {
-    public const float RoomHalfWidth = 400f;
-    public const float RoomHalfDepth = 500f;
-    public const float RoomHeight = 320f;
+    public const float RoomHalfWidth = 100f;
+    public const float RoomHalfDepth = 125f;
+    public const float RoomHeight = 80f;
 
     private readonly StandardMaterial3D _floorMaterial = new()
     {
-        AlbedoColor = new Color(0.12f, 0.14f, 0.18f),
-        Roughness = 0.94f,
+        AlbedoColor = new Color(0.10f, 0.11f, 0.14f),
+        Roughness = 0.96f,
     };
 
     private readonly StandardMaterial3D _wallMaterial = new()
     {
-        AlbedoColor = new Color(0.20f, 0.23f, 0.30f),
-        Roughness = 0.90f,
+        AlbedoColor = new Color(0.16f, 0.18f, 0.23f),
+        Roughness = 0.92f,
     };
 
     private readonly StandardMaterial3D _ceilingMaterial = new()
     {
-        AlbedoColor = new Color(0.16f, 0.18f, 0.24f),
-        Roughness = 0.92f,
+        AlbedoColor = new Color(0.12f, 0.14f, 0.19f),
+        Roughness = 0.94f,
     };
 
-    private readonly StandardMaterial3D _obstacleMaterial = new()
+    private readonly StandardMaterial3D _buildingMaterialA = new()
     {
-        AlbedoColor = new Color(0.34f, 0.39f, 0.48f),
-        Roughness = 0.84f,
+        AlbedoColor = new Color(0.30f, 0.34f, 0.40f),
+        Roughness = 0.88f,
+    };
+
+    private readonly StandardMaterial3D _buildingMaterialB = new()
+    {
+        AlbedoColor = new Color(0.25f, 0.29f, 0.36f),
+        Roughness = 0.90f,
+    };
+
+    private readonly StandardMaterial3D _buildingMaterialC = new()
+    {
+        AlbedoColor = new Color(0.36f, 0.33f, 0.31f),
+        Roughness = 0.90f,
+    };
+
+    private readonly StandardMaterial3D _roofMaterial = new()
+    {
+        AlbedoColor = new Color(0.43f, 0.47f, 0.54f),
+        Roughness = 0.82f,
+    };
+
+    private readonly StandardMaterial3D _roadMarkerMaterial = new()
+    {
+        AlbedoColor = new Color(0.34f, 0.36f, 0.41f),
+        Roughness = 0.95f,
     };
 
     private readonly StandardMaterial3D _forbiddenMaterial = new()
@@ -58,33 +85,39 @@ public partial class MovementLabBuilder : Node3D
                 BackgroundMode = Godot.Environment.BGMode.Color,
                 BackgroundColor = new Color(0.025f, 0.032f, 0.05f),
                 AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color(0.46f, 0.52f, 0.64f),
-                AmbientLightEnergy = 0.42f,
+                AmbientLightColor = new Color(0.48f, 0.53f, 0.62f),
+                AmbientLightEnergy = 0.46f,
             },
         });
 
         AddChild(new DirectionalLight3D
         {
             Name = "KeyLight",
-            RotationDegrees = new Vector3(-55f, -30f, 0f),
-            LightColor = new Color(0.92f, 0.95f, 1.0f),
-            LightEnergy = 1.10f,
+            RotationDegrees = new Vector3(-58f, -35f, 0f),
+            LightColor = new Color(0.94f, 0.96f, 1.0f),
+            LightEnergy = 1.05f,
             ShadowEnabled = true,
         });
 
-        // Low-energy shadowless fill is only for readability inside the enclosed shell.
-        // It must not flatten the lab into a uniformly white space.
         AddChild(new DirectionalLight3D
         {
             Name = "InteriorFill",
-            RotationDegrees = new Vector3(-25f, 150f, 0f),
-            LightColor = new Color(0.62f, 0.70f, 0.88f),
-            LightEnergy = 0.20f,
+            RotationDegrees = new Vector3(-28f, 145f, 0f),
+            LightColor = new Color(0.64f, 0.70f, 0.84f),
+            LightEnergy = 0.18f,
             ShadowEnabled = false,
         });
     }
 
     private void BuildGeometry()
+    {
+        BuildEnclosedShell();
+        BuildStreetMarkers();
+        BuildCity();
+        BuildSpecialTraversalTargets();
+    }
+
+    private void BuildEnclosedShell()
     {
         var roomWidth = RoomHalfWidth * 2f;
         var roomDepth = RoomHalfDepth * 2f;
@@ -121,52 +154,159 @@ public partial class MovementLabBuilder : Node3D
             new Vector3(0f, RoomHeight + 0.5f, 0f),
             new Vector3(roomWidth, 1f, roomDepth),
             _ceilingMaterial);
+    }
 
-        // A small readable cluster around spawn, after which the space opens dramatically.
-        AddBox("LowLedge", new Vector3(-24f, 3f, 70f), new Vector3(20f, 6f, 16f));
-        AddBox("StarterTower", new Vector3(22f, 18f, 66f), new Vector3(8f, 36f, 8f));
-        AddBox("StarterBeam", new Vector3(-4f, 28f, 54f), new Vector3(52f, 2f, 5f));
+    private void BuildStreetMarkers()
+    {
+        // Flat, non-colliding-looking visual strips built as ultra-thin colliders.
+        // They make the city scale immediately readable from ground level and rooftops.
+        AddBox(
+            "MainAvenue",
+            new Vector3(0f, 0.015f, 0f),
+            new Vector3(13f, 0.03f, 230f),
+            _roadMarkerMaterial);
+        AddBox(
+            "CrossStreetNorth",
+            new Vector3(0f, 0.02f, -48f),
+            new Vector3(188f, 0.04f, 11f),
+            _roadMarkerMaterial);
+        AddBox(
+            "CrossStreetCenter",
+            new Vector3(0f, 0.02f, 12f),
+            new Vector3(188f, 0.04f, 11f),
+            _roadMarkerMaterial);
+        AddBox(
+            "CrossStreetSouth",
+            new Vector3(0f, 0.02f, 72f),
+            new Vector3(188f, 0.04f, 11f),
+            _roadMarkerMaterial);
+    }
 
-        // Major landmarks are hundreds of meters apart to support real sustained flight.
-        AddBox("WestSpire", new Vector3(-250f, 105f, 30f), new Vector3(16f, 210f, 16f));
-        AddBox("EastSpire", new Vector3(270f, 135f, -40f), new Vector3(16f, 270f, 16f));
-        AddBox("NorthSpire", new Vector3(35f, 145f, -355f), new Vector3(18f, 290f, 18f));
-        AddBox("SouthSpire", new Vector3(-50f, 120f, 390f), new Vector3(18f, 240f, 18f));
-        AddBox("FarWestTower", new Vector3(-330f, 135f, -280f), new Vector3(20f, 270f, 20f));
-        AddBox("FarEastTower", new Vector3(325f, 115f, 300f), new Vector3(20f, 230f, 20f));
+    private void BuildCity()
+    {
+        // West side: dense mid-rise blocks with narrow alleys.
+        AddBuilding("W01", -76f, -98f, 24f, 20f, 22f, _buildingMaterialA);
+        AddBuilding("W02", -48f, -98f, 18f, 22f, 36f, _buildingMaterialB);
+        AddBuilding("W03", -76f, -66f, 22f, 20f, 48f, _buildingMaterialC);
+        AddBuilding("W04", -48f, -67f, 19f, 19f, 26f, _buildingMaterialA);
 
-        // Mid-distance route pieces prevent the huge room from becoming empty while still
-        // leaving broad open volumes between them.
-        AddBox("BridgeLow", new Vector3(-80f, 50f, 50f), new Vector3(130f, 3f, 7f));
-        AddBox("BridgeMid", new Vector3(120f, 92f, -135f), new Vector3(155f, 3f, 7f));
-        AddBox("BridgeHigh", new Vector3(-135f, 145f, -220f), new Vector3(145f, 3f, 7f));
-        AddBox("SkyBarA", new Vector3(105f, 205f, -30f), new Vector3(175f, 3f, 6f));
-        AddBox("SkyBarB", new Vector3(-150f, 255f, 170f), new Vector3(160f, 3f, 6f));
+        AddBuilding("W05", -76f, -20f, 23f, 28f, 58f, _buildingMaterialB);
+        AddBuilding("W06", -48f, -23f, 18f, 24f, 32f, _buildingMaterialC);
+        AddBuilding("W07", -75f, 43f, 25f, 26f, 42f, _buildingMaterialA);
+        AddBuilding("W08", -46f, 44f, 20f, 25f, 64f, _buildingMaterialB);
+        AddBuilding("W09", -76f, 101f, 24f, 28f, 30f, _buildingMaterialC);
+        AddBuilding("W10", -47f, 103f, 18f, 24f, 50f, _buildingMaterialA);
 
-        // Progressive climb route.
-        AddBox("StepAir01", new Vector3(-55f, 24f, -55f), new Vector3(14f, 2f, 14f));
-        AddBox("StepAir02", new Vector3(-38f, 48f, -92f), new Vector3(14f, 2f, 14f));
-        AddBox("StepAir03", new Vector3(-12f, 78f, -132f), new Vector3(14f, 2f, 14f));
-        AddBox("StepAir04", new Vector3(28f, 115f, -165f), new Vector3(14f, 2f, 14f));
-        AddBox("StepAir05", new Vector3(75f, 158f, -150f), new Vector3(14f, 2f, 14f));
-        AddBox("StepAir06", new Vector3(125f, 205f, -105f), new Vector3(14f, 2f, 14f));
+        // East side: more varied footprints and heights for rooftop retargeting.
+        AddBuilding("E01", 47f, -101f, 18f, 24f, 46f, _buildingMaterialC);
+        AddBuilding("E02", 76f, -98f, 24f, 27f, 28f, _buildingMaterialA);
+        AddBuilding("E03", 48f, -69f, 19f, 19f, 60f, _buildingMaterialB);
+        AddBuilding("E04", 77f, -66f, 23f, 21f, 38f, _buildingMaterialC);
 
-        // Narrow high-value targets for long-distance retargeting.
-        AddBox("NeedleA", new Vector3(-315f, 120f, -70f), new Vector3(4f, 150f, 4f));
-        AddBox("NeedleB", new Vector3(320f, 160f, 105f), new Vector3(4f, 180f, 4f));
-        AddBox("NeedleC", new Vector3(95f, 215f, 350f), new Vector3(4f, 150f, 4f));
-        AddBox("NeedleD", new Vector3(-185f, 245f, -380f), new Vector3(4f, 125f, 4f));
+        AddBuilding("E05", 49f, -20f, 20f, 28f, 34f, _buildingMaterialA);
+        AddBuilding("E06", 77f, -18f, 24f, 31f, 68f, _buildingMaterialB);
+        AddBuilding("E07", 47f, 42f, 18f, 24f, 54f, _buildingMaterialC);
+        AddBuilding("E08", 76f, 43f, 24f, 25f, 40f, _buildingMaterialA);
+        AddBuilding("E09", 48f, 101f, 20f, 27f, 24f, _buildingMaterialB);
+        AddBuilding("E10", 77f, 101f, 24f, 28f, 56f, _buildingMaterialC);
 
-        // Long ground reference lane.
-        AddBox("SpeedLaneWestRail", new Vector3(-14f, 1f, 330f), new Vector3(1f, 2f, 260f));
-        AddBox("SpeedLaneEastRail", new Vector3(14f, 1f, 330f), new Vector3(1f, 2f, 260f));
+        // Inner blocks close to the main avenue create fast street-canyon decisions.
+        AddBuilding("InnerNW", -24f, -82f, 19f, 30f, 44f, _buildingMaterialA);
+        AddBuilding("InnerNE", 24f, -82f, 19f, 30f, 30f, _buildingMaterialB);
+        AddBuilding("InnerW", -24f, -20f, 18f, 27f, 34f, _buildingMaterialC);
+        AddBuilding("InnerE", 24f, -18f, 18f, 31f, 52f, _buildingMaterialA);
+        AddBuilding("InnerSW", -24f, 45f, 18f, 26f, 28f, _buildingMaterialB);
+        AddBuilding("InnerSE", 24f, 45f, 18f, 26f, 46f, _buildingMaterialC);
+        AddBuilding("InnerSouthW", -24f, 100f, 18f, 25f, 38f, _buildingMaterialA);
+        AddBuilding("InnerSouthE", 24f, 101f, 18f, 26f, 62f, _buildingMaterialB);
+
+        // A few rooftop masses break perfectly rectangular silhouettes and provide short anchors.
+        AddRooftopBox("RoofUnitW05", -76f, -20f, 11f, 9f, 58f);
+        AddRooftopBox("RoofUnitE06", 77f, -18f, 12f, 10f, 68f);
+        AddRooftopBox("RoofUnitInnerE", 24f, -18f, 9f, 8f, 52f);
+        AddRooftopBox("RoofUnitInnerSouthE", 24f, 101f, 8f, 9f, 62f);
+    }
+
+    private void BuildSpecialTraversalTargets()
+    {
+        // Central plaza objects are intentionally much smaller than the buildings so the player
+        // always has an immediate sense of human scale after spawning.
+        AddBuilding(
+            "PlazaTower",
+            0f,
+            40f,
+            9f,
+            9f,
+            32f,
+            _roofMaterial);
 
         AddBox(
-            "NoGrappleBlock",
-            new Vector3(345f, 8f, 430f),
-            new Vector3(16f, 16f, 16f),
+            "SkyBridgeWest",
+            new Vector3(-35f, 27f, 12f),
+            new Vector3(28f, 2f, 4f),
+            _roofMaterial);
+        AddBox(
+            "SkyBridgeEast",
+            new Vector3(35f, 36f, -48f),
+            new Vector3(30f, 2f, 4f),
+            _roofMaterial);
+
+        AddBox(
+            "NorthAntenna",
+            new Vector3(-24f, 60f, -82f),
+            new Vector3(2f, 28f, 2f),
+            _roofMaterial);
+        AddBox(
+            "SouthAntenna",
+            new Vector3(24f, 69f, 101f),
+            new Vector3(2f, 14f, 2f),
+            _roofMaterial);
+
+        AddBox(
+            "NoGrappleBillboard",
+            new Vector3(89f, 9f, 111f),
+            new Vector3(7f, 18f, 2f),
             _forbiddenMaterial,
             collisionLayer: 2u);
+    }
+
+    private void AddBuilding(
+        string name,
+        float x,
+        float z,
+        float width,
+        float depth,
+        float height,
+        Material material)
+    {
+        AddBox(
+            name,
+            new Vector3(x, height * 0.5f, z),
+            new Vector3(width, height, depth),
+            material);
+
+        AddBox(
+            $"{name}_Roof",
+            new Vector3(x, height + 0.15f, z),
+            new Vector3(width + 0.25f, 0.30f, depth + 0.25f),
+            _roofMaterial);
+    }
+
+    private void AddRooftopBox(
+        string name,
+        float x,
+        float z,
+        float width,
+        float depth,
+        float roofHeight)
+    {
+        const float unitHeight = 3f;
+
+        AddBox(
+            name,
+            new Vector3(x, roofHeight + (unitHeight * 0.5f), z),
+            new Vector3(width, unitHeight, depth),
+            _roofMaterial);
     }
 
     private void AddBox(
@@ -181,7 +321,7 @@ public partial class MovementLabBuilder : Node3D
             Name = name,
             Position = position,
             Size = size,
-            Material = material ?? _obstacleMaterial,
+            Material = material ?? _buildingMaterialA,
             UseCollision = true,
             CollisionLayer = collisionLayer,
         });
