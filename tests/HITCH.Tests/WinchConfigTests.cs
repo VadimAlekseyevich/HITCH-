@@ -6,13 +6,12 @@ namespace Hitch.Tests;
 public sealed class WinchConfigTests
 {
     [Fact]
-    public void DefaultAutomaticPullConfigIsValid()
+    public void DefaultDualCableConfigIsValid()
     {
         var config = new WinchConfig();
 
         config.Validate();
 
-        Assert.True(config.GrappleRange > 0f);
         Assert.True(config.PullInitialImpulse > 0f);
         Assert.True(config.PullRadialAcceleration > 0f);
         Assert.True(config.PullTargetInwardSpeed > 0f);
