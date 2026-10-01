@@ -38,6 +38,49 @@ public sealed class PlayerImpulseAndTimestepTests
     }
 
     [Fact]
+    public void RuntimeConfigUpdatePreservesStateAndAffectsNextTick()
+    {
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new Vector3(0f, 50f, 0f),
+                Velocity = new Vector3(3f, 2f, 1f),
+                IsGrounded = false,
+            },
+        };
+        var simulation = new GameSimulation(
+            new SimulationConfig(),
+            initial);
+
+        var changed = simulation.Config with
+        {
+            Locomotion = simulation.Config.Locomotion with
+            {
+                Gravity = 20f,
+            },
+        };
+
+        simulation.ApplyConfig(changed);
+
+        Assert.Equal(initial.Player.Position, simulation.State.Player.Position);
+        Assert.Equal(initial.Player.Velocity, simulation.State.Player.Velocity);
+        Assert.Equal(20f, simulation.Config.Locomotion.Gravity);
+
+        var after = simulation.Step(
+            PlayerInput.Neutral,
+            new NoHitWorld());
+
+        var expectedY =
+            2f - (20f / simulation.Config.TickRateHz);
+
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.Y - expectedY),
+            0f,
+            1e-5f);
+    }
+
+    [Fact]
     public void HighHorizontalImpulseIsNotClampedByOrdinaryLocomotion()
     {
         var initial = SimulationState.Initial with
