@@ -1,6 +1,6 @@
 # Task 06 — Add Weak Jump and Weak Air Correction
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 05
 
 ## Goal
