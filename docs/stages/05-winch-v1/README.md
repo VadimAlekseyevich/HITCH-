@@ -713,3 +713,19 @@ Space is context-sensitive:
 - after detach, ordinary gravity/air locomotion resumes.
 
 This allows the player to deliberately detach during the launch peak and carry that speed into free flight.
+
+
+### Iteration 14 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36918044665
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 72 passed / 0 failed;
+- two-stage launch curve covered by automated tests;
+- explicit detach preserves velocity;
+- Space detach is consumed instead of also triggering jump;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
