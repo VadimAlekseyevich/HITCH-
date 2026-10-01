@@ -1,24 +1,55 @@
 # src/
 
-Production C# code will live here after project bootstrap.
+Production C# code lives here.
 
-Do not add code before reading:
+Read before modifying:
 
 - `../AGENTS.md`
 - `../DESIGN.md`
 - `../docs/ARCHITECTURE.md`
 - the active stage in `../docs/ROADMAP.md`
 
-Planned ownership:
+## Current structure
 
 ```text
 src/
-├── Simulation/   # Replayable gameplay state and rules
-├── Godot/        # Engine/input/world/presentation adapters
-├── Network/      # Transport, protocol, prediction, server/client sync
-└── Debug/        # Development-only instrumentation
+├── Simulation/
+│   ├── Hitch.Simulation.csproj
+│   ├── Input/
+│   ├── State/
+│   └── World/
+│
+└── Godot/
+    ├── Bootstrap/
+    └── World/
 ```
 
-This is a conceptual map, not permission to pre-create speculative classes or frameworks.
+### Simulation
 
-The exact folder tree should evolve only when real implementation requires it.
+`Hitch.Simulation` is a plain `net8.0` assembly with **no Godot dependency**.
+
+It owns replayable gameplay state/contracts and will own gameplay rules.
+
+### Godot
+
+Godot-side code adapts engine callbacks/world services/presentation to the simulation assembly.
+
+Godot nodes must not become the only representation of gameplay state.
+
+## Planned later ownership
+
+```text
+src/
+├── Simulation/
+│   ├── Player/
+│   ├── Winch/
+│   └── Combat/
+├── Godot/
+│   ├── Input/
+│   ├── Presentation/
+│   └── Adapters/
+├── Network/
+└── Debug/
+```
+
+Create these only when the relevant roadmap stage actually needs them.
