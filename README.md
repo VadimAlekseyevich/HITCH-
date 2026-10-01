@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 20: dual-hook ODM traversal. RMB alternates left/right hooks, LMB reels every active hook, reel power is raised substantially with a short controlled launch assist, and the enclosed city expands to roughly 640 × 800 × 180 m while retaining dense human-scale blocks. Damage remains deliberately out of scope while core movement feel is being fixed.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 21: live in-game movement tuning plus a much larger/taller city. F2 opens a Russian tuning panel with sliders and exact numeric input, changes apply without resetting simulation state, and one button copies a paste-ready tuning block to the clipboard. Gravity is raised to 14.5 m/s²; the enclosed city is now about 1000 × 1200 × 320 m with roughly 120 buildings in the ~50–170 m range plus taller skyline landmarks. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
