@@ -32,8 +32,8 @@ public partial class SimulationBootstrap : Node
         _overlay = GetNode<SimulationDebugOverlay>("Hud/Status");
         _debugLines = GetNode<DebugLineDrawer3D>("DebugLines");
 
-        var config = new SimulationConfig();
-        config.Validate();
+        var config = SimulationConfigLoader.Load();
+        Engine.PhysicsTicksPerSecond = config.TickRateHz;
 
         var spawn = spawnMarker.GlobalPosition;
         var capsuleCenterY =
