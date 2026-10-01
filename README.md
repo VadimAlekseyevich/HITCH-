@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 17: piecewise rope wrapping in the compact city. The launch surge is calmed to 1.35× immediate / 2× peak, while the grapple path can add/remove a small number of geometric bend points so the cable wraps around building corners and posts as a polyline. Damage remains deliberately out of scope while core movement feel is being fixed.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 18: finite-rope swing + explicit reel control. RMB attaches/retargets a cable up to 100 m; LMB starts reel-in; Space detaches. Rope bends remain piecewise-linear, radial tension changes are acceleration-bounded to avoid corner catapults, and base locomotion now experiments with much faster movement plus one strong air jump. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
