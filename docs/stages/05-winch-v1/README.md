@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 4**
+**Status: READY FOR HUMAN GATE — ITERATION 5**
 
 ## Objective
 
@@ -209,3 +209,35 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36807075655
 - one-click local run remains `build_and_run.bat`.
 
 Iteration 4 is technically ready. Stage 5 remains blocked on human movement feel.
+
+
+## Human gate result — iteration 4
+
+**Result: ITERATE / PULL DID NOT FEEL LIKE REAL CONTRACTION**
+
+Human feedback:
+
+- cable creation/input was improved;
+- however the player still did not feel strongly pulled toward the anchor;
+- swing physics existed, but cable length did not feel like it was being aggressively shortened.
+
+## Iteration 5 — strong radial contraction
+
+Current force rule:
+
+- preserve tangential velocity for swing;
+- operate directly on radial speed toward the anchor;
+- aggressively push inward radial speed toward **55 m/s**;
+- allow radial speed to change at up to **420 m/s²**;
+- retain the existing **30 m/s** initial RMB impulse;
+- do not clamp already-faster inward motion.
+
+Technical evidence:
+
+- CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36807674608
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 58 passed / 0 failed;
+- spawn smoke: `tick=45 y=0.9150 grounded=True`.
+
+Iteration 5 is ready for human feel testing.
