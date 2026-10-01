@@ -9,31 +9,34 @@ They are **not** the final control scheme.
 | Mouse | Look |
 | W / A / S / D | Responsive ground movement + limited air steering |
 | Space | Weak jump |
-| Left mouse button | Throw/replace cable target; immediately cancels any active pull without removing momentum |
-| Right mouse button click | Start automatic pull toward the currently selected cable point |
+| Right mouse button click | Raycast a new grapple point and immediately start pulling toward it |
 | F | Reserved melee intent for later combat work |
 | Escape | Release mouse cursor |
 | Left click while cursor is released | Recapture mouse only |
 
-There is **no RMB hold/release gameplay state** in the current prototype.
+LMB has no grapple action in the active Stage 5 iteration.
 
 Q/E reel controls remain disabled.
 
 ## Current pull loop
 
-1. Aim using the small center crosshair and click LMB.
-2. A cable/target point is created. It does not pull yet.
-3. Click RMB once.
-4. Pull starts immediately with a strong initial impulse and then continues automatically.
-5. The player does **not** need to hold RMB.
-6. Clicking LMB while pulling cancels the current pull immediately, preserves momentum, and throws a new idle cable.
-7. If that LMB throw misses, the old cable is retracted/cleared and the player continues only by inertia.
-8. The new cable does not pull until RMB is clicked again.
-9. Reaching the target ends the pull automatically; inward motion into the anchor is removed and ordinary gravity/control resume.
+1. Aim using the small center crosshair.
+2. Click RMB once.
+3. The game raycasts immediately.
+4. On a valid hit, the old cable is replaced, a new cable is created, and pull starts in the same simulation tick.
+5. Pull begins with a strong immediate impulse and then continues automatically with acceleration toward the anchor.
+6. The player does not hold RMB.
+7. Clicking RMB again while already pulling immediately shoots/replaces the cable and starts pulling toward the new hit point.
+8. If RMB misses, the old cable is cleared and the player continues with existing momentum.
+9. Reaching the anchor ends the pull automatically; inward motion into the surface is removed while tangential momentum remains.
 
-## Current playtest range
+## Current playtest tuning
 
-The experimental grapple range is currently **72 m**, approximately 3× the previous 24 m value, to support the enlarged vertical movement lab.
+- grapple range: **72 m**
+- initial pull impulse: **30 m/s**
+- continuous pull acceleration: **60 m/s²**
+
+These values are experimental.
 
 ## Architecture rule
 
