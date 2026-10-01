@@ -1,8 +1,7 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 single-cable automatic pull tuning.
-/// Gameplay rope length is unlimited inside the playable space.
+/// Stage 5 single-cable ODM-inspired rope, reel, and gas tuning.
 /// </summary>
 public sealed record WinchConfig
 {
@@ -12,47 +11,47 @@ public sealed record WinchConfig
     /// Maximum deployed rope length and grapple acquisition range.
     /// Large enough for the compact city, but deliberately not map-wide.
     /// </summary>
-    public float MaxRopeLength { get; init; } = 100f;
+    public float MaxRopeLength { get; init; } = 75f;
 
-    public float PullInitialImpulse { get; init; } = 24f;
+    public float PullInitialImpulse { get; init; } = 8f;
 
-    public float PullRadialAcceleration { get; init; } = 300f;
+    public float PullRadialAcceleration { get; init; } = 40f;
 
     /// <summary>
     /// Direct grapple speed for short/medium pulls.
     /// Iteration 15 scales absolute speed down with the compact city while preserving strong relative motion.
     /// </summary>
-    public float PullTargetInwardSpeed { get; init; } = 30f;
+    public float PullTargetInwardSpeed { get; init; } = 9f;
 
     /// <summary>
     /// Maximum direct grapple speed reached on long lines.
     /// </summary>
-    public float PullLongRangeInwardSpeed { get; init; } = 52f;
+    public float PullLongRangeInwardSpeed { get; init; } = 16f;
 
     /// <summary>
     /// Anchor distance at which the long-range grapple speed reaches its maximum.
     /// </summary>
-    public float PullLongRangeDistance { get; init; } = 62.5f;
+    public float PullLongRangeDistance { get; init; } = 55f;
 
     /// <summary>
     /// Immediate speed multiplier on the exact tick a fresh grapple starts.
     /// </summary>
-    public float PullLaunchInitialMultiplier { get; init; } = 1.35f;
+    public float PullLaunchInitialMultiplier { get; init; } = 1.0f;
 
     /// <summary>
     /// Stronger multiplier reached shortly after launch, creating a distinct second-stage blast.
     /// </summary>
-    public float PullLaunchPeakMultiplier { get; init; } = 2.0f;
+    public float PullLaunchPeakMultiplier { get; init; } = 1.0f;
 
     /// <summary>
     /// Time from grapple fire to the second-stage launch peak.
     /// </summary>
-    public float PullLaunchPeakSeconds { get; init; } = 0.14f;
+    public float PullLaunchPeakSeconds { get; init; } = 0.10f;
 
     /// <summary>
     /// Time after the peak for the launch bonus to decay naturally back to sustained pull speed.
     /// </summary>
-    public float PullLaunchDecaySeconds { get; init; } = 0.60f;
+    public float PullLaunchDecaySeconds { get; init; } = 0.40f;
 
     /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
@@ -96,12 +95,29 @@ public sealed record WinchConfig
     /// Maximum extra inward correction speed used only when geometry temporarily makes the
     /// polyline longer than the deployed rope. Keeps wrap changes from becoming catapults.
     /// </summary>
-    public float RopeConstraintCorrectionSpeed { get; init; } = 18f;
+    public float RopeConstraintCorrectionSpeed { get; init; } = 10f;
 
     /// <summary>
     /// Small slack band before the rope is considered taut.
     /// </summary>
-    public float RopeTautTolerance { get; init; } = 0.05f;
+    public float RopeTautTolerance { get; init; } = 0.08f;
+
+    /// <summary>
+    /// Compressed-gas style acceleration applied while reeling.
+    /// It acts along the cable tangent, so reel motor and gas have distinct jobs.
+    /// </summary>
+    public float GasAcceleration { get; init; } = 14f;
+
+    /// <summary>
+    /// Gas retains full authority below this total player speed.
+    /// </summary>
+    public float GasFullAccelerationSpeed { get; init; } = 18f;
+
+    /// <summary>
+    /// Gas authority smoothly fades to zero by this speed. This is not a hard speed cap:
+    /// gravity and swing can still carry the player faster.
+    /// </summary>
+    public float GasCutoffSpeed { get; init; } = 34f;
 
     public void Validate()
     {
@@ -183,6 +199,23 @@ public sealed record WinchConfig
         RequireFiniteNonNegative(
             RopeTautTolerance,
             nameof(RopeTautTolerance));
+        RequireFinitePositive(
+            GasAcceleration,
+            nameof(GasAcceleration));
+        RequireFiniteNonNegative(
+            GasFullAccelerationSpeed,
+            nameof(GasFullAccelerationSpeed));
+        RequireFinitePositive(
+            GasCutoffSpeed,
+            nameof(GasCutoffSpeed));
+
+        if (GasCutoffSpeed <= GasFullAccelerationSpeed)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(GasCutoffSpeed),
+                GasCutoffSpeed,
+                "Gas cutoff speed must exceed the full-acceleration speed.");
+        }
     }
 
     private static void RequireFinitePositive(
