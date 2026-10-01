@@ -554,3 +554,16 @@ On release:
 - completed grapple remains latched at exactly zero velocity until retarget/release.
 
 This is a deliberate arcade movement experiment. The previous Stage 5 momentum-preservation hypothesis is reopened and must not be silently restored.
+
+
+### Iteration 11 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36914543762
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 61 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual gate.
