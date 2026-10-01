@@ -95,14 +95,15 @@ public sealed class GameSimulation
         var finalWinch = winchResult.Winch;
         PlayerState movedPlayer;
 
-        if (winchResult.CompletedThisTick)
+        if (winchResult.CompletedThisTick || finalWinch.IsLatched)
         {
-            // Completion is a hard settle event. Do not immediately re-apply gravity or air
-            // control in the same tick after the winch has decided the capsule reached contact.
-            // The next simulation tick resumes ordinary locomotion.
+            // Reaching the selected surface is a real stop, not a one-frame zero.
+            // Keep the cable latched and suppress gravity/air control until RMB retargets
+            // or a miss releases the cable.
             movedPlayer = winchResult.Player with
             {
                 Velocity = System.Numerics.Vector3.Zero,
+                IsGrounded = false,
             };
         }
         else
@@ -123,10 +124,18 @@ public sealed class GameSimulation
                     Config.Winch,
                     Config.Locomotion))
             {
-                finalWinch = WinchState.Initial;
+                finalWinch = finalWinch with
+                {
+                    IsPulling = false,
+                    LastActualDistance = System.Numerics.Vector3.Distance(
+                        movedPlayer.Position,
+                        finalWinch.Path.CurrentPullPoint),
+                    LastPullAcceleration = 0f,
+                };
                 movedPlayer = movedPlayer with
                 {
                     Velocity = System.Numerics.Vector3.Zero,
+                    IsGrounded = false,
                 };
             }
         }
