@@ -99,16 +99,15 @@ public sealed class GameSimulation
             world,
             (float)FixedDeltaSeconds);
 
-        var finalWinch = winchResult.Winch;
-        if (finalWinch.HasTarget)
+        var finalWinch = winchResult.Winch with
         {
-            finalWinch = finalWinch with
-            {
-                LastActualDistance = System.Numerics.Vector3.Distance(
-                    movedPlayer.Position,
-                    finalWinch.Path.CurrentPullPoint),
-            };
-        }
+            Left = UpdateCableDistance(
+                winchResult.Winch.Left,
+                movedPlayer.Position),
+            Right = UpdateCableDistance(
+                winchResult.Winch.Right,
+                movedPlayer.Position),
+        };
 
         State = State with
         {
@@ -120,6 +119,23 @@ public sealed class GameSimulation
         Telemetry.Observe(State);
 
         return State;
+    }
+
+    private static WinchCableState UpdateCableDistance(
+        in WinchCableState cable,
+        System.Numerics.Vector3 playerPosition)
+    {
+        if (!cable.HasTarget)
+        {
+            return cable;
+        }
+
+        return cable with
+        {
+            LastActualDistance = System.Numerics.Vector3.Distance(
+                playerPosition,
+                cable.Path.CurrentPullPoint),
+        };
     }
 
     private static float WrapRadians(float angle)
