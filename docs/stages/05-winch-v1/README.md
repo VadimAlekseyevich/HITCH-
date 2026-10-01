@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 8 SINGLE CABLE**
+**Status: READY FOR HUMAN GATE — ITERATION 9 EXPANDED LAB + HARD SETTLE**
 
 ## Objective
 
@@ -366,3 +366,61 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36810109190
 - completed pull clears residual velocity before ordinary gravity resumes.
 
 Iteration 8 is technically ready for human movement testing.
+
+
+## Human gate result — iteration 8
+
+**Result: ITERATE / CORE FEEL STILL NOT THERE**
+
+Human feedback:
+
+- the movement room still felt too small for the intended high-speed traversal fantasy;
+- the enclosed lab was too dark, making it hard to read what was happening at speed;
+- after apparently reaching a grapple point, a small amount of continued motion/orbiting was still visible and irritating;
+- even beyond those issues, traversal did not yet produce the desired high-energy aerial PvP feeling;
+- fall/impact damage may eventually add stakes, but damage must not be used yet to hide a movement system that is not intrinsically fun.
+
+Iteration 8 therefore does **not** pass the Stage 5 human gate.
+
+## Iteration 9 — expanded bright lab + hard arrival settle
+
+This iteration deliberately changes environment readability and arrival correctness without adding damage or combat.
+
+### Movement lab
+
+- enclosed room expanded from roughly **120 × 150 × 86 m** to **240 × 320 × 150 m**;
+- major towers/anchors are spaced much farther apart;
+- additional high-altitude bars and precision targets create longer traversal lines;
+- ambient light is substantially stronger;
+- greybox materials are brighter;
+- a shadowless directional fill light keeps the closed room readable even under the ceiling.
+
+### Grapple completion
+
+Iteration 8 only checked capsule-aware arrival before locomotion movement.
+
+At high speed that was insufficient: the capsule could reach/collide with the target surface during the locomotion step, while the cable remained active until the next simulation tick. That extra active tick could reintroduce the small orbit/jitter seen in human play.
+
+Iteration 9 treats completion as an explicit hard-settle event:
+
+1. pre-movement arrival still completes immediately;
+2. the completion tick does not reapply gravity or air control;
+3. after locomotion/collision movement, arrival is checked again;
+4. if contact was reached during movement, the cable clears in the same tick;
+5. final player velocity is exactly zero on the settle tick;
+6. ordinary locomotion/gravity resumes on the next tick.
+
+Automated coverage includes both immediate ceiling contact and high-speed arrival that occurs during the movement step.
+
+### Human gate focus
+
+Do not proceed to Stage 6 yet.
+
+The next playtest should answer:
+
+- does reaching a grapple point now feel completely stable, with no residual orbit/jitter;
+- is the enlarged/brighter room easier to read at speed;
+- do longer traversal lines make momentum and retargeting more satisfying;
+- does movement begin to feel exciting on its own before damage, combat pressure, VFX, or audio are added.
+
+If the answer to the last question is still no, continue iterating Stage 5 rather than adding damage as compensation.
