@@ -1,25 +1,21 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Snapshot-friendly gameplay state for the world-anchor winch.
+/// Snapshot-friendly state for the current selected-point/direct-pull prototype.
 /// </summary>
 public readonly record struct WinchState(
-    WinchAttachmentState Attachment,
+    WinchTargetState TargetState,
     WinchPathState Path,
-    float RestLength,
-    float ReelVelocity,
-    float ReattachCooldownRemaining,
+    bool IsPulling,
     float LastActualDistance,
-    float LastTensionAcceleration)
+    float LastPullSpeed)
 {
-    public bool IsAttached => Attachment == WinchAttachmentState.Attached;
+    public bool HasTarget => TargetState == WinchTargetState.Selected;
 
     public static WinchState Initial => new(
-        WinchAttachmentState.Detached,
+        WinchTargetState.None,
         default,
-        0f,
-        0f,
-        0f,
+        false,
         0f,
         0f);
 }
