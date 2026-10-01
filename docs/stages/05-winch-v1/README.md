@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 14 EXPLOSIVE SURGE + SPACE DETACH**
+**Status: READY FOR HUMAN GATE — ITERATION 15 COMPACT CITY SCALE**
 
 ## Objective
 
@@ -729,3 +729,80 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36918044665
 - room smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual Stage 5 gate.
+
+
+## Human gate result — iteration 14
+
+**Result: GOOD DIRECTION / WORLD SCALE WAS DISTORTING SPEED JUDGMENT**
+
+Human feedback:
+
+- the player finally recognized that the giant empty test volume was making otherwise enormous numerical speeds feel too slow;
+- absolute room scale, not only movement tuning, was driving repeated speed increases;
+- the next test should shrink world scale and movement speed together rather than continuing to inflate velocity;
+- the launch surge may remain relatively stronger;
+- replace the abstract room with a greybox city of differently sized buildings while keeping a fully enclosed shell so the player cannot escape the test space.
+
+## Iteration 15 — compact enclosed city scale
+
+The movement space is reduced by roughly four times in each major linear dimension compared with iteration 14.
+
+Current enclosed volume:
+
+- width: **200 m**;
+- depth: **250 m**;
+- height: **80 m**.
+
+The empty arena layout is replaced by a compact greybox city:
+
+- roughly thirty building masses;
+- building heights from low/mid-rise ~20–30 m up through ~60–70 m towers;
+- varied footprints rather than identical pillars;
+- one long central avenue;
+- three major cross streets;
+- narrower side alleys / street canyons;
+- rooftop caps and small rooftop utility masses;
+- two elevated traversal bridges;
+- rooftop antenna targets;
+- a small central tower/plaza landmark;
+- one explicit forbidden-grapple billboard;
+- outer walls and ceiling remain solid containment boundaries.
+
+### Scale-corrected grapple speed
+
+Absolute grapple speed is also reduced by roughly four times:
+
+- short/medium sustained pull: **22.5 m/s**;
+- long sustained pull: **40 m/s**;
+- long-range speed reaches maximum around **62.5 m** rather than 250 m.
+
+This preserves roughly the previous traversal-time relationship while putting nearby geometry back at a believable human/building scale.
+
+### Stronger relative launch explosion
+
+The relative launch pulse is intentionally stronger than iteration 14:
+
+1. immediate launch: **2×** sustained speed;
+2. second-stage peak after ~**0.12 s**: **4×** sustained speed;
+3. decay back to sustained speed over ~**0.65 s**.
+
+Maximum long-line example:
+
+- sustained: **40 m/s**;
+- immediate: **80 m/s**;
+- peak: **160 m/s**;
+- then natural decay back toward 40 m/s.
+
+Space detach behavior from iteration 14 remains unchanged and still preserves current free-flight velocity.
+
+### Iteration 15 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36919217312
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 72 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- compact enclosed shell smoke: west/east/back/front/ceiling all detected.
+
+The human gate now needs to judge **relative speed against readable urban scale**, not numerical velocity in isolation.
