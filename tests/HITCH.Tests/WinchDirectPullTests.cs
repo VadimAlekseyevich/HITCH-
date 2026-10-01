@@ -269,6 +269,36 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
+    public void WrappedRopeCannotCompleteAtIntermediateBend()
+    {
+        var config = TestConfig();
+        var locomotion = new PlayerLocomotionConfig();
+        var path = WinchPathState
+            .AtWorldAnchor(
+                new Vector3(10f, 0f, 0f),
+                -Vector3.UnitX)
+            .PushContact(
+                new Vector3(2f, 0f, 0f));
+        var winch = new WinchState(
+            WinchTargetState.Selected,
+            path,
+            true,
+            10f,
+            0f);
+        var player = PlayerState.Initial with
+        {
+            Position = new Vector3(1.5f, 0f, 0f),
+        };
+
+        Assert.False(
+            WinchSystem.HasReachedAnchor(
+                player,
+                winch,
+                config,
+                locomotion));
+    }
+
+    [Fact]
     public void HorizontalWallArrivalUsesCapsuleRadiusInsteadOfOldFixedDistance()
     {
         var config = TestConfig();
