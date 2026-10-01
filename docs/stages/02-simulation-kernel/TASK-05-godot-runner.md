@@ -1,6 +1,6 @@
 # Task 05 — Connect Kernel to Godot Fixed Physics Tick
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 04
 
 ## Goal
