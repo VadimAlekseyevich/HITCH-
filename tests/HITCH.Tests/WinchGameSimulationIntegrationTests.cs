@@ -10,149 +10,125 @@ namespace Hitch.Tests;
 public sealed class WinchGameSimulationIntegrationTests
 {
     [Fact]
-    public void OneRmbClickShootsCableAndStronglyContractsDistance()
+    public void LeftThenRightClicksCreateTwoIndependentActiveCables()
     {
-        var config = new SimulationConfig
-        {
-            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
-            {
-                Gravity = 1f,
-                AirAcceleration = 0f,
-            },
-            Winch = new WinchConfig
-            {
-                PullInitialImpulse = 24f,
-                PullRadialAcceleration = 300f,
-                PullTargetInwardSpeed = 42f,
-                ArrivalDistance = 0.5f,
-            },
-        };
-        var target = new Vector3(0f, 5f, -30f);
+        var config = TestSimulationConfig();
+        var world = new MutableGrappleWorld(
+            new Vector3(-20f, 12f, -30f));
         var simulation = CreateAirborneSimulation(config);
-        var world = new FixedGrappleWorld(target);
 
-        var started = simulation.Step(
-            Input(PlayerButtons.GrapplePullPressed),
+        var left = simulation.Step(
+            Input(PlayerButtons.LeftGrapplePressed),
             world);
 
-        Assert.True(started.Winch.HasTarget);
-        Assert.True(started.Winch.IsPulling);
-        Assert.True(started.Player.Velocity.Z < -28f);
+        Assert.True(left.Winch.Left.IsPulling);
+        Assert.False(left.Winch.Right.IsPulling);
 
-        var initialDistance = started.Winch.LastActualDistance;
+        var leftPoint = left.Winch.Left.Path.CurrentPullPoint;
 
-        for (var i = 0; i < 12; i++)
+        world.Anchor = new Vector3(20f, 16f, -30f);
+        var dual = simulation.Step(
+            Input(PlayerButtons.RightGrapplePressed),
+            world);
+
+        Assert.Equal(2, dual.Winch.ActiveCableCount);
+        Assert.Equal(
+            leftPoint,
+            dual.Winch.Left.Path.CurrentPullPoint);
+        Assert.Equal(
+            world.Anchor,
+            dual.Winch.Right.Path.CurrentPullPoint);
+    }
+
+    [Fact]
+    public void DualCablesContinuePullingWithoutFurtherMouseInput()
+    {
+        var config = TestSimulationConfig();
+        var world = new MutableGrappleWorld(
+            new Vector3(-20f, 10f, -40f));
+        var simulation = CreateAirborneSimulation(config);
+
+        simulation.Step(
+            Input(PlayerButtons.LeftGrapplePressed),
+            world);
+
+        world.Anchor = new Vector3(20f, 10f, -40f);
+        simulation.Step(
+            Input(PlayerButtons.RightGrapplePressed),
+            world);
+
+        var before = simulation.State;
+        var leftBefore = before.Winch.Left.LastActualDistance;
+        var rightBefore = before.Winch.Right.LastActualDistance;
+
+        for (var i = 0; i < 6; i++)
         {
             simulation.Step(PlayerInput.Neutral, world);
         }
 
-        var later = simulation.State;
+        var after = simulation.State;
 
-        Assert.True(later.Winch.IsPulling);
-        Assert.True(later.Winch.LastActualDistance < initialDistance - 7f);
-        Assert.True(later.Player.Velocity.Z <= -41f);
+        Assert.Equal(2, after.Winch.ActiveCableCount);
+        Assert.True(
+            after.Winch.Left.LastActualDistance < leftBefore);
+        Assert.True(
+            after.Winch.Right.LastActualDistance < rightBefore);
     }
 
     [Fact]
-    public void StrongPullPreservesTangentialMomentum()
+    public void OneArrivedCableClearsButOtherCableKeepsMovingPlayer()
     {
-        var config = new SimulationConfig
+        var config = TestSimulationConfig() with
         {
-            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            Winch = TestWinchConfig() with
             {
-                Gravity = 0.1f,
-                AirAcceleration = 0f,
-            },
-            Winch = new WinchConfig
-            {
-                PullInitialImpulse = 24f,
-                PullRadialAcceleration = 300f,
-                PullTargetInwardSpeed = 42f,
-                ArrivalDistance = 0.5f,
+                ArrivalDistance = 0.9f,
             },
         };
-        var target = new Vector3(0f, 5f, -40f);
+
+        var leftPoint = new Vector3(0f, 5f, -0.5f);
+        var rightPoint = new Vector3(0f, 5f, -30f);
         var initial = SimulationState.Initial with
         {
             Player = SimulationState.Initial.Player with
             {
                 Position = new Vector3(0f, 5f, 0f),
-                Velocity = new Vector3(18f, 0f, 0f),
+                Velocity = new Vector3(7f, 4f, 0f),
                 IsGrounded = false,
             },
+            Winch = new WinchState(
+                ActiveCable(leftPoint),
+                ActiveCable(rightPoint)),
         };
         var simulation = new GameSimulation(config, initial);
-        var world = new FixedGrappleWorld(target);
 
         var after = simulation.Step(
-            Input(PlayerButtons.GrapplePullPressed),
-            world);
+            PlayerInput.Neutral,
+            new NoHitWorld());
 
-        Assert.True(after.Winch.IsPulling);
-        Assert.InRange(
-            Math.Abs(after.Player.Velocity.X - 18f),
-            0f,
-            0.05f);
-        Assert.True(after.Player.Velocity.Z < -28f);
+        Assert.False(after.Winch.Left.HasTarget);
+        Assert.True(after.Winch.Right.IsPulling);
+        Assert.NotEqual(Vector3.Zero, after.Player.Velocity);
+        Assert.True(after.Player.Velocity.Z < 0f);
     }
 
     [Fact]
-    public void SecondRmbRetargetsAndPullsInSameTick()
+    public void LastArrivedCableFullyStopsThenGravityResumes()
     {
-        var config = new SimulationConfig
-        {
-            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
-            {
-                Gravity = 6f,
-                AirAcceleration = 0f,
-            },
-            Winch = new WinchConfig
-            {
-                PullInitialImpulse = 24f,
-                PullRadialAcceleration = 300f,
-                PullTargetInwardSpeed = 42f,
-                ArrivalDistance = 0.5f,
-            },
-        };
-        var world = new MutableGrappleWorld(new Vector3(20f, 8f, -20f));
-        var simulation = CreateAirborneSimulation(config);
-
-        simulation.Step(
-            Input(PlayerButtons.GrapplePullPressed),
-            world);
-        var beforeRetarget = simulation.State;
-
-        world.Anchor = new Vector3(-25f, 20f, 10f);
-        var retargeted = simulation.Step(
-            Input(PlayerButtons.GrapplePullPressed),
-            world);
-
-        Assert.True(retargeted.Winch.HasTarget);
-        Assert.True(retargeted.Winch.IsPulling);
-        Assert.Equal(world.Anchor, retargeted.Winch.Path.CurrentPullPoint);
-        Assert.True(retargeted.Player.Velocity.X < beforeRetarget.Player.Velocity.X);
-        Assert.True(retargeted.Player.Velocity.Y > beforeRetarget.Player.Velocity.Y);
-    }
-
-    [Fact]
-    public void ArrivalStopsAutomaticPullAndGravityResumes()
-    {
-        var config = new SimulationConfig
+        var config = TestSimulationConfig() with
         {
             Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
             {
                 Gravity = 12f,
                 AirAcceleration = 0f,
             },
-            Winch = new WinchConfig
+            Winch = TestWinchConfig() with
             {
-                PullInitialImpulse = 24f,
-                PullRadialAcceleration = 300f,
-                PullTargetInwardSpeed = 42f,
                 ArrivalDistance = 0.9f,
             },
         };
-        var target = new Vector3(0f, 5f, -0.5f);
+
+        var point = new Vector3(0f, 5f, -0.5f);
         var initial = SimulationState.Initial with
         {
             Player = SimulationState.Initial.Player with
@@ -162,32 +138,53 @@ public sealed class WinchGameSimulationIntegrationTests
                 IsGrounded = false,
             },
             Winch = new WinchState(
-                WinchTargetState.Selected,
-                WinchPathState.AtWorldAnchor(target),
-                true,
-                0.5f,
-                config.Winch.PullRadialAcceleration),
+                ActiveCable(point),
+                WinchCableState.Initial),
         };
         var simulation = new GameSimulation(config, initial);
 
         var after = simulation.Step(
             PlayerInput.Neutral,
-            new FixedGrappleWorld(target));
+            new NoHitWorld());
 
-        Assert.False(after.Winch.HasTarget);
-        Assert.False(after.Winch.IsPulling);
-        Assert.InRange(Math.Abs(after.Player.Velocity.X), 0f, 1e-5f);
-        Assert.InRange(Math.Abs(after.Player.Velocity.Z), 0f, 1e-5f);
+        Assert.Equal(0, after.Winch.ActiveCableCount);
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.X),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.Z),
+            0f,
+            1e-5f);
 
-        // WinchSystem fully stops at arrival; GameSimulation then applies one gravity tick.
+        // Winch stops completely, then locomotion applies one gravity tick.
         Assert.True(after.Player.Velocity.Y < 0f);
         Assert.True(after.Player.Velocity.Y > -1f);
     }
 
+    private static SimulationConfig TestSimulationConfig() =>
+        new()
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 1f,
+                AirAcceleration = 0f,
+            },
+            Winch = TestWinchConfig(),
+        };
+
+    private static WinchConfig TestWinchConfig() =>
+        new()
+        {
+            PullInitialImpulse = 24f,
+            PullRadialAcceleration = 300f,
+            PullTargetInwardSpeed = 42f,
+            ArrivalDistance = 0.5f,
+        };
+
     private static GameSimulation CreateAirborneSimulation(
-        SimulationConfig config)
-    {
-        return new GameSimulation(
+        SimulationConfig config) =>
+        new(
             config,
             SimulationState.Initial with
             {
@@ -197,24 +194,34 @@ public sealed class WinchGameSimulationIntegrationTests
                     IsGrounded = false,
                 },
             });
-    }
 
     private static PlayerInput Input(PlayerButtons buttons) =>
         new(Vector2.Zero, Vector2.Zero, 0f, buttons);
 
-    private class FixedGrappleWorld : IWorldQuery
-    {
-        protected Vector3 CurrentAnchor;
+    private static WinchCableState ActiveCable(
+        Vector3 point) =>
+        new(
+            WinchTargetState.Selected,
+            WinchPathState.AtWorldAnchor(point),
+            true,
+            Vector3.Distance(
+                new Vector3(0f, 5f, 0f),
+                point),
+            0f);
 
-        public FixedGrappleWorld(Vector3 anchor)
+    private sealed class MutableGrappleWorld : IWorldQuery
+    {
+        public MutableGrappleWorld(Vector3 anchor)
         {
-            CurrentAnchor = anchor;
+            Anchor = anchor;
         }
+
+        public Vector3 Anchor { get; set; }
 
         public bool TryRaycast(in RayQuery query, out WorldHit hit)
         {
             hit = new WorldHit(
-                CurrentAnchor,
+                Anchor,
                 Vector3.UnitY,
                 0.5f,
                 1u);
@@ -230,17 +237,20 @@ public sealed class WinchGameSimulationIntegrationTests
         }
     }
 
-    private sealed class MutableGrappleWorld : FixedGrappleWorld
+    private sealed class NoHitWorld : IWorldQuery
     {
-        public MutableGrappleWorld(Vector3 anchor)
-            : base(anchor)
+        public bool TryRaycast(in RayQuery query, out WorldHit hit)
         {
+            hit = default;
+            return false;
         }
 
-        public Vector3 Anchor
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
         {
-            get => CurrentAnchor;
-            set => CurrentAnchor = value;
+            hit = default;
+            return false;
         }
     }
 }
