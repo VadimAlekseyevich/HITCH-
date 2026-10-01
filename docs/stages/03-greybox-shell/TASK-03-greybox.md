@@ -1,6 +1,6 @@
 # Task 03 — Build Greybox Movement Laboratory
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 02
 
 ## Goal
