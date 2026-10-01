@@ -1,6 +1,6 @@
 # Task 07 — Verify Clean-Checkout Bootstrap and Close Stage 1
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap  
 **Depends on:** Tasks 05 and 06
 
@@ -91,3 +91,27 @@ The completing agent should report:
 - run command/manual launch result;
 - CI run result/link if available;
 - any known bootstrap limitation.
+
+
+## Completion evidence
+
+Stage 1 gate was verified by GitHub Actions on 2026-10-01.
+
+- Godot: **4.7.2 stable .NET**
+- .NET SDK: **8.0.425**
+- Game restore/build: **success**
+- Build warnings/errors: **0 / 0**
+- Automated tests: **2 passed, 0 failed**
+- Godot headless launch: **success**
+- CI run: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36794551218
+
+The root command surface used for local verification is:
+
+```text
+build_and_run.bat build
+build_and_run.bat test
+build_and_run.bat smoke
+build_and_run.bat
+```
+
+A normal double-click on `build_and_run.bat` bootstraps missing local tools, builds, tests, downloads Godot when required, and launches the project.
