@@ -27,9 +27,12 @@
     "arrivalSurfaceCaptureRadius": 1.75,
     "pullLongRangeInwardSpeed": 52,
     "pullLongRangeDistance": 62.5,
-    "pullLaunchDecaySeconds": 0.72,
-    "pullLaunchInitialMultiplier": 2.25,
-    "pullLaunchPeakMultiplier": 4.5,
-    "pullLaunchPeakSeconds": 0.12
+    "pullLaunchDecaySeconds": 0.6,
+    "pullLaunchInitialMultiplier": 1.35,
+    "pullLaunchPeakMultiplier": 2,
+    "pullLaunchPeakSeconds": 0.14,
+    "ropeContactSurfaceOffset": 0.08,
+    "ropeEndpointTolerance": 0.22,
+    "ropeMinimumContactSpacing": 0.35
   }
 }
