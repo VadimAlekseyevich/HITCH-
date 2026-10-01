@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: ACTIVE — ITERATION 2 AFTER HUMAN GATE FAILURE**
+**Status: READY FOR HUMAN GATE — ITERATION 2**
 
 ## Objective
 
@@ -97,3 +97,18 @@ Current active loop:
 Ground locomotion is also being made more responsive with stronger braking and velocity-to-target control.
 
 Iteration 2 must pass its own human playtest before Stage 5 can become DONE.
+
+
+## Iteration 2 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36804660303
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 58 passed / 0 failed;
+- spawn stability smoke: `tick=45 y=0.9150 grounded=True`;
+- current controls: LMB select point, hold RMB pull;
+- current pull model: immediate direct velocity, no spring/reel acceleration;
+- ground locomotion: responsive desired-velocity control with active braking.
+
+Iteration 2 is now ready for the next human movement test.
