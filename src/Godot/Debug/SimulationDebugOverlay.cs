@@ -28,7 +28,7 @@ public partial class SimulationDebugOverlay : Label
 
         Text =
             "HITCH! Stage 5 dual-ODM prototype\n" +
-            "RMB alternate L/R hook | LMB reel active hooks | Space jump/detach | WASD move | Esc cursor\n" +
+            "RMB L/R hook | LMB reel | Space jump/detach | WASD | F2 tuning | Esc cursor\n" +
             $"Tick: {simulationState.Tick.Value} | Rate: {config.TickRateHz} Hz | Next RMB: {nextSide}\n" +
             $"Position: ({player.Position.X:F2}, {player.Position.Y:F2}, {player.Position.Z:F2})\n" +
             $"Velocity: ({player.Velocity.X:F2}, {player.Velocity.Y:F2}, {player.Velocity.Z:F2}) | Speed: {speed:F2}\n" +
