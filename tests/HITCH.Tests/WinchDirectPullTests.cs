@@ -10,6 +10,71 @@ namespace Hitch.Tests;
 public sealed class WinchDirectPullTests
 {
     [Fact]
+    public void GasAuthorityFadesSmoothlyInsteadOfHardCappingSpeed()
+    {
+        var config = new WinchConfig
+        {
+            GasFullAccelerationSpeed = 18f,
+            GasCutoffSpeed = 34f,
+        };
+
+        var low = WinchSystem.ComputeGasAuthority(
+            12f,
+            config);
+        var middle = WinchSystem.ComputeGasAuthority(
+            26f,
+            config);
+        var high = WinchSystem.ComputeGasAuthority(
+            40f,
+            config);
+
+        Assert.InRange(low, 0.999f, 1.001f);
+        Assert.InRange(middle, 0.45f, 0.55f);
+        Assert.InRange(high, 0f, 1e-6f);
+    }
+
+    [Fact]
+    public void ReelingGasAddsTangentialAccelerationAroundCable()
+    {
+        var config = TestConfig() with
+        {
+            PullRadialAcceleration = 1f,
+            PullTargetInwardSpeed = 1f,
+            PullLongRangeInwardSpeed = 1f,
+            GasAcceleration = 14f,
+            GasFullAccelerationSpeed = 100f,
+            GasCutoffSpeed = 120f,
+        };
+        var player = PlayerState.Initial with
+        {
+            ViewYawRadians = -MathF.PI / 2f,
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            ActiveAt(new Vector3(0f, 0f, -20f)),
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig
+            {
+                Gravity = 0.01f,
+            },
+            new NoHitWorld(),
+            0.1f);
+
+        Assert.True(result.Winch.IsPulling);
+        Assert.InRange(
+            result.Player.Velocity.X,
+            1.39f,
+            1.41f);
+        Assert.True(result.Player.Velocity.Z < 0f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Z),
+            0.09f,
+            0.11f);
+    }
+
+    [Fact]
     public void PullPreservesTangentialMomentumAndAppliesGravity()
     {
         var player = PlayerState.Initial with
