@@ -15,7 +15,7 @@ set "GODOT_URL=https://downloads.godotengine.org/?flavor=stable&platform=windows
 set "MODE=%~1"
 if "%MODE%"=="" set "MODE=run"
 
-if /I not "%MODE%"=="build" if /I not "%MODE%"=="test" if /I not "%MODE%"=="run" goto :usage
+if /I not "%MODE%"=="build" if /I not "%MODE%"=="test" if /I not "%MODE%"=="smoke" if /I not "%MODE%"=="run" goto :usage
 
 echo.
 echo ============================================================
@@ -57,6 +57,14 @@ if /I "%MODE%"=="test" goto :success
 
 call :ensure_godot
 if errorlevel 1 goto :fail
+
+if /I "%MODE%"=="smoke" (
+    echo.
+    echo [HITCH] Running headless Godot smoke check...
+    "!GODOT_EXE!" --headless --path "%ROOT%" --quit-after 2
+    if errorlevel 1 goto :fail
+    goto :success
+)
 
 echo.
 echo [HITCH] Starting Godot %GODOT_VERSION%...
@@ -151,6 +159,7 @@ echo Usage:
 echo   build_and_run.bat          Download prerequisites if needed, build, test, run.
 echo   build_and_run.bat build    Download .NET if needed and build only.
 echo   build_and_run.bat test     Download .NET if needed, build and run tests.
+echo   build_and_run.bat smoke    Build, test, download Godot, run a headless smoke check.
 echo   build_and_run.bat run      Same as double-click/default mode.
 exit /b 2
 
