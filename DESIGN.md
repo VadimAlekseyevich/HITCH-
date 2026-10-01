@@ -196,7 +196,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 12, ODM-SCALE SPEED + ZERO INERTIA.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 13, ODM-SCALE LAUNCH BURST + ZERO INERTIA.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
