@@ -31,8 +31,8 @@ public partial class SimulationDebugOverlay : Label
             : "Point: —";
 
         Text =
-            "HITCH! Stage 5 automatic-pull iteration\n" +
-            "LMB throw/replace cable (cancels pull) | RMB click start pull | WASD move | Space jump | Esc cursor\n" +
+            "HITCH! Stage 5 one-click grapple+pull\n" +
+            "RMB grapple + immediate pull | WASD move | Space jump | Esc cursor\n" +
             $"Tick: {simulationState.Tick.Value} | Rate: {config.TickRateHz} Hz | Range: {config.Winch.GrappleRange:F0}m\n" +
             $"Position: ({player.Position.X:F2}, {player.Position.Y:F2}, {player.Position.Z:F2})\n" +
             $"Velocity: ({player.Velocity.X:F2}, {player.Velocity.Y:F2}, {player.Velocity.Z:F2}) | Speed: {speed:F2}\n" +
