@@ -80,6 +80,12 @@ public sealed record WinchConfig
     /// </summary>
     public float RopeMinimumContactSpacing { get; init; } = 0.35f;
 
+    /// <summary>
+    /// Maximum distance to slide a newly discovered contact along its hit surface while
+    /// searching for the nearest edge/corner that clears both neighboring rope segments.
+    /// </summary>
+    public float RopeContactEdgeSearchDistance { get; init; } = 16f;
+
     public void Validate()
     {
         RequireFinitePositive(
@@ -148,6 +154,9 @@ public sealed record WinchConfig
         RequireFinitePositive(
             RopeMinimumContactSpacing,
             nameof(RopeMinimumContactSpacing));
+        RequireFinitePositive(
+            RopeContactEdgeSearchDistance,
+            nameof(RopeContactEdgeSearchDistance));
     }
 
     private static void RequireFinitePositive(
