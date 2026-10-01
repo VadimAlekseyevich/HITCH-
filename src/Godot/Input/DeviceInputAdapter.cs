@@ -73,19 +73,11 @@ internal sealed class DeviceInputAdapter
         }
 
         if (@event is InputEventMouseButton mouseButton
-            && mouseButton.Pressed)
+            && mouseButton.Pressed
+            && mouseButton.ButtonIndex == MouseButton.Right)
         {
-            if (mouseButton.ButtonIndex == MouseButton.Left)
-            {
-                _pendingButtons |= PlayerButtons.LeftGrapplePressed;
-                return true;
-            }
-
-            if (mouseButton.ButtonIndex == MouseButton.Right)
-            {
-                _pendingButtons |= PlayerButtons.RightGrapplePressed;
-                return true;
-            }
+            _pendingButtons |= PlayerButtons.GrapplePullPressed;
+            return true;
         }
 
         if (@event is InputEventKey keyEvent
