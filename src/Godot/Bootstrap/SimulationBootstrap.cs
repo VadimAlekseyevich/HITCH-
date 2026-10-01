@@ -44,6 +44,11 @@ public partial class SimulationBootstrap : Node
 
         _simulation = new GameSimulation(config, initialState);
 
+        _yawPivot.Position = new Vector3(
+            0f,
+            config.Locomotion.EyeOffsetFromCapsuleCenter,
+            0f);
+
         _input.CaptureMouse();
         ApplySimulationPresentation();
         DrawDebugVectors();
