@@ -12,7 +12,7 @@ script = ExtResource("1_sim")
 script = ExtResource("2_lab")
 
 [node name="Spawn" type="Marker3D" parent="."]
-position = Vector3(0, 0, 60)
+position = Vector3(0, 0, 92)
 
 [node name="PlayerView" type="Node3D" parent="."]
 
