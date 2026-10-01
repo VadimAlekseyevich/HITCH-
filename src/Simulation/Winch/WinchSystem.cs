@@ -236,6 +236,49 @@ public static class WinchSystem
             velocity =
                 tangentialVelocity
                 + (direction * radialSpeed);
+
+            if (winch.IsPulling)
+            {
+                var gasDirection = ViewForward(
+                    updatedPlayer.ViewYawRadians,
+                    updatedPlayer.ViewPitchRadians);
+
+                // ODM-like gas propulsion assists motion around the cable instead of duplicating
+                // the winch's radial job. Project the thrust onto the cable tangent plane.
+                gasDirection -=
+                    direction
+                    * Vector3.Dot(gasDirection, direction);
+
+                if (gasDirection.LengthSquared()
+                    <= TinyDistanceSquared
+                    && tangentialVelocity.LengthSquared()
+                    > TinyDistanceSquared)
+                {
+                    gasDirection =
+                        Vector3.Normalize(tangentialVelocity);
+                }
+                else if (gasDirection.LengthSquared()
+                         > TinyDistanceSquared)
+                {
+                    gasDirection =
+                        Vector3.Normalize(gasDirection);
+                }
+
+                if (gasDirection.LengthSquared()
+                    > TinyDistanceSquared)
+                {
+                    var gasAuthority =
+                        ComputeGasAuthority(
+                            velocity.Length(),
+                            config);
+
+                    velocity +=
+                        gasDirection
+                        * config.GasAcceleration
+                        * gasAuthority
+                        * fixedDeltaSeconds;
+                }
+            }
         }
 
         updatedPlayer = updatedPlayer with
@@ -257,6 +300,40 @@ public static class WinchSystem
                         : 0f,
             },
             false);
+    }
+
+    public static float ComputeGasAuthority(
+        float playerSpeed,
+        WinchConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        if (!float.IsFinite(playerSpeed) || playerSpeed <= 0f)
+        {
+            return 1f;
+        }
+
+        if (playerSpeed <= config.GasFullAccelerationSpeed)
+        {
+            return 1f;
+        }
+
+        if (playerSpeed >= config.GasCutoffSpeed)
+        {
+            return 0f;
+        }
+
+        var t = Math.Clamp(
+            (playerSpeed - config.GasFullAccelerationSpeed)
+            / (config.GasCutoffSpeed
+               - config.GasFullAccelerationSpeed),
+            0f,
+            1f);
+
+        var smooth =
+            t * t * (3f - (2f * t));
+
+        return 1f - smooth;
     }
 
     public static float ComputeDirectPullSpeed(
