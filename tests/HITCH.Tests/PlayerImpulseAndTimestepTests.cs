@@ -66,8 +66,10 @@ public sealed class PlayerImpulseAndTimestepTests
             Math.Abs(sixty.Player.Velocity.Y - oneTwenty.Player.Velocity.Y),
             0f,
             1e-4f);
+        var expectedGravity =
+            new SimulationConfig().Locomotion.Gravity;
         Assert.InRange(
-            Math.Abs(sixty.Player.Velocity.Y + 18f),
+            Math.Abs(sixty.Player.Velocity.Y + expectedGravity),
             0f,
             1e-4f);
 
