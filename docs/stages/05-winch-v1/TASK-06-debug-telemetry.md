@@ -1,6 +1,6 @@
 # Task 06 — Add Rope/Debug Visualization and Telemetry
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 05
 
 ## Goal
