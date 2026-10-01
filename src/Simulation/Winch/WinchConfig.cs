@@ -22,6 +22,13 @@ public sealed record WinchConfig
     /// </summary>
     public float ArrivalContactTolerance { get; init; } = 0.06f;
 
+    /// <summary>
+    /// Maximum tangential offset from the selected anchor point at which touching the selected
+    /// surface counts as a completed pull. This prevents endless orbiting caused by collision
+    /// preserving tangential velocity while still requiring the player to reach the anchor area.
+    /// </summary>
+    public float ArrivalSurfaceCaptureRadius { get; init; } = 1.75f;
+
     public void Validate()
     {
         RequireFinitePositive(
@@ -36,6 +43,9 @@ public sealed record WinchConfig
         RequireFiniteNonNegative(
             ArrivalContactTolerance,
             nameof(ArrivalContactTolerance));
+        RequireFinitePositive(
+            ArrivalSurfaceCaptureRadius,
+            nameof(ArrivalSurfaceCaptureRadius));
     }
 
     private static void RequireFinitePositive(
