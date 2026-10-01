@@ -71,17 +71,6 @@ public static class WinchSystem
             ? 0f
             : MathF.Sqrt(distanceSquared);
 
-        if (distance <= config.ArrivalDistance)
-        {
-            // Arrival is intentionally simple for this iteration:
-            // stop at the point, consume the target, and begin falling under normal locomotion.
-            updatedPlayer = player with { Velocity = Vector3.Zero };
-
-            return new WinchStepResult(
-                updatedPlayer,
-                WinchState.Initial);
-        }
-
         if (!winch.IsPulling)
         {
             return new WinchStepResult(
@@ -91,6 +80,17 @@ public static class WinchSystem
                     LastActualDistance = distance,
                     LastPullSpeed = 0f,
                 });
+        }
+
+        if (distance <= config.ArrivalDistance)
+        {
+            // Arrival is intentionally simple for this iteration:
+            // stop at the point, consume the target, and begin falling under normal locomotion.
+            updatedPlayer = player with { Velocity = Vector3.Zero };
+
+            return new WinchStepResult(
+                updatedPlayer,
+                WinchState.Initial);
         }
 
         var direction = toTarget / distance;
