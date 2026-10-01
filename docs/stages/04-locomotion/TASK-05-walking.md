@@ -1,6 +1,6 @@
 # Task 05 — Add Slow View-Relative Walking
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 04
 
 ## Goal
