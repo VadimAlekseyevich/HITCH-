@@ -6,25 +6,23 @@ namespace Hitch.Tests;
 public sealed class WinchConfigTests
 {
     [Fact]
-    public void DefaultWinchConfigIsValid()
+    public void DefaultDirectPullConfigIsValid()
     {
         var config = new WinchConfig();
 
         config.Validate();
 
         Assert.True(config.GrappleRange > 0f);
-        Assert.True(config.ReelMaxSpeed > 0f);
-        Assert.True(config.SpringAccelerationPerMeter > 0f);
-        Assert.InRange(config.MinimumReelInMultiplier, 0.0001f, 1f);
+        Assert.True(config.PullSpeed > 0f);
+        Assert.True(config.ArrivalDistance > 0f);
     }
 
     [Fact]
-    public void FalloffEndMustExceedStart()
+    public void PullSpeedMustBePositive()
     {
         var config = new WinchConfig
         {
-            ReelFalloffStartSpeed = 20f,
-            ReelFalloffEndSpeed = 20f,
+            PullSpeed = 0f,
         };
 
         Assert.Throws<ArgumentOutOfRangeException>(config.Validate);
@@ -37,7 +35,7 @@ public sealed class WinchConfigTests
         {
             Winch = new WinchConfig
             {
-                GrappleRange = float.NaN,
+                ArrivalDistance = float.NaN,
             },
         };
 
