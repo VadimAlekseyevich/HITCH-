@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 14: one unlimited-length RMB cable with zero carried inertia, 90–160 m/s sustained speed, and a two-stage launch surge. Fresh RMB starts at 1.75× current pull speed, reaches 2.75× after 0.10 s, then decays to sustained speed over 0.70 s. Space explicitly detaches while preserving current flight velocity. RMB retarget still discards old direction and starts a fresh surge; wall/ceiling impacts hard-stop and arrival latches at zero velocity. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 15: compact-city scale with zero carried inertia, 22.5–40 m/s sustained direct pull, and a stronger relative two-stage launch surge. Fresh RMB starts at 2× current pull speed, reaches 4× after 0.12 s, then decays to sustained speed over 0.65 s. Space detaches while preserving current flight velocity; retarget discards old direction and starts a fresh surge; wall/ceiling impacts hard-stop and arrival latches at zero velocity. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
@@ -84,7 +84,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Map count | DECIDED | One MVP arena. |
 | Shape | DECIDED | Small open arena with void around it. |
 | Art | DECIDED | Greybox. |
-| Current Stage 5 room | HYPOTHESIS | Enclosed high-speed movement lab with four walls and ceiling; final MVP arena shape remains a separate design question. |
+| Current Stage 5 room | HYPOTHESIS | Enclosed 200 × 250 × 80 m greybox city lab with varied buildings, streets, four boundary walls, and ceiling; final MVP arena shape remains a separate design question. |
 
 # Technology
 
