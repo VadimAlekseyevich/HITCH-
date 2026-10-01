@@ -36,6 +36,27 @@ public sealed class WinchConfigTests
     }
 
     [Fact]
+    public void DefaultOdmReelHasNoArtificialLaunchBurst()
+    {
+        var config = new WinchConfig();
+
+        Assert.Equal(1f, config.PullLaunchInitialMultiplier);
+        Assert.Equal(1f, config.PullLaunchPeakMultiplier);
+        Assert.InRange(
+            config.PullTargetInwardSpeed,
+            8f,
+            10f);
+        Assert.InRange(
+            config.PullLongRangeInwardSpeed,
+            14f,
+            18f);
+        Assert.InRange(
+            config.MaxRopeLength,
+            70f,
+            80f);
+    }
+
+    [Fact]
     public void ArrivalContactToleranceMayBeZero()
     {
         var config = new WinchConfig
