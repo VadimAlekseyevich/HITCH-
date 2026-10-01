@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 10 SURFACE LATCH + LARGE ARENA**
+**Status: READY FOR HUMAN GATE — ITERATION 11 ZERO INERTIA**
 
 ## Objective
 
@@ -520,3 +520,37 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36912647386
 - large-room smoke: west/east/back/front/ceiling all detected.
 
 This technical result does not close the human gate. The iteration is only successful if the actual playtest no longer shows residual oscillation and the arena/lighting feel materially better.
+
+
+## Human gate result — iteration 10
+
+**Result: ITERATE / EXCESSIVE INERTIA IDENTIFIED**
+
+Human feedback:
+
+- the remaining movement problem is excessive inertia rather than only arrival geometry;
+- even after hitting a wall, carried velocity drags the player away;
+- momentum preservation is not helping the desired movement feel and should be removed from the active prototype.
+
+## Iteration 11 — zero inertia
+
+The active Stage 5 prototype now intentionally rejects carried grapple inertia.
+
+While pulling:
+
+- previous velocity is discarded;
+- player velocity is set directly toward the active anchor every tick;
+- ordinary gravity and air-control are bypassed during grapple travel;
+- no tangential/orbital component survives from the previous trajectory.
+
+On collision:
+
+- walkable floor contacts still allow ordinary horizontal ground movement;
+- wall, ceiling, and steep-surface impacts clear velocity completely instead of converting impact energy into sideways slide.
+
+On release:
+
+- RMB miss clears the cable and clears grapple-carried velocity;
+- completed grapple remains latched at exactly zero velocity until retarget/release.
+
+This is a deliberate arcade movement experiment. The previous Stage 5 momentum-preservation hypothesis is reopened and must not be silently restored.
