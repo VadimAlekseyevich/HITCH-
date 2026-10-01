@@ -1,6 +1,6 @@
 # Task 02 — Implement Godot/Jolt World-Query Adapter
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 01
 
 ## Goal
