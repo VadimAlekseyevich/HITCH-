@@ -1,9 +1,11 @@
 using Godot;
+using Hitch.GodotIntegration.Debug;
 using Hitch.GodotIntegration.Input;
 using Hitch.GodotIntegration.World;
 using Hitch.Simulation;
 using Hitch.Simulation.Input;
 using Hitch.Simulation.State;
+using NumericsVector3 = System.Numerics.Vector3;
 
 namespace Hitch.GodotIntegration.Bootstrap;
 
@@ -13,23 +15,39 @@ public partial class SimulationBootstrap : Node
     private readonly DeviceInputAdapter _input = new();
 
     private GameSimulation _simulation = null!;
+    private Node3D _playerRoot = null!;
     private Node3D _yawPivot = null!;
     private Node3D _pitchPivot = null!;
-    private Label _status = null!;
+    private SimulationDebugOverlay _overlay = null!;
+    private DebugLineDrawer3D _debugLines = null!;
+    private PlayerInput _lastInput = PlayerInput.Neutral;
 
     public override void _Ready()
     {
+        _playerRoot = GetNode<Node3D>("PlayerView");
+        _yawPivot = GetNode<Node3D>("PlayerView/Yaw");
+        _pitchPivot = GetNode<Node3D>("PlayerView/Yaw/Pitch");
+        _overlay = GetNode<SimulationDebugOverlay>("Hud/Status");
+        _debugLines = GetNode<DebugLineDrawer3D>("DebugLines");
+
         var config = new SimulationConfig();
         config.Validate();
 
-        _simulation = new GameSimulation(config, SimulationState.Initial);
-        _yawPivot = GetNode<Node3D>("PlayerView/Yaw");
-        _pitchPivot = GetNode<Node3D>("PlayerView/Yaw/Pitch");
-        _status = GetNode<Label>("Hud/Status");
+        var spawn = _playerRoot.Position;
+        var initialState = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new NumericsVector3(spawn.X, spawn.Y, spawn.Z),
+            },
+        };
+
+        _simulation = new GameSimulation(config, initialState);
 
         _input.CaptureMouse();
-        ApplySimulationView();
-        UpdateStatus(PlayerInput.Neutral);
+        ApplySimulationPresentation();
+        DrawDebugVectors();
+        RefreshOverlay();
     }
 
     public override void _Input(InputEvent @event)
@@ -44,34 +62,60 @@ public partial class SimulationBootstrap : Node
     {
         _ = delta;
 
-        var input = _input.ConsumePhysicsTickInput();
-        _simulation.Step(input, _world);
+        _lastInput = _input.ConsumePhysicsTickInput();
+        _simulation.Step(_lastInput, _world);
 
-        ApplySimulationView();
+        ApplySimulationPresentation();
+        DrawDebugVectors();
 
-        // Stage 3 debug UI will replace this bootstrap text with a proper overlay.
+        // Developer UI does not need to rebuild strings every simulation tick.
         if (_simulation.State.Tick.Value % 10UL == 0UL)
         {
-            UpdateStatus(input);
+            RefreshOverlay();
         }
     }
 
-    private void ApplySimulationView()
+    private void ApplySimulationPresentation()
     {
         var player = _simulation.State.Player;
+
+        _playerRoot.Position = new Vector3(
+            player.Position.X,
+            player.Position.Y,
+            player.Position.Z);
 
         _yawPivot.Rotation = new Vector3(0f, player.ViewYawRadians, 0f);
         _pitchPivot.Rotation = new Vector3(player.ViewPitchRadians, 0f, 0f);
     }
 
-    private void UpdateStatus(PlayerInput input)
+    private void DrawDebugVectors()
     {
-        var state = _simulation.State.Player;
+        var player = _simulation.State.Player;
+        var origin = _yawPivot.GlobalPosition;
+        var forward = -_pitchPivot.GlobalTransform.Basis.Z;
+        var velocity = new Vector3(
+            player.Velocity.X,
+            player.Velocity.Y,
+            player.Velocity.Z);
 
-        _status.Text =
-            "Stage 3 input/camera shell\n" +
-            $"Tick: {_simulation.State.Tick.Value} | {_simulation.Config.TickRateHz} Hz\n" +
-            $"Yaw: {state.ViewYawRadians:F2} | Pitch: {state.ViewPitchRadians:F2}\n" +
-            $"Move: ({input.Move.X:F2}, {input.Move.Y:F2}) | Mouse captured: {_input.IsMouseCaptured}";
+        _debugLines.BeginFrame();
+        _debugLines.DrawLine(
+            origin,
+            origin + (forward * 3f),
+            Colors.Cyan);
+        _debugLines.DrawLine(
+            origin,
+            origin + velocity,
+            Colors.Orange);
+        _debugLines.Commit();
+    }
+
+    private void RefreshOverlay()
+    {
+        _overlay.Refresh(
+            _simulation.State,
+            _simulation.Config,
+            _lastInput,
+            _input.IsMouseCaptured);
     }
 }
