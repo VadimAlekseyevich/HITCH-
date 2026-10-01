@@ -1,6 +1,6 @@
 # Task 05 — Add Minimal GitHub Actions CI
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap  
 **Depends on:** Task 04
 
