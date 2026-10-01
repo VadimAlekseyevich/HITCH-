@@ -31,8 +31,8 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 
 | Topic | Status | Decision |
 |---|---|---|
-| Base walking | DECIDED | Slow. |
-| Base jump | DECIDED | Weak. |
+| Base walking | HYPOTHESIS | Stage 5 override: fast/responsive, currently ~13 m/s max ground speed. Original slow baseline is reopened for feel testing. |
+| Base jump | HYPOTHESIS | Stage 5 override: strong ground jump plus exactly one air jump per airborne sequence; landing restores it. |
 | Primary traversal | DECIDED | Winch/grapple. |
 | Momentum on detach | HYPOTHESIS | Reopened in Stage 5 iteration 11. Active prototype clears grapple-carried velocity on release/miss instead of preserving inertia. |
 | Air control | DECIDED | Very weak hidden correction only. |
@@ -48,7 +48,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Topic | Status | Decision |
 |---|---|---|
 | Targeting | DECIDED | Hitscan/raycast. |
-| Current grapple control | DECIDED | RMB shoots/replaces the single active cable and starts pull immediately; LMB has no grapple action in the active prototype. |
+| Current grapple control | HYPOTHESIS | Iteration 18: RMB attaches/retargets only; LMB starts automatic reel-in; repeated LMB while already reeling does not restart burst; Space detaches while preserving full velocity; RMB miss keeps an existing cable. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
 | Range | DECIDED | No gameplay rope-length limit in the active MVP movement prototype. Finite ray length is engine-only. |
 | Pull completion geometry | DECIDED | Completion uses anchor surface geometry plus capsule support; completion becomes a latched zero-velocity stop. |
@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 17: compact-city gravity swing with deterministic piecewise rope wrapping. Sustained radial pull remains 30–52 m/s; launch is reduced to 1.35× immediate / 2× peak at 0.14 s / 0.60 s decay. The rope is represented as player → up to 4 bend contacts → anchor. Obstruction adds a bend; restored visibility removes bends; pull targets the nearest bend while rope length is the sum of all polyline segments. Space preserves full velocity on detach; world collisions remove only the component into the surface, preserving allowed tangent motion. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 18: finite gravity-driven rope with explicit reel state. Max rope/acquisition length is 100 m. RMB attaches without reeling; LMB starts reel-in. Attached idle rope holds deployed length and preserves swing tangent. Reel target remains 30–52 m/s with 1.35× → 2× start envelope, but radial velocity changes are acceleration-bounded so bends cannot instant-snap/catapult the player. Piecewise path remains capped at 4 bend contacts; geometry can pay out only required path length up to the global max. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
