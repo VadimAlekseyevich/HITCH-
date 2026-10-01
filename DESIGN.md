@@ -192,6 +192,40 @@ The chosen implementation must preserve responsive locomotion.
 
 # 5. Winch / grapple
 
+## 5.0 Current Stage 5 playtest override
+
+**CURRENT PROTOTYPE HYPOTHESIS — replaces the previous spring/reel implementation for active testing.**
+
+The first human movement gate rejected the initial one-sided spring + accelerating reel model because it felt unpredictable, sticky, and difficult to control.
+
+For the next local playtest, deliberately simplify the loop:
+
+- **LMB:** hitscan-select or replace one world target point;
+- selecting a point does not pull by itself;
+- **hold RMB:** immediately pull toward the selected point at a configured direct pull speed;
+- there is no pull acceleration ramp in this iteration;
+- **release RMB early:** pull force stops immediately while current momentum is retained;
+- **LMB while RMB is held:** immediately retargets the active pull to the new valid point;
+- reaching the target consumes/clears it, stops pulling, clears current velocity, and ordinary gravity resumes so the player falls away from the surface;
+- Q/E reel controls are disabled for this iteration.
+
+This is intentionally a **simpler experiment**, not a declaration that spring/reel mechanics are permanently removed from HITCH!.
+
+The previously documented spring, reel motor, slack, and energy-gain requirements are **reopened/TBD for now**. Do not reintroduce them into the active prototype until the direct-pull loop has been tested.
+
+### Base locomotion playtest correction
+
+The first playtest also reported ground movement feeling like walking on ice.
+
+Current requirement for the local prototype:
+
+- grounded movement should respond quickly to direction changes;
+- releasing movement input should visibly brake horizontal ground velocity;
+- grounded control may dissipate excess horizontal momentum instead of preserving it indefinitely;
+- air/pull momentum remains physically important.
+
+---
+
 ## 5.1 Target acquisition
 
 **DECIDED:** grapple targeting is hitscan.
