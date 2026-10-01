@@ -164,22 +164,26 @@ public partial class MovementLabBuilder : Node3D
             "MainAvenue",
             new Vector3(0f, 0.015f, 0f),
             new Vector3(13f, 0.03f, 230f),
-            _roadMarkerMaterial);
+            _roadMarkerMaterial,
+            useCollision: false);
         AddBox(
             "CrossStreetNorth",
             new Vector3(0f, 0.02f, -48f),
             new Vector3(188f, 0.04f, 11f),
-            _roadMarkerMaterial);
+            _roadMarkerMaterial,
+            useCollision: false);
         AddBox(
             "CrossStreetCenter",
             new Vector3(0f, 0.02f, 12f),
             new Vector3(188f, 0.04f, 11f),
-            _roadMarkerMaterial);
+            _roadMarkerMaterial,
+            useCollision: false);
         AddBox(
             "CrossStreetSouth",
             new Vector3(0f, 0.02f, 72f),
             new Vector3(188f, 0.04f, 11f),
-            _roadMarkerMaterial);
+            _roadMarkerMaterial,
+            useCollision: false);
     }
 
     private void BuildCity()
@@ -314,7 +318,8 @@ public partial class MovementLabBuilder : Node3D
         Vector3 position,
         Vector3 size,
         Material? material = null,
-        uint collisionLayer = 1u)
+        uint collisionLayer = 1u,
+        bool useCollision = true)
     {
         AddChild(new CsgBox3D
         {
@@ -322,7 +327,7 @@ public partial class MovementLabBuilder : Node3D
             Position = position,
             Size = size,
             Material = material ?? _buildingMaterialA,
-            UseCollision = true,
+            UseCollision = useCollision,
             CollisionLayer = collisionLayer,
         });
     }
