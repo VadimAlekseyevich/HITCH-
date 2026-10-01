@@ -877,3 +877,19 @@ This does **not** restore iteration 10's unwanted collision inertia:
 - reaching the target surface still enters the stable latched stop.
 
 The human gate should now judge whether the grapple finally feels like a swingable cable rather than a guided zipline.
+
+
+### Iteration 16 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36921058182
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 74 passed / 0 failed;
+- active-grapple gravity covered by automated tests;
+- tangential swing velocity preservation covered by automated tests;
+- retarget radial replacement + tangent preservation covered by integration tests;
+- spawn smoke: stable and grounded;
+- compact city enclosure smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
