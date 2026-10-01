@@ -1,3 +1,5 @@
+using Hitch.Simulation.Winch;
+
 namespace Hitch.Simulation.State;
 
 /// <summary>
@@ -6,9 +8,11 @@ namespace Hitch.Simulation.State;
 /// </summary>
 public readonly record struct SimulationState(
     SimulationTick Tick,
-    PlayerState Player)
+    PlayerState Player,
+    WinchState Winch)
 {
     public static SimulationState Initial => new(
         SimulationTick.Zero,
-        PlayerState.Initial);
+        PlayerState.Initial,
+        WinchState.Initial);
 }
