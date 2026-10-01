@@ -3,7 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
   pull_request:
+    paths-ignore:
+      - '**/*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +26,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.425
+
+      - name: Cache pinned Godot
+        uses: actions/cache@v4
+        with:
+          path: .tools/godot-4.7.2
+          key: godot-4.7.2-dotnet-windows-x64
 
       - name: Build, test, and launch headless smoke check
         shell: cmd
