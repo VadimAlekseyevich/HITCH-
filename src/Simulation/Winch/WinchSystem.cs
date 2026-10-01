@@ -75,22 +75,13 @@ public static class WinchSystem
 
         if (distance <= config.ArrivalDistance)
         {
-            // Pull is finished. Remove only motion still pointing into the anchor so tangential
-            // momentum survives and gravity/ordinary control take over immediately.
-            var velocity = updatedPlayer.Velocity;
-
-            if (distance > 0f)
-            {
-                var inwardSpeed = Vector3.Dot(velocity, direction);
-                if (inwardSpeed > 0f)
-                {
-                    velocity -= direction * inwardSpeed;
-                }
-            }
-
+            // Full reel-in completes at the anchor.
+            // The previous iterations preserved tangential velocity here, which caused the
+            // player to orbit/slide around the target after "arriving". The current human
+            // requirement is explicit: complete pull -> complete stop -> ordinary gravity.
             updatedPlayer = updatedPlayer with
             {
-                Velocity = velocity,
+                Velocity = Vector3.Zero,
                 IsGrounded = false,
             };
 
