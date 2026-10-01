@@ -194,36 +194,57 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 5.**
+**CURRENT PROTOTYPE HYPOTHESIS — DUAL-CABLE ITERATION.**
 
-The active Stage 5 control model is deliberately minimal:
+The active local movement prototype now uses two independent grapple cables:
 
-- **RMB click is the only grapple action**;
-- RMB immediately raycasts along the center crosshair;
-- on a valid hit, any previous cable is replaced;
-- the new cable is created and automatic pull begins in the same simulation tick;
-- there is no separate LMB cable-placement step;
-- there is no RMB hold/release gameplay state;
-- pull begins with a strong immediate velocity impulse toward the anchor;
-- continuous pull acts specifically on the **radial velocity component toward the anchor**;
-- the cable must strongly contract distance to the anchor rather than merely steer the trajectory;
-- tangential velocity is preserved so swinging/orbiting remains possible;
-- the current experiment drives radial inward speed toward a high minimum target instead of replacing the whole velocity vector;
-- tangential momentum is preserved rather than replacing the full velocity vector every tick;
-- another RMB click while pulling immediately retargets and starts pull toward the new hit;
-- an RMB miss clears the old cable and leaves the player flying on existing momentum;
-- reaching the target ends automatic pull and removes inward motion into the surface while ordinary gravity/control resume.
+- **LMB** owns the left cable;
+- **RMB** owns the right cable;
+- clicking a side raycasts a fresh world anchor for that side;
+- the clicked side replaces only its own previous cable;
+- pull starts immediately in the same simulation tick;
+- both cables may be active simultaneously;
+- a missed shot clears only that side.
 
-Current experimental values:
+### Unlimited gameplay rope length
 
-- grapple range: **72 m**;
-- initial pull impulse: **30 m/s**;
-- radial pull acceleration: **420 m/s²**;
-- target minimum inward radial speed: **55 m/s**.
+There is no gameplay rope-length cap in the active prototype.
 
-LMB currently has no grapple behavior.
+The physics query still uses a large finite endpoint because the world-query API requires one. That endpoint is an implementation detail and must not be exposed as a gameplay range.
 
-This remains an experiment and does not permanently resolve future spring/reel design.
+### Dual-cable pull model
+
+The goal is an action-oriented dual-cable feel inspired by fast aerial traversal rather than strict rope realism.
+
+For each active cable:
+
+- apply a one-time initial impulse toward that cable's anchor when fired;
+- continuously operate on radial speed toward that anchor;
+- preserve tangential momentum for swing/arc movement;
+- do not reduce already-faster inward radial speed.
+
+When two cables are active:
+
+- calculate each cable's correction from the same base velocity;
+- sum both corrections;
+- keep left/right processing symmetric and order-independent.
+
+Current per-cable playtest values:
+
+- initial impulse: **24 m/s**;
+- radial acceleration: **300 m/s²**;
+- target inward radial speed: **42 m/s**;
+- arrival distance: **0.9 m**.
+
+### Arrival behavior
+
+Each cable can complete independently.
+
+- If one cable reaches its anchor while the other is still active, clear only the arrived cable.
+- When the **last active cable** completes, clear all player velocity.
+- Ordinary gravity and locomotion then resume.
+
+This explicitly prevents the previously rejected endless orbiting after a completed reel-in.
 
 ### Base locomotion playtest correction
 
@@ -239,11 +260,12 @@ Current local-prototype requirement:
 
 For Stage 5 feel testing only:
 
-- the greybox lab is enlarged vertically;
-- multiple grappleable structures reach roughly 44–72 m;
+- the greybox lab is a fully enclosed high room;
+- four walls and a ceiling prevent high-speed escape;
+- multiple grappleable structures provide vertical routes;
 - a small center-screen crosshair marks the exact aiming direction.
 
-These are prototype-testing aids, not final arena/UI decisions.
+These are prototype-testing aids, not necessarily final arena/UI decisions.
 
 ---
 
