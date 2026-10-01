@@ -246,6 +246,8 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullInitialImpulse = 24f,
                 PullRadialAcceleration = 300f,
                 PullTargetInwardSpeed = 42f,
+                PullLongRangeInwardSpeed = 42f,
+                PullLongRangeDistance = 250f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
