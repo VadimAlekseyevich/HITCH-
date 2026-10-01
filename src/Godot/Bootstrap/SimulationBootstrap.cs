@@ -120,17 +120,7 @@ public partial class SimulationBootstrap : Node
         var player = state.Player;
         var origin = _yawPivot.GlobalPosition;
         var velocity = ToGodot(player.Velocity);
-        var aimRay = WinchSystem.BuildAimRay(
-            player,
-            _simulation.Config.Winch,
-            _simulation.Config.Locomotion);
-
         _debugLines.BeginFrame();
-
-        _debugLines.DrawLine(
-            ToGodot(aimRay.From),
-            ToGodot(aimRay.To),
-            new Color(0.2f, 0.8f, 1f, 0.45f));
 
         _debugLines.DrawLine(
             origin,
@@ -140,14 +130,14 @@ public partial class SimulationBootstrap : Node
         if (state.Winch.HasTarget)
         {
             var anchor = ToGodot(state.Winch.Path.CurrentPullPoint);
+            var cableColor = state.Winch.IsPulling
+                ? Colors.Yellow
+                : new Color(0.72f, 0.78f, 0.86f, 0.8f);
 
-            if (state.Winch.IsPulling)
-            {
-                _debugLines.DrawLine(
-                    ToGodot(player.Position),
-                    anchor,
-                    Colors.Yellow);
-            }
+            _debugLines.DrawLine(
+                ToGodot(player.Position),
+                anchor,
+                cableColor);
 
             const float markerSize = 0.35f;
             _debugLines.DrawLine(
