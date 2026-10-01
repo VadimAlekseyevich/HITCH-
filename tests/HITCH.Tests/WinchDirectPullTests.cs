@@ -109,6 +109,36 @@ public sealed class WinchDirectPullTests
         Assert.Equal(0f, result.Winch.LastPullSpeed);
     }
 
+
+    [Fact]
+    public void SelectingNearbyPointDoesNotTriggerArrivalWithoutRmb()
+    {
+        var config = new WinchConfig
+        {
+            ArrivalDistance = 0.75f,
+        };
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(3f, 1f, 2f),
+        };
+        var state = SelectedAt(
+            new Vector3(0f, 0f, -0.5f),
+            pulling: false);
+
+        var result = WinchSystem.Step(
+            player,
+            state,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.True(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(player.Velocity, result.Player.Velocity);
+    }
+
     private static PlayerInput Input(PlayerButtons buttons) =>
         new(Vector2.Zero, Vector2.Zero, 0f, buttons);
 
