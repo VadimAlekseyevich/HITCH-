@@ -127,6 +127,48 @@ public sealed class WinchGameSimulationIntegrationTests
         Assert.True(Math.Abs(retargeted.Player.Velocity.Z) < 2f);
     }
 
+
+    [Fact]
+    public void ReachingTargetConsumesPointAndGravityImmediatelyResumes()
+    {
+        var config = new SimulationConfig
+        {
+            Winch = new Hitch.Simulation.Winch.WinchConfig
+            {
+                PullSpeed = 12f,
+                ArrivalDistance = 0.75f,
+            },
+        };
+        var player = SimulationState.Initial.Player with
+        {
+            Position = new Vector3(0f, 5f, 0f),
+            Velocity = new Vector3(50f, 20f, -10f),
+            IsGrounded = false,
+        };
+        var target = new Vector3(0f, 5f, -0.5f);
+        var initial = SimulationState.Initial with
+        {
+            Player = player,
+            Winch = new Hitch.Simulation.Winch.WinchState(
+                Hitch.Simulation.Winch.WinchTargetState.Selected,
+                Hitch.Simulation.Winch.WinchPathState.AtWorldAnchor(target),
+                true,
+                0.5f,
+                12f),
+        };
+        var simulation = new GameSimulation(config, initial);
+
+        var after = simulation.Step(
+            PlayerInput.Neutral,
+            new FixedGrappleWorld(target));
+
+        Assert.False(after.Winch.HasTarget);
+        Assert.False(after.Winch.IsPulling);
+        Assert.Equal(0f, after.Player.Velocity.X);
+        Assert.Equal(0f, after.Player.Velocity.Z);
+        Assert.True(after.Player.Velocity.Y < 0f);
+    }
+
     private static PlayerInput Input(PlayerButtons buttons) =>
         new(Vector2.Zero, Vector2.Zero, 0f, buttons);
 
