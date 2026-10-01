@@ -348,3 +348,21 @@ Current behavior:
 The enclosed room and center crosshair remain.
 
 Iteration 8 must pass a new human movement test before Stage 5 may advance.
+
+
+### Iteration 8 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36810109190
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 56 passed / 0 failed;
+- spawn smoke: `tick=45 y=0.9150 grounded=True`;
+- enclosed-room smoke: west/east/back/front/ceiling all detected;
+- dual-cable implementation removed;
+- no gameplay rope-length cap;
+- fixed `ArrivalDistance` removed;
+- capsule-aware surface completion covered by regression tests, including ceiling contact;
+- completed pull clears residual velocity before ordinary gravity resumes.
+
+Iteration 8 is technically ready for human movement testing.
