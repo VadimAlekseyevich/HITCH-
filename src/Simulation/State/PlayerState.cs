@@ -17,6 +17,11 @@ public readonly record struct PlayerState(
     float ViewPitchRadians,
     bool IsGrounded)
 {
+    /// <summary>
+    /// One airborne jump is restored whenever the player is grounded.
+    /// </summary>
+    public bool AirJumpAvailable { get; init; } = true;
+
     public static PlayerState Initial => new(
         Vector3.Zero,
         Vector3.Zero,
