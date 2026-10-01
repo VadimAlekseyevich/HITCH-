@@ -28,6 +28,8 @@ public sealed record PlayerLocomotionConfig
 
     public float AirAcceleration { get; init; } = 1.8f;
 
+    public float AirControlMaxSpeed { get; init; } = 2.5f;
+
     public float GroundProbeDistance { get; init; } = 0.08f;
 
     public float CollisionMargin { get; init; } = 0.02f;
@@ -81,6 +83,7 @@ public sealed record PlayerLocomotionConfig
         RequireFiniteNonNegative(GroundBraking, nameof(GroundBraking));
         RequireFinitePositive(JumpSpeed, nameof(JumpSpeed));
         RequireFiniteNonNegative(AirAcceleration, nameof(AirAcceleration));
+        RequireFinitePositive(AirControlMaxSpeed, nameof(AirControlMaxSpeed));
         RequireFinitePositive(GroundProbeDistance, nameof(GroundProbeDistance));
         RequireFiniteNonNegative(CollisionMargin, nameof(CollisionMargin));
 
