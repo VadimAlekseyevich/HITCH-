@@ -1,5 +1,6 @@
 using System.Numerics;
 using Hitch.Simulation.Input;
+using Hitch.Simulation.Player;
 using Hitch.Simulation.State;
 using Hitch.Simulation.World;
 
@@ -20,7 +21,7 @@ public static class WinchSystem
         in WinchState previousWinch,
         in PlayerInput input,
         WinchConfig config,
-        Player.PlayerLocomotionConfig locomotionConfig,
+        PlayerLocomotionConfig locomotionConfig,
         IWorldQuery world,
         float fixedDeltaSeconds)
     {
@@ -139,7 +140,7 @@ public static class WinchSystem
     public static RayQuery BuildAimRay(
         in PlayerState player,
         WinchConfig config,
-        Player.PlayerLocomotionConfig locomotionConfig)
+        PlayerLocomotionConfig locomotionConfig)
     {
         var eye = player.Position
             + (Vector3.UnitY * locomotionConfig.EyeOffsetFromCapsuleCenter);
@@ -178,7 +179,7 @@ public static class WinchSystem
         in PlayerState player,
         in WinchState current,
         WinchConfig config,
-        Player.PlayerLocomotionConfig locomotionConfig,
+        PlayerLocomotionConfig locomotionConfig,
         IWorldQuery world)
     {
         var query = BuildAimRay(player, config, locomotionConfig);
