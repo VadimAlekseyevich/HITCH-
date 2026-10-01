@@ -8,57 +8,67 @@ config/mvp_tuning.json
 
 The Godot runner loads and validates this file at startup.
 
-## Stage 5 current dual-cable iteration
+## Stage 5 current single-cable iteration
 
-The active prototype is intentionally action-oriented and inspired by the feel of dual-cable traversal systems rather than by a fully realistic rope simulation.
+Current controls:
 
-Controls:
-
-- LMB owns the left cable;
-- RMB owns the right cable;
-- clicking a side raycasts/replaces that side and immediately starts pull;
-- both cables can pull simultaneously.
+- RMB shoots/replaces the single cable;
+- pull starts immediately;
+- RMB does not need to be held;
+- repeated RMB clicks retarget immediately.
 
 ## Rope range
 
 There is currently **no gameplay rope-length tuning parameter**.
 
-The old `grappleRange` setting has been removed.
+The old `grappleRange` setting is removed.
 
 A large finite ray endpoint exists only because the world-query API requires one. It is not a gameplay cap.
 
 ## Pull values
 
-Current shared per-cable values:
-
 ```text
-pullInitialImpulse       = 24 m/s
-pullRadialAcceleration   = 300 m/s²
-pullTargetInwardSpeed    = 42 m/s
-arrivalDistance          = 0.9 m
+pullInitialImpulse        = 24 m/s
+pullRadialAcceleration    = 300 m/s²
+pullTargetInwardSpeed     = 42 m/s
+arrivalContactTolerance   = 0.06 m
 ```
-
-Each active cable independently tries to establish inward radial speed toward its own anchor.
-
-With two cables active, both velocity corrections are computed symmetrically from the same base velocity and then summed.
-
-## Momentum rule
 
 During pull:
 
-- tangential momentum is preserved for swinging;
-- radial speed toward each anchor is aggressively increased;
+- tangential velocity is preserved for swing;
+- radial velocity toward the anchor is aggressively increased;
 - faster existing inward speed is not clamped down.
 
-At arrival:
+## Capsule-aware completion
 
-- one arrived cable clears independently if the other is still active;
-- when the last active cable finishes, all player velocity is cleared;
-- gravity and ordinary locomotion resume.
+Do **not** use a fixed center-to-anchor arrival distance.
+
+The exact center distance at physical surface contact depends on capsule geometry and approach direction.
+
+Current completion distance is based on:
+
+```text
+capsule radius
++ projected capsule half-segment length
++ collision margin
++ arrivalContactTolerance
+```
+
+With current player dimensions this is approximately:
+
+- horizontal wall: ~0.53 m from anchor;
+- ceiling/floor direction: ~0.98 m from anchor.
+
+This fixes the case where the capsule was already physically against a ceiling but the old fixed `0.9 m` threshold kept the cable active and produced residual orbiting/rotation.
+
+At completed pull:
+
+- velocity is fully cleared;
+- cable ends;
+- ordinary gravity then resumes.
 
 ## Base locomotion
-
-Current responsive prototype values:
 
 ```text
 groundMaxSpeed      = 6 m/s
@@ -72,12 +82,12 @@ airControlMaxSpeed  = 5 m/s
 
 The Stage 5 test lab is physically enclosed:
 
-- floor: about 120 × 150 m;
+- floor about 120 × 150 m;
 - four continuous perimeter walls;
 - ceiling above the tallest test structures;
 - multiple vertical towers/spires and aerial targets.
 
-Headless smoke verifies that all four walls and the ceiling are present.
+Headless smoke verifies all four walls and the ceiling.
 
 ## Tick rate
 
