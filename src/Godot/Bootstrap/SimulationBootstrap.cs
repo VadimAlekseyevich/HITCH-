@@ -165,6 +165,14 @@ public partial class SimulationBootstrap : Node
                 Colors.Yellow);
         }
 
+        if (state.SecondaryWinch.HasTarget)
+        {
+            DrawCableDebug(
+                state.SecondaryWinch,
+                ToGodot(player.Position),
+                Colors.Magenta);
+        }
+
         _debugLines.Commit();
     }
 
