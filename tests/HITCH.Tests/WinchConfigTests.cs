@@ -33,27 +33,38 @@ public sealed class WinchConfigTests
         Assert.True(config.GasAcceleration > 0f);
         Assert.True(config.GasFullAccelerationSpeed >= 0f);
         Assert.True(config.GasCutoffSpeed > config.GasFullAccelerationSpeed);
+        Assert.InRange(config.DualCableMotorScale, 0f, 1f);
     }
 
     [Fact]
-    public void DefaultOdmReelHasNoArtificialLaunchBurst()
+    public void DefaultDualOdmReelUsesControlledLaunchAssist()
     {
         var config = new WinchConfig();
 
-        Assert.Equal(1f, config.PullLaunchInitialMultiplier);
-        Assert.Equal(1f, config.PullLaunchPeakMultiplier);
+        Assert.InRange(
+            config.PullLaunchInitialMultiplier,
+            1.20f,
+            1.30f);
+        Assert.InRange(
+            config.PullLaunchPeakMultiplier,
+            1.60f,
+            1.70f);
         Assert.InRange(
             config.PullTargetInwardSpeed,
-            8f,
-            10f);
+            18f,
+            22f);
         Assert.InRange(
             config.PullLongRangeInwardSpeed,
-            14f,
-            18f);
+            30f,
+            34f);
         Assert.InRange(
             config.MaxRopeLength,
-            70f,
-            80f);
+            140f,
+            160f);
+        Assert.InRange(
+            config.DualCableMotorScale,
+            0.65f,
+            0.80f);
     }
 
     [Fact]
