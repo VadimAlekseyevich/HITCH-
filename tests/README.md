@@ -1,8 +1,25 @@
 # tests/
 
-Automated tests for HITCH! will live here or in the exact structure selected during Stage 1 bootstrap.
+Automated tests for HITCH! live here.
 
-Testing priorities:
+## Current harness
+
+- Framework: **xUnit v3 4.0.1**
+- Target framework: **net8.0**
+- Project: `tests/HITCH.Tests/HITCH.Tests.csproj`
+- Run from repository root with:
+
+```text
+build_and_run.bat test
+```
+
+or, when the pinned SDK is already active:
+
+```text
+dotnet test tests/HITCH.Tests/HITCH.Tests.csproj -c Debug
+```
+
+## Testing priorities
 
 1. pure simulation calculations;
 2. gameplay state transitions;
@@ -10,6 +27,6 @@ Testing priorities:
 4. input replay/snapshot behavior once networking starts;
 5. targeted Godot/Jolt integration tests where engine behavior itself matters.
 
-Avoid brittle scene-level tests when a smaller simulation test can verify the same contract.
+Prefer ordinary C# tests that do not launch Godot when engine behavior is not under test.
 
-The exact C# test framework is intentionally TBD until Stage 1.
+Use scene/engine integration tests only where Godot/Jolt behavior itself must be verified.
