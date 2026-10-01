@@ -22,14 +22,14 @@
     "grappleCollisionMask": 1,
     "pullInitialImpulse": 24,
     "pullRadialAcceleration": 300,
-    "pullTargetInwardSpeed": 90,
+    "pullTargetInwardSpeed": 22.5,
     "arrivalContactTolerance": 0.06,
     "arrivalSurfaceCaptureRadius": 1.75,
-    "pullLongRangeInwardSpeed": 160,
-    "pullLongRangeDistance": 250,
-    "pullLaunchDecaySeconds": 0.7,
-    "pullLaunchInitialMultiplier": 1.75,
-    "pullLaunchPeakMultiplier": 2.75,
-    "pullLaunchPeakSeconds": 0.1
+    "pullLongRangeInwardSpeed": 40,
+    "pullLongRangeDistance": 62.5,
+    "pullLaunchDecaySeconds": 0.65,
+    "pullLaunchInitialMultiplier": 2,
+    "pullLaunchPeakMultiplier": 4,
+    "pullLaunchPeakSeconds": 0.12
   }
 }
