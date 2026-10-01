@@ -26,6 +26,7 @@ public sealed class WinchConfigTests
         Assert.True(config.RopeContactSurfaceOffset > 0f);
         Assert.True(config.RopeEndpointTolerance > 0f);
         Assert.True(config.RopeMinimumContactSpacing > 0f);
+        Assert.True(config.RopeContactEdgeSearchDistance > 0f);
     }
 
     [Fact]
