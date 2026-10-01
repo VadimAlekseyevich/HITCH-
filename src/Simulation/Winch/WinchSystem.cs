@@ -110,16 +110,34 @@ public static class WinchSystem
                 true);
         }
 
-        // Zero-inertia remains, but iteration 12 raises actual traversal speed into an
-        // intentionally exaggerated ODM-like range. Long lines are faster than short lines so
-        // crossing the large movement lab feels like high-speed aerial traversal rather than a zipline.
+        // Iteration 16 turns the active grapple into a controlled swing.
+        // Gravity acts while attached. The cable owns only the radial component toward the
+        // anchor; tangential velocity survives so the player can arc around the hook point.
         var pullSpeed = ComputeDirectPullSpeed(
             distance,
             winch.PullElapsedSeconds,
             config);
-        var velocity = distance > 0f
-            ? direction * pullSpeed
-            : Vector3.Zero;
+
+        var gravityVelocity = updatedPlayer.Velocity
+            + new Vector3(
+                0f,
+                -locomotionConfig.Gravity * fixedDeltaSeconds,
+                0f);
+
+        var velocity = Vector3.Zero;
+        if (distance > 0f)
+        {
+            var radialSpeed =
+                Vector3.Dot(gravityVelocity, direction);
+            var tangentialVelocity =
+                gravityVelocity - (direction * radialSpeed);
+
+            // Never let inherited velocity fight the cable by moving away from the anchor.
+            // The cable sets a predictable inward reel speed; only tangent motion is preserved.
+            velocity =
+                tangentialVelocity
+                + (direction * pullSpeed);
+        }
 
         updatedPlayer = updatedPlayer with
         {
