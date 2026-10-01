@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING — ITERATION 3 BUILD READY  
+**Status:** WAITING — ITERATION 4 BUILD READY  
 **Depends on:** Task 08
 
 ## Goal
@@ -79,3 +79,19 @@ Evaluate:
 - does the taller arena create enough vertical flight opportunities?
 - is the center crosshair accurate enough for deliberate cable placement?
 - does preserving tangential momentum make trajectories feel player-authored instead of automated?
+
+
+## Iteration 3 result
+
+**ITERATE — input still had one unnecessary step.**
+
+## Iteration 4 focus
+
+Evaluate:
+
+- does one RMB click feel immediate enough?
+- does cable creation and pull clearly happen as one action?
+- is the 30 m/s initial impulse strong enough?
+- is 60 m/s² continued pull acceleration strong enough?
+- does repeated RMB retargeting preserve useful momentum?
+- does the player still retain understandable control at the higher pull strength?
