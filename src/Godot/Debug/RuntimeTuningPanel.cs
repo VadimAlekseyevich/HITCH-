@@ -26,7 +26,6 @@ public partial class RuntimeTuningPanel : Control
     private readonly List<(Parameter Parameter, HSlider Slider, LineEdit Editor)> _rows = new();
 
     private SimulationConfig _config = new();
-    private SimulationConfig _initialConfig = new();
     private Action<SimulationConfig>? _applyConfig;
     private Label _status = null!;
     private bool _syncing;
@@ -48,7 +47,6 @@ public partial class RuntimeTuningPanel : Control
         ArgumentNullException.ThrowIfNull(applyConfig);
 
         _config = config;
-        _initialConfig = config;
         _applyConfig = applyConfig;
         SyncFromConfig();
         Visible = false;
@@ -73,8 +71,12 @@ public partial class RuntimeTuningPanel : Control
         var panel = new PanelContainer
         {
             Name = "Panel",
-            Position = new Vector2(18f, 18f),
-            Size = new Vector2(690f, 880f),
+            AnchorLeft = 1f,
+            AnchorRight = 1f,
+            OffsetLeft = -708f,
+            OffsetTop = 18f,
+            OffsetRight = -18f,
+            OffsetBottom = 898f,
             MouseFilter = MouseFilterEnum.Stop,
         };
         AddChild(panel);
@@ -107,6 +109,13 @@ public partial class RuntimeTuningPanel : Control
                 $"Город: {MovementLabBuilder.RoomHalfWidth * 2f:F0} × " +
                 $"{MovementLabBuilder.RoomHalfDepth * 2f:F0} × " +
                 $"{MovementLabBuilder.RoomHeight:F0} м | F2 — открыть/закрыть",
+        });
+
+        root.AddChild(new Label
+        {
+            Text =
+                "Ползунок = удобный диапазон. В поле справа можно ввести значение вне диапазона ползунка.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
         });
 
         var scroll = new ScrollContainer
@@ -162,9 +171,9 @@ public partial class RuntimeTuningPanel : Control
 
         var reset = new Button
         {
-            Text = "Сбросить к стартовым",
+            Text = "Сбросить по умолчанию",
         };
-        reset.Pressed += ResetParameters;
+        reset.Pressed += ResetToDefaults;
         buttons.AddChild(reset);
 
         var close = new Button
@@ -269,13 +278,11 @@ public partial class RuntimeTuningPanel : Control
             return;
         }
 
-        parsed = Math.Clamp(
+        _syncing = true;
+        slider.Value = Math.Clamp(
             parsed,
             parameter.Minimum,
             parameter.Maximum);
-
-        _syncing = true;
-        slider.Value = parsed;
         editor.Text = FormatValue(parsed, parameter.Step);
         _syncing = false;
 
@@ -327,12 +334,15 @@ public partial class RuntimeTuningPanel : Control
         _syncing = false;
     }
 
-    private void ResetParameters()
+    private void ResetToDefaults()
     {
-        _config = _initialConfig;
+        var defaults = new SimulationConfig();
+        defaults.Validate();
+
+        _config = defaults;
         _applyConfig?.Invoke(_config);
         SyncFromConfig();
-        _status.Text = "Возвращён стартовый профиль этой сборки.";
+        _status.Text = "Возвращены параметры по умолчанию.";
     }
 
     private void CopyParameters()
