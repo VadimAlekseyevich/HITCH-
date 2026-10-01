@@ -354,7 +354,7 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
-    public void RetargetRequiresNewLmbBeforeNewReelBurst()
+    public void ThirdRmbRetargetsLeftAndRequiresNewLmbForThatCable()
     {
         var config = TestSimulationConfig() with
         {
@@ -369,56 +369,61 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullLaunchPeakSeconds = 0.14f,
                 PullLaunchDecaySeconds = 0.60f,
                 PullRadialAcceleration = 300f,
+                GasAcceleration = 0f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
         var world = new MutableGrappleWorld(
-            new Vector3(0f, 5f, -80f));
+            new Vector3(-30f, 8f, -50f));
         var simulation = CreateAirborneSimulation(config);
 
         simulation.Step(
             Input(PlayerButtons.GrappleShootPressed),
             world);
-        var firstReel = simulation.Step(
+        simulation.Step(
             Input(PlayerButtons.GrappleReelPressed),
             world);
 
-        Assert.True(firstReel.Winch.IsPulling);
-
-        for (var i = 0; i < 20; i++)
-        {
-            simulation.Step(PlayerInput.Neutral, world);
-        }
-
-        world.Anchor = new Vector3(70f, 5f, 0f);
-        var retargeted = simulation.Step(
+        world.Anchor = new Vector3(30f, 8f, -50f);
+        var secondHook = simulation.Step(
             Input(PlayerButtons.GrappleShootPressed),
             world);
 
-        Assert.True(retargeted.Winch.HasTarget);
-        Assert.False(retargeted.Winch.IsPulling);
-        Assert.InRange(
-            retargeted.Winch.PullElapsedSeconds,
-            0f,
-            1e-6f);
+        Assert.True(secondHook.Winch.IsPulling);
+        Assert.True(secondHook.SecondaryWinch.HasTarget);
+        Assert.False(secondHook.SecondaryWinch.IsPulling);
+
+        var rightAnchor =
+            secondHook.SecondaryWinch.Path.WorldAnchor;
+
+        world.Anchor = new Vector3(-45f, 12f, -35f);
+        var leftRetargeted = simulation.Step(
+            Input(PlayerButtons.GrappleShootPressed),
+            world);
+
+        Assert.True(leftRetargeted.Winch.HasTarget);
+        Assert.False(leftRetargeted.Winch.IsPulling);
+        Assert.Equal(
+            world.Anchor,
+            leftRetargeted.Winch.Path.WorldAnchor);
+        Assert.Equal(
+            rightAnchor,
+            leftRetargeted.SecondaryWinch.Path.WorldAnchor);
 
         var restarted = simulation.Step(
             Input(PlayerButtons.GrappleReelPressed),
             world);
 
         Assert.True(restarted.Winch.IsPulling);
-        Assert.True(restarted.Winch.PullElapsedSeconds > 0f);
-        Assert.True(
-            restarted.Winch.RopeLength
-            < retargeted.Winch.RopeLength);
+        Assert.True(restarted.SecondaryWinch.IsPulling);
     }
 
     [Fact]
-    public void RetargetReplacesRadialMotionButKeepsSwingTangent()
+    public void DualRetargetKeepsExistingFlightTangent()
     {
         var config = TestSimulationConfig();
         var world = new MutableGrappleWorld(
-            new Vector3(20f, 8f, -20f));
+            new Vector3(-20f, 12f, -25f));
         var simulation = CreateAirborneSimulation(config);
 
         simulation.Step(
@@ -428,31 +433,39 @@ public sealed class WinchGameSimulationIntegrationTests
             Input(PlayerButtons.GrappleReelPressed),
             world);
 
-        world.Anchor = new Vector3(-25f, 20f, 10f);
+        world.Anchor = new Vector3(20f, 15f, -28f);
+        simulation.Step(
+            Input(PlayerButtons.GrappleShootPressed),
+            world);
+        simulation.Step(
+            Input(PlayerButtons.GrappleReelPressed),
+            world);
+
+        var before =
+            simulation.State.Player.Velocity;
+
+        world.Anchor = new Vector3(-30f, 22f, 10f);
         var retargeted = simulation.Step(
             Input(PlayerButtons.GrappleShootPressed),
             world);
 
         Assert.True(retargeted.Winch.HasTarget);
         Assert.False(retargeted.Winch.IsPulling);
+        Assert.True(retargeted.SecondaryWinch.HasTarget);
         Assert.Equal(
             world.Anchor,
             retargeted.Winch.Path.WorldAnchor);
 
-        var restarted = simulation.Step(
-            Input(PlayerButtons.GrappleReelPressed),
-            world);
-
-        var direction = Vector3.Normalize(
-            world.Anchor - restarted.Player.Position);
-        var inwardSpeed =
-            Vector3.Dot(restarted.Player.Velocity, direction);
-        var tangent =
-            restarted.Player.Velocity
-            - (direction * inwardSpeed);
-
-        Assert.True(inwardSpeed > 0f);
-        Assert.True(tangent.Length() > 1f);
+        // Retargeting one cable must not erase all already-earned motion.
+        Assert.True(
+            retargeted.Player.Velocity.Length()
+            > 0.1f);
+        Assert.True(
+            Vector3.Dot(
+                before,
+                retargeted.Player.Velocity)
+            > -before.Length()
+              * retargeted.Player.Velocity.Length());
     }
 
     private static SimulationConfig TestSimulationConfig() =>
