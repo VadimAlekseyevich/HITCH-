@@ -7,22 +7,17 @@ public enum PlayerButtons : ushort
     JumpPressed = 1 << 0,
 
     /// <summary>
-    /// Current movement prototype: left click selects/replaces the grapple target point.
+    /// LMB: cancel any active pull and select/replace the grapple point.
     /// </summary>
     SelectGrapplePointPressed = 1 << 1,
 
     /// <summary>
-    /// Current movement prototype: right mouse button started being held.
+    /// RMB click: start automatic pull toward the selected point.
+    /// No hold/release state is required.
     /// </summary>
     PullPressed = 1 << 2,
 
-    /// <summary>
-    /// Current movement prototype: right mouse button was released.
-    /// </summary>
-    PullReleased = 1 << 3,
-
-    // Reserved for the later combat stage. No mouse binding currently emits this.
-    FirePressed = 1 << 4,
-
-    MeleePressed = 1 << 5,
+    // Reserved for later combat stages.
+    FirePressed = 1 << 3,
+    MeleePressed = 1 << 4,
 }
