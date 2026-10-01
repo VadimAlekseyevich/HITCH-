@@ -119,12 +119,13 @@ Camera architecture should not make a future third-person experiment unnecessari
 **DECIDED:**
 
 - the winch remains the primary movement method;
-- **CURRENT STAGE 5 OVERRIDE:** ordinary locomotion is deliberately much faster than the original slow/weak baseline while movement feel is being tested;
-- current ground speed target is about **13 m/s** with strong acceleration/braking;
-- ground jump is intentionally strong (**10 m/s** launch speed);
-- exactly one air jump is currently available per airborne sequence (**9.5 m/s** launch speed), restored on landing;
+- **CURRENT STAGE 5 OVERRIDE:** base locomotion has been brought back toward human scale after iteration 18 proved too fast;
+- current ground speed target is about **8 m/s**;
+- ground jump is about **5.8 m/s**;
+- the previously requested one-time air jump remains, reduced to **4.8 m/s** and treated as a small gear-assisted hop rather than a second full-strength jump;
+- gravity is approximately **11 m/s²**;
 - wall/ceiling contacts remove only velocity into the surface; tangential motion survives so grapple swing/wrap can continue along geometry;
-- air steering is stronger than the original baseline but still does not clamp already-earned high momentum.
+- air steering remains limited and does not clamp already-earned high momentum.
 
 The player should not feel like a normal FPS character with a grapple added on top.
 
@@ -195,11 +196,11 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 18, FINITE ROPE + EXPLICIT LMB REEL.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 19, ODM-INSPIRED REEL + GAS.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
-The active local movement prototype uses **one finite cable**:
+The active local movement prototype uses **one finite cable as an ODM-inspired approximation**:
 
 - RMB raycasts and attaches/replaces a world anchor;
 - RMB by itself does **not** start reel-in;
@@ -211,11 +212,11 @@ The active local movement prototype uses **one finite cable**:
 
 ### Finite gameplay rope length
 
-The active Stage 5 tuning uses a **100 m maximum rope/acquisition length**.
+The active Stage 5 tuning uses a **75 m maximum rope/acquisition length**.
 
-This is intentionally large relative to individual city blocks but not large enough to grapple arbitrarily across the whole 200 × 250 m test city. The exact final maximum remains a tuning hypothesis, not a locked balance value.
+This is intentionally large relative to individual buildings but no longer allows effectively map-wide acquisition in the compact 200 × 250 m test city. The exact final maximum remains a tuning hypothesis, not a locked balance value.
 
-### Current rope / reel model
+### Current rope / reel / gas model
 
 When attached but not reeling:
 
@@ -227,11 +228,17 @@ When attached but not reeling:
 After LMB starts reel-in:
 
 - deployed rope length decreases over time;
-- the reel target remains distance-scaled at roughly **30–52 m/s** in current city tuning;
-- the restrained reel-start envelope is still **1.35× immediate → 2.0× peak → sustained**;
-- radial velocity changes are acceleration-bounded by the reel motor rather than snapping instantly to a new direction;
+- reel target is deliberately moderate at roughly **9–16 m/s** depending on line length;
+- radial reel acceleration is about **40 m/s²**;
+- default artificial launch multipliers are neutralized at **1.0× → 1.0×**;
+- a separate compressed-gas-like thrust adds about **14 m/s²** along the cable tangent, based on the player's view direction;
+- gas keeps full authority up to roughly **18 m/s**, then smoothly fades to zero added acceleration by roughly **34 m/s**;
+- this gas fade is **not a hard speed cap**: gravity, stored momentum, and swing geometry may carry the player faster;
+- radial velocity changes remain acceleration-bounded rather than snapping instantly to a new direction;
 - a newly created bend may pay out only the geometric length needed by the new polyline, up to the global maximum, specifically to prevent corner creation from becoming a catapult;
 - gravity and tangential swing momentum remain active during reel-in.
+
+The design intent is that speed comes from combining reel, gas, gravity, and swing timing rather than receiving a scripted launch explosion.
 
 World collision removes only velocity into a surface; legal tangential motion survives. This is intended to support wall-adjacent swing/wrap instead of making contact an automatic stop.
 
@@ -309,7 +316,7 @@ Implementation expectation:
 
 Current playtest value:
 
-- maximum acquisition/deployed rope length: **100 m**.
+- maximum acquisition/deployed rope length: **75 m**.
 
 Intent:
 
