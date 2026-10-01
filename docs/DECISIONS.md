@@ -48,7 +48,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Topic | Status | Decision |
 |---|---|---|
 | Targeting | DECIDED | Hitscan/raycast. |
-| Current grapple control | HYPOTHESIS | Iteration 18: RMB attaches/retargets only; LMB starts automatic reel-in; repeated LMB while already reeling does not restart burst; Space detaches while preserving full velocity; RMB miss keeps an existing cable. |
+| Current grapple control | HYPOTHESIS | Iteration 20: RMB alternates left/right cable slots. Each click attaches/retargets that side only. LMB starts reel-in on every active cable. Repeated LMB does not restart an already-running cable envelope. Space detaches both and preserves full velocity. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
 | Range | DECIDED | No gameplay rope-length limit in the active MVP movement prototype. Finite ray length is engine-only. |
 | Pull completion geometry | DECIDED | Completion uses anchor surface geometry plus capsule support; completion becomes a latched zero-velocity stop. |
@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 19: single-cable ODM-inspired rope. Max rope/acquisition length is 75 m. RMB attaches without reeling; LMB engages a moderate 9–16 m/s radial reel plus separate ~14 m/s² tangential gas thrust. Default artificial launch multipliers are neutralized at 1×. Gas has full authority below ~18 m/s and smoothly fades to zero added thrust by ~34 m/s without hard-clamping velocity. Gravity, tangent momentum, piecewise wrapping, and acceleration-bounded bend response remain active. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 20: dual-hook ODM. Two independent 150 m piecewise cables alternate on RMB. LMB reels all active cables. Single-cable reel target is 20–32 m/s at ~110 m/s² with a short 1.25× → 1.65× motor-assist envelope; gas is ~11 m/s² with authority fading ~24→46 m/s. When two cables are active each motor contributes ~0.72× authority. Gravity, tangent momentum, wrap bends, and bounded bend response remain active. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
@@ -84,7 +84,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Map count | DECIDED | One MVP arena. |
 | Shape | DECIDED | Small open arena with void around it. |
 | Art | DECIDED | Greybox. |
-| Current Stage 5 room | HYPOTHESIS | Enclosed 200 × 250 × 80 m greybox city lab with varied buildings, streets, four boundary walls, and ceiling; final MVP arena shape remains a separate design question. |
+| Current Stage 5 room | HYPOTHESIS | Enclosed ~640 × 800 × 180 m greybox city lab. Horizontal footprint is ~10.2× iteration 19 while local building/street scale remains human-readable; roughly 80 dense buildings, multiple avenues, four boundary walls, and ceiling. Final MVP arena shape remains separate. |
 
 # Technology
 
