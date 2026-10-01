@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 20 DUAL-HOOK ODM**
+**Status: READY FOR HUMAN GATE — ITERATION 21 LIVE TUNING + TALLER CITY**
 
 ## Objective
 
@@ -1353,3 +1353,152 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36931936584
 - enlarged-city west/east/back/front/ceiling smoke passed.
 
 Human movement feel remains the Stage 5 gate.
+
+
+## Human gate result — iteration 20
+
+**Result: MOVEMENT LOOP IS STARTING TO FEEL GOOD / LEARNING CURVE NOW MATTERS**
+
+Human feedback:
+
+- the dual-hook movement direction is substantially better;
+- a common successful traversal cycle is:
+  1. attach two hooks to buildings from below;
+  2. press LMB to reel;
+  3. release with Space after passing the low point of the arc;
+  4. convert the resulting swing into a natural high climb;
+- this can feel very good when timed correctly;
+- the player may now need actual practice before judging whether a movement profile is good, which makes repeated assistant-only number tuning less useful;
+- successful launches often carry the player above much of the existing skyline;
+- when anchors are far below the player, aggressive reel naturally points downward and can drive the player into the ground;
+- stronger gravity may help return the player to useful urban height sooner;
+- the city/platform should become larger and buildings substantially taller;
+- the next workflow should expose movement parameters directly in-game, with Russian labels, slider + exact numeric input, and one-click clipboard export for discussion.
+
+## Iteration 21 — live tuning + taller city
+
+### Taller/larger practice city
+
+Current enclosed volume:
+
+- width: **1000 m**;
+- depth: **1200 m**;
+- height: **320 m**.
+
+Current procedural city:
+
+- roughly **120 buildings**;
+- ordinary building heights roughly **50–170 m**;
+- additional skyline landmarks above **200 m**;
+- local building/street scale remains readable;
+- three longitudinal avenues;
+- three major cross streets;
+- closed floor/walls/ceiling remain.
+
+### Stronger gravity
+
+Default gravity:
+
+- **11 → 14.5 m/s²**.
+
+Intent:
+
+- reduce excessive hang-time after high releases;
+- return the player toward useful building height faster;
+- make poor high-altitude timing more costly/readable without removing the swing/release loop that already feels good.
+
+No other core dual-hook reel values were changed in this iteration.
+
+### Runtime tuning panel
+
+Press **F2**.
+
+While open:
+
+- simulation motion is frozen;
+- cursor is released;
+- gameplay hook/movement input is suppressed;
+- F2 or Escape closes the panel.
+
+The panel uses Russian labels and exposes both:
+
+- a slider;
+- an exact numeric text field.
+
+Valid changes apply immediately to the running simulation without resetting:
+
+- position;
+- velocity;
+- left/right hook states;
+- rope paths;
+- simulation tick.
+
+Sections include:
+
+**Персонаж**
+
+- gravity;
+- run speed;
+- ground acceleration/braking;
+- ground jump;
+- air jump;
+- air acceleration/control speed.
+
+**Стяжка / УПМ**
+
+- max rope length;
+- radial reel acceleration;
+- short/long reel speed;
+- long-range distance;
+- launch initial/peak multipliers;
+- time-to-peak / decay;
+- gas acceleration;
+- gas authority speeds;
+- dual-cable motor scale.
+
+**Геометрия троса**
+
+- tension correction;
+- taut tolerance;
+- arrival capture radius;
+- arrival tolerance;
+- bend surface offset;
+- endpoint tolerance;
+- minimum bend spacing;
+- edge-search distance.
+
+### Clipboard workflow
+
+Button:
+
+**Скопировать параметры**
+
+copies a compact block starting with:
+
+```text
+HITCH_TUNING_V1
+```
+
+It contains Russian parameter names, stable internal keys, and exact current values.
+
+This is intended to be pasted directly into the design conversation so human playtesting can drive tuning instead of repeatedly rebuilding the project for every coefficient.
+
+The panel also provides:
+
+**Сбросить к стартовым**
+
+which restores the tuning profile that was loaded when the scene started.
+
+### Technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36934949332
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: **102 passed / 0 failed**;
+- runtime config apply preserves simulation state and affects the next tick;
+- Russian Godot tuning UI compiles in the current pinned engine;
+- enlarged/taller city smoke spawn is stable;
+- west/east/back/front/ceiling smoke remains closed.
+
+Human feel remains the Stage 5 gate.
