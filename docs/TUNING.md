@@ -1,78 +1,55 @@
 # HITCH! — MVP Tuning
 
-Current local movement/winch tuning lives in:
+Runtime movement tuning lives in:
 
 ```text
 config/mvp_tuning.json
 ```
 
-The Godot runner loads this file on startup, deserializes it into typed C# configuration, validates it, and uses the same values in simulation.
+The Godot runner loads and validates this file at startup.
 
-## Tick rate
+## Current Stage 5 iteration
 
-```json
-"tickRateHz": 60
-```
+The previous elastic spring + reel motor experiment failed the first human movement gate.
 
-Change this to `120` to compare the same prototype at 120 simulation/physics ticks per second.
+The active prototype is intentionally simpler:
 
-The runner also sets Godot's physics tick rate to this value so engine queries and gameplay simulation remain aligned.
+- LMB selects a point;
+- RMB directly pulls toward it;
+- pull speed is immediate rather than accelerated;
+- reaching the point consumes it and drops the player;
+- releasing RMB early preserves current momentum;
+- retargeting with LMB works while pulling.
 
-## Locomotion
+Current winch fields:
+
+- `grappleRange`
+- `grappleCollisionMask`
+- `pullSpeed`
+- `arrivalDistance`
+
+The removed spring/reel parameters are not part of the active prototype.
+
+## Ground locomotion
 
 Important fields:
 
-- `gravity`
 - `groundAcceleration`
 - `groundMaxSpeed`
 - `groundBraking`
+- `gravity`
 - `jumpSpeed`
 - `airAcceleration`
 - `airControlMaxSpeed`
 
-Base locomotion is intentionally weak. Do not tune it into a conventional fast arena-FPS controller unless the design is explicitly changed.
+Ground control now moves horizontal velocity toward the desired movement velocity and brakes excess velocity on the ground. This was changed after the first playtest reported an ice-like/slippery feel.
 
-## Winch
+## Tick rate
 
-Important Stage 5 experiment fields:
+`tickRateHz` remains editable (currently 60) so 60/120 Hz can still be compared later.
 
-- `grappleRange`
-- `reattachCooldownSeconds`
-- `minimumRopeLength`
-- `reelMaxSpeed`
-- `reelAcceleration`
-- `reelDeceleration`
-- `springAccelerationPerMeter`
-- `pretensionDistance`
-- `outwardDampingPerSecond`
-- `slackTakeUpSpeed`
-- `reelFalloffStartSpeed`
-- `reelFalloffEndSpeed`
-- `minimumReelInMultiplier`
-
-These values are **experimental tuning**, not final design truth.
-
-## Current v1 spring interpretation
-
-The Stage 5 model is intentionally simple:
-
-- it is a one-sided spring;
-- it may pull the player toward the anchor;
-- it never pushes the player away from the anchor;
-- extension increases inward acceleration;
-- moving radially away increases damping tension;
-- a small pretension distance keeps the line active close to rest length;
-- obvious neutral/inward slack is automatically taken up;
-- explicit reel-out may temporarily create controlled slack.
-
-If human testing shows this model is wrong, change the model rather than endlessly tuning coefficients.
-
-## One-click test
-
-After editing the JSON:
+## Run
 
 ```text
 build_and_run.bat
 ```
-
-No rebuild is technically required for JSON-only changes, but the one-click path remains the canonical way to verify and launch the current repository state.
