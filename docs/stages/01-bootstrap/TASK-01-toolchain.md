@@ -1,6 +1,6 @@
 # Task 01 — Pin Toolchain and Bootstrap Constraints
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap
 
 ## Goal
