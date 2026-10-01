@@ -11,9 +11,9 @@ namespace Hitch.GodotIntegration.World;
 /// </summary>
 public partial class MovementLabBuilder : Node3D
 {
-    public const float RoomHalfWidth = 320f;
-    public const float RoomHalfDepth = 400f;
-    public const float RoomHeight = 180f;
+    public const float RoomHalfWidth = 500f;
+    public const float RoomHalfDepth = 600f;
+    public const float RoomHeight = 320f;
 
     private readonly StandardMaterial3D _floorMaterial = new()
     {
@@ -158,14 +158,14 @@ public partial class MovementLabBuilder : Node3D
 
     private void BuildStreetMarkers()
     {
-        // Wide visual streets keep scale readable across the ~10x larger city footprint.
-        AddRoad("MainAvenue", 0f, 0f, 24f, 760f);
-        AddRoad("WestAvenue", -168f, 0f, 16f, 760f);
-        AddRoad("EastAvenue", 168f, 0f, 16f, 760f);
+        // Larger city, but with the same local street readability.
+        AddRoad("MainAvenue", 0f, 0f, 28f, 1140f);
+        AddRoad("WestAvenue", -225f, 0f, 18f, 1140f);
+        AddRoad("EastAvenue", 225f, 0f, 18f, 1140f);
 
-        AddRoad("CrossStreetNorth", 0f, -290f, 600f, 16f);
-        AddRoad("CrossStreetCenter", 0f, 0f, 600f, 16f);
-        AddRoad("CrossStreetSouth", 0f, 290f, 600f, 16f);
+        AddRoad("CrossStreetNorth", 0f, -300f, 940f, 18f);
+        AddRoad("CrossStreetCenter", 0f, 0f, 940f, 18f);
+        AddRoad("CrossStreetSouth", 0f, 300f, 940f, 18f);
     }
 
     private void AddRoad(
@@ -185,11 +185,12 @@ public partial class MovementLabBuilder : Node3D
 
     private void BuildCity()
     {
-        // Deterministic procedural greybox city. The footprint is ~10.2x the iteration-18
-        // compact city area, but local street/building scale stays similar so motion still reads.
+        // Iteration 21 keeps local urban scale readable while expanding the total city again.
+        // Buildings are intentionally taller so successful ODM launches do not immediately
+        // place the player above the whole useful grapple field.
         var columnIndex = 0;
 
-        for (var x = -280f; x <= 280f; x += 56f)
+        for (var x = -450f; x <= 450f; x += 75f)
         {
             if (IsNorthSouthAvenue(x))
             {
@@ -199,7 +200,7 @@ public partial class MovementLabBuilder : Node3D
 
             var rowIndex = 0;
 
-            for (var z = -350f; z <= 350f; z += 58f)
+            for (var z = -525f; z <= 525f; z += 75f)
             {
                 if (IsCrossStreet(z))
                 {
@@ -212,11 +213,11 @@ public partial class MovementLabBuilder : Node3D
                     ^ ((rowIndex + 31) * 19349663));
 
                 var width =
-                    27f + (hash % 14);
+                    36f + (hash % 18);
                 var depth =
-                    29f + ((hash / 17) % 17);
+                    38f + ((hash / 17) % 20);
                 var height =
-                    24f + ((hash / 113) % 82);
+                    50f + ((hash / 113) % 121);
 
                 var material =
                     (hash % 3) switch
@@ -238,14 +239,14 @@ public partial class MovementLabBuilder : Node3D
                     height,
                     material);
 
-                if (hash % 5 == 0)
+                if (hash % 6 == 0)
                 {
                     AddRooftopBox(
                         $"{name}_Utility",
                         x,
                         z,
-                        MathF.Min(12f, width * 0.38f),
-                        MathF.Min(10f, depth * 0.34f),
+                        MathF.Min(15f, width * 0.36f),
+                        MathF.Min(13f, depth * 0.32f),
                         height);
                 }
 
@@ -257,14 +258,14 @@ public partial class MovementLabBuilder : Node3D
     }
 
     private static bool IsNorthSouthAvenue(float x) =>
-        MathF.Abs(x) < 20f
-        || MathF.Abs(x + 168f) < 12f
-        || MathF.Abs(x - 168f) < 12f;
+        MathF.Abs(x) < 22f
+        || MathF.Abs(x + 225f) < 16f
+        || MathF.Abs(x - 225f) < 16f;
 
     private static bool IsCrossStreet(float z) =>
-        MathF.Abs(z) < 12f
-        || MathF.Abs(z + 290f) < 12f
-        || MathF.Abs(z - 290f) < 12f;
+        MathF.Abs(z) < 15f
+        || MathF.Abs(z + 300f) < 15f
+        || MathF.Abs(z - 300f) < 15f;
 
     private void BuildSpecialTraversalTargets()
     {
@@ -321,18 +322,18 @@ public partial class MovementLabBuilder : Node3D
 
         AddBox(
             "FarNorthSpire",
-            new Vector3(-250f, 70f, -345f),
-            new Vector3(8f, 140f, 8f),
+            new Vector3(-420f, 118f, -520f),
+            new Vector3(10f, 236f, 10f),
             _roofMaterial);
         AddBox(
             "FarSouthSpire",
-            new Vector3(250f, 62f, 345f),
-            new Vector3(8f, 124f, 8f),
+            new Vector3(420f, 108f, 520f),
+            new Vector3(10f, 216f, 10f),
             _roofMaterial);
 
         AddBox(
             "NoGrappleBillboard",
-            new Vector3(300f, 12f, 370f),
+            new Vector3(470f, 15f, 560f),
             new Vector3(10f, 24f, 3f),
             _forbiddenMaterial,
             collisionLayer: 2u);
