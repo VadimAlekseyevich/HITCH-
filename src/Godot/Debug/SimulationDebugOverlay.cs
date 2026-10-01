@@ -46,7 +46,7 @@ public partial class SimulationDebugOverlay : Label
 
             var mode = winch.IsLatched ? "LATCHED" : "PULL";
             cableLine =
-                $"Cable: {mode} | d={winch.LastActualDistance:F2}m | radial={radialSpeed:F1} | tangent={tangentialSpeed:F1} m/s";
+                $"Cable: {mode} | d={winch.LastActualDistance:F2}m | bends={winch.Path.ContactCount} | radial={radialSpeed:F1} | tangent={tangentialSpeed:F1} m/s";
         }
 
         Text =
