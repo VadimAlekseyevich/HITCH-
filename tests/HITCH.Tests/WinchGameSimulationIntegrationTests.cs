@@ -301,7 +301,7 @@ public sealed class WinchGameSimulationIntegrationTests
     {
         var config = TestSimulationConfig();
         var world = new MutableGrappleWorld(
-            new Vector3(0f, 5f, -80f));
+            new Vector3(0f, 5f, -60f));
         var simulation = CreateAirborneSimulation(config);
 
         simulation.Step(
@@ -474,6 +474,7 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullLaunchPeakMultiplier = 1f,
                 PullLaunchPeakSeconds = 0.10f,
                 PullLaunchDecaySeconds = 0.70f,
+                GasAcceleration = 0f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
