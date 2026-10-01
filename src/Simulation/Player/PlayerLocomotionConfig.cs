@@ -16,7 +16,7 @@ public sealed record PlayerLocomotionConfig
     /// </summary>
     public float EyeOffsetFromCapsuleCenter { get; init; } = 0.65f;
 
-    public float Gravity { get; init; } = 11.0f;
+    public float Gravity { get; init; } = 14.5f;
 
     public float GroundAcceleration { get; init; } = 50.0f;
 
