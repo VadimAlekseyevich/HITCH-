@@ -10,13 +10,11 @@ namespace Hitch.Tests;
 public sealed class WinchStateMachineTests
 {
     [Fact]
-    public void GrapplePressRaycastsFromEyeAlongSimulationViewAndAttaches()
+    public void LeftClickSelectsPointWithoutStartingPull()
     {
         var player = PlayerState.Initial with
         {
             Position = new Vector3(2f, 3f, 4f),
-            ViewYawRadians = 0f,
-            ViewPitchRadians = 0f,
         };
         var config = new WinchConfig
         {
@@ -26,145 +24,120 @@ public sealed class WinchStateMachineTests
         {
             EyeOffsetFromCapsuleCenter = 0.65f,
         };
-        var expectedHit = new Vector3(2f, 3.65f, -6f);
-        var world = new RecordingRayWorld(expectedHit);
+        var hit = new Vector3(2f, 3.65f, -6f);
+        var world = new RecordingRayWorld(hit);
 
         var result = WinchSystem.Step(
             player,
             WinchState.Initial,
-            ButtonInput(PlayerButtons.GrapplePressed),
+            Input(PlayerButtons.SelectGrapplePointPressed),
             config,
             locomotion,
             world,
             1f / 60f);
 
-        Assert.True(result.Winch.IsAttached);
-        Assert.Equal(expectedHit, result.Winch.Path.WorldAnchor);
-        Assert.Equal(expectedHit, result.Winch.Path.CurrentPullPoint);
+        Assert.True(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(hit, result.Winch.Path.CurrentPullPoint);
+        Assert.Equal(player.Velocity, result.Player.Velocity);
 
         Assert.Equal(new Vector3(2f, 3.65f, 4f), world.LastRay.From);
         Assert.Equal(new Vector3(2f, 3.65f, -16f), world.LastRay.To);
-        Assert.Equal(config.GrappleCollisionMask, world.LastRay.CollisionMask);
     }
 
     [Fact]
-    public void GrappleReleaseDetachesWithoutChangingPlayerVelocity()
+    public void PullPressWithoutTargetDoesNothing()
+    {
+        var result = WinchSystem.Step(
+            PlayerState.Initial,
+            WinchState.Initial,
+            Input(PlayerButtons.PullPressed),
+            new WinchConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.False(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(Vector3.Zero, result.Player.Velocity);
+    }
+
+    [Fact]
+    public void PullReleaseStopsForceButKeepsSelectedTargetAndVelocity()
     {
         var player = PlayerState.Initial with
         {
             Velocity = new Vector3(12f, 5f, -7f),
         };
-        var config = new WinchConfig();
-        var attached = AttachedAt(
-            new Vector3(0f, 0f, -10f),
-            restLength: 10f);
+        var state = SelectedAt(
+            new Vector3(0f, 0f, -20f),
+            pulling: true);
 
         var result = WinchSystem.Step(
             player,
-            attached,
-            ButtonInput(PlayerButtons.GrappleReleased),
-            config,
+            state,
+            Input(PlayerButtons.PullReleased),
+            new WinchConfig(),
             new PlayerLocomotionConfig(),
             new NoHitWorld(),
             1f / 60f);
 
-        Assert.False(result.Winch.IsAttached);
+        Assert.True(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
         Assert.Equal(player.Velocity, result.Player.Velocity);
-        Assert.Equal(config.ReattachCooldownSeconds, result.Winch.ReattachCooldownRemaining);
     }
 
     [Fact]
-    public void ReattachIsBlockedUntilCooldownExpires()
+    public void LeftClickWhilePullingReplacesTargetImmediately()
     {
-        var config = new WinchConfig
-        {
-            ReattachCooldownSeconds = 0.1f,
-        };
-        var locomotion = new PlayerLocomotionConfig();
-        var player = PlayerState.Initial;
-        var world = new RecordingRayWorld(new Vector3(0f, 0f, -5f));
-
-        var detached = WinchSystem.Step(
-            player,
-            AttachedAt(new Vector3(0f, 0f, -5f), 5f),
-            ButtonInput(PlayerButtons.GrappleReleased),
-            config,
-            locomotion,
-            world,
-            0.02f).Winch;
-
-        var blocked = WinchSystem.Step(
-            player,
-            detached,
-            ButtonInput(PlayerButtons.GrapplePressed),
-            config,
-            locomotion,
-            world,
-            0.02f).Winch;
-
-        Assert.False(blocked.IsAttached);
-        Assert.Equal(0, world.RaycastCount);
-
-        var cooled = blocked;
-        for (var i = 0; i < 4; i++)
-        {
-            cooled = WinchSystem.Step(
-                player,
-                cooled,
-                PlayerInput.Neutral,
-                config,
-                locomotion,
-                world,
-                0.02f).Winch;
-        }
-
-        var attached = WinchSystem.Step(
-            player,
-            cooled,
-            ButtonInput(PlayerButtons.GrapplePressed),
-            config,
-            locomotion,
-            world,
-            0.02f).Winch;
-
-        Assert.True(attached.IsAttached);
-        Assert.Equal(1, world.RaycastCount);
-    }
-
-    [Fact]
-    public void ReleaseWinsWhenPressAndReleaseArriveSameTick()
-    {
-        var world = new RecordingRayWorld(new Vector3(0f, 0f, -5f));
-        var input = new PlayerInput(
-            Vector2.Zero,
-            Vector2.Zero,
-            0f,
-            PlayerButtons.GrapplePressed | PlayerButtons.GrappleReleased);
+        var oldTarget = new Vector3(0f, 0f, -20f);
+        var newTarget = new Vector3(20f, 0f, 0f);
+        var config = new WinchConfig { PullSpeed = 10f };
+        var world = new RecordingRayWorld(newTarget);
 
         var result = WinchSystem.Step(
             PlayerState.Initial,
-            WinchState.Initial,
-            input,
-            new WinchConfig(),
+            SelectedAt(oldTarget, pulling: true),
+            Input(PlayerButtons.SelectGrapplePointPressed),
+            config,
             new PlayerLocomotionConfig(),
             world,
             1f / 60f);
 
-        Assert.False(result.Winch.IsAttached);
-        Assert.Equal(0, world.RaycastCount);
+        Assert.True(result.Winch.HasTarget);
+        Assert.True(result.Winch.IsPulling);
+        Assert.Equal(newTarget, result.Winch.Path.CurrentPullPoint);
+        Assert.Equal(new Vector3(10f, 0f, 0f), result.Player.Velocity);
     }
 
-    private static PlayerInput ButtonInput(PlayerButtons button) =>
-        new(Vector2.Zero, Vector2.Zero, 0f, button);
+    [Fact]
+    public void MissedSelectionKeepsExistingTarget()
+    {
+        var target = new Vector3(0f, 0f, -10f);
+        var state = SelectedAt(target, pulling: false);
 
-    private static WinchState AttachedAt(Vector3 anchor, float restLength) =>
+        var result = WinchSystem.Step(
+            PlayerState.Initial,
+            state,
+            Input(PlayerButtons.SelectGrapplePointPressed),
+            new WinchConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.True(result.Winch.HasTarget);
+        Assert.Equal(target, result.Winch.Path.CurrentPullPoint);
+    }
+
+    private static PlayerInput Input(PlayerButtons buttons) =>
+        new(Vector2.Zero, Vector2.Zero, 0f, buttons);
+
+    private static WinchState SelectedAt(Vector3 point, bool pulling) =>
         new(
-            WinchAttachmentState.Attached,
-            WinchPathState.AtWorldAnchor(anchor),
-            restLength,
-            0f,
-            0f,
-            Vector3.Distance(Vector3.Zero, anchor),
+            WinchTargetState.Selected,
+            WinchPathState.AtWorldAnchor(point),
+            pulling,
+            Vector3.Distance(Vector3.Zero, point),
             0f);
 
     private sealed class RecordingRayWorld : IWorldQuery
@@ -176,19 +149,12 @@ public sealed class WinchStateMachineTests
             _hit = hit;
         }
 
-        public int RaycastCount { get; private set; }
-
         public RayQuery LastRay { get; private set; }
 
         public bool TryRaycast(in RayQuery query, out WorldHit hit)
         {
-            RaycastCount++;
             LastRay = query;
-            hit = new WorldHit(
-                _hit,
-                Vector3.UnitZ,
-                0.5f,
-                1u);
+            hit = new WorldHit(_hit, Vector3.UnitZ, 0.5f, 1u);
             return true;
         }
 
