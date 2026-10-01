@@ -65,6 +65,30 @@ public sealed class WinchStateMachineTests
     }
 
     [Fact]
+    public void SpaceDetachClearsCableAndPreservesExactVelocity()
+    {
+        var velocity = new Vector3(120f, 35f, -210f);
+        var player = PlayerState.Initial with
+        {
+            Velocity = velocity,
+            IsGrounded = false,
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            ActiveAt(new Vector3(0f, 50f, -200f)),
+            Input(PlayerButtons.GrappleDetachPressed),
+            new WinchConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.False(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(velocity, result.Player.Velocity);
+    }
+
+    [Fact]
     public void SecondRmbReplacesExistingCable()
     {
         var newTarget = new Vector3(20f, 15f, 0f);
