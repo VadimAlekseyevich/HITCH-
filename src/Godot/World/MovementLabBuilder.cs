@@ -8,22 +8,26 @@ namespace Hitch.GodotIntegration.World;
 /// </summary>
 public partial class MovementLabBuilder : Node3D
 {
+    public const float RoomHalfWidth = 120f;
+    public const float RoomHalfDepth = 160f;
+    public const float RoomHeight = 150f;
+
     private readonly StandardMaterial3D _floorMaterial = new()
     {
-        AlbedoColor = new Color(0.28f, 0.30f, 0.34f),
-        Roughness = 0.92f,
+        AlbedoColor = new Color(0.42f, 0.45f, 0.52f),
+        Roughness = 0.90f,
     };
 
     private readonly StandardMaterial3D _obstacleMaterial = new()
     {
-        AlbedoColor = new Color(0.48f, 0.50f, 0.55f),
-        Roughness = 0.82f,
+        AlbedoColor = new Color(0.62f, 0.66f, 0.74f),
+        Roughness = 0.78f,
     };
 
     private readonly StandardMaterial3D _forbiddenMaterial = new()
     {
-        AlbedoColor = new Color(0.72f, 0.12f, 0.12f),
-        Roughness = 0.82f,
+        AlbedoColor = new Color(0.82f, 0.16f, 0.14f),
+        Roughness = 0.78f,
     };
 
     public override void _Ready()
@@ -40,92 +44,113 @@ public partial class MovementLabBuilder : Node3D
             Environment = new Godot.Environment
             {
                 BackgroundMode = Godot.Environment.BGMode.Color,
-                BackgroundColor = new Color(0.035f, 0.045f, 0.06f),
+                BackgroundColor = new Color(0.16f, 0.19f, 0.25f),
                 AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color(0.56f, 0.60f, 0.68f),
-                AmbientLightEnergy = 0.55f,
+                AmbientLightColor = new Color(0.78f, 0.82f, 0.90f),
+                AmbientLightEnergy = 0.88f,
             },
         });
 
+        // Key light keeps strong shape definition where the room shell permits it.
         AddChild(new DirectionalLight3D
         {
-            Name = "Sun",
+            Name = "KeyLight",
             RotationDegrees = new Vector3(-58f, -32f, 0f),
-            LightEnergy = 1.25f,
+            LightEnergy = 1.55f,
             ShadowEnabled = true,
+        });
+
+        // The movement lab is deliberately enclosed, so a shadowless fill prevents the
+        // ceiling and tall structures from turning large regions into unreadable darkness.
+        AddChild(new DirectionalLight3D
+        {
+            Name = "InteriorFill",
+            RotationDegrees = new Vector3(-35f, 145f, 0f),
+            LightEnergy = 0.85f,
+            ShadowEnabled = false,
         });
     }
 
     private void BuildGeometry()
     {
-        // Large base so long grapple experiments do not immediately leave the test space.
-        AddBox("Floor", new Vector3(0f, -0.5f, 0f), new Vector3(120f, 1f, 150f), _floorMaterial);
+        var roomWidth = RoomHalfWidth * 2f;
+        var roomDepth = RoomHalfDepth * 2f;
+        var wallCenterY = RoomHeight * 0.5f;
 
-        // Fully enclosed test room. The walls and ceiling intentionally prevent high-speed
-        // movement tests from escaping the greybox.
-        const float roomHeight = 86f;
-        const float wallCenterY = roomHeight * 0.5f;
+        // Stage 5 iteration 9 deliberately uses a much larger volume so sustained high-speed
+        // traversal has room to breathe before we introduce damage or combat pressure.
+        AddBox(
+            "Floor",
+            new Vector3(0f, -0.5f, 0f),
+            new Vector3(roomWidth, 1f, roomDepth),
+            _floorMaterial);
 
         AddBox(
             "WestWall",
-            new Vector3(-60f, wallCenterY, 0f),
-            new Vector3(1f, roomHeight, 150f));
+            new Vector3(-RoomHalfWidth, wallCenterY, 0f),
+            new Vector3(1f, RoomHeight, roomDepth));
         AddBox(
             "EastWall",
-            new Vector3(60f, wallCenterY, 0f),
-            new Vector3(1f, roomHeight, 150f));
+            new Vector3(RoomHalfWidth, wallCenterY, 0f),
+            new Vector3(1f, RoomHeight, roomDepth));
         AddBox(
             "BackWall",
-            new Vector3(0f, wallCenterY, -75f),
-            new Vector3(120f, roomHeight, 1f));
+            new Vector3(0f, wallCenterY, -RoomHalfDepth),
+            new Vector3(roomWidth, RoomHeight, 1f));
         AddBox(
             "FrontWall",
-            new Vector3(0f, wallCenterY, 75f),
-            new Vector3(120f, roomHeight, 1f));
+            new Vector3(0f, wallCenterY, RoomHalfDepth),
+            new Vector3(roomWidth, RoomHeight, 1f));
         AddBox(
             "Ceiling",
-            new Vector3(0f, roomHeight + 0.5f, 0f),
-            new Vector3(120f, 1f, 150f),
+            new Vector3(0f, RoomHeight + 0.5f, 0f),
+            new Vector3(roomWidth, 1f, roomDepth),
             _floorMaterial);
 
-        // Nearby onboarding geometry.
-        AddBox("LowLedge", new Vector3(-16f, 2f, 40f), new Vector3(14f, 4f, 10f));
-        AddBox("StarterTower", new Vector3(12f, 10f, 34f), new Vector3(5f, 20f, 5f));
-        AddBox("StarterBeam", new Vector3(0f, 15f, 30f), new Vector3(28f, 2f, 3f));
+        // Nearby onboarding geometry remains close enough to understand the grapple immediately.
+        AddBox("LowLedge", new Vector3(-20f, 3f, 58f), new Vector3(18f, 6f, 14f));
+        AddBox("StarterTower", new Vector3(16f, 15f, 52f), new Vector3(7f, 30f, 7f));
+        AddBox("StarterBeam", new Vector3(-2f, 23f, 44f), new Vector3(40f, 2f, 4f));
 
-        // Main vertical playground.
-        AddBox("WestSpire", new Vector3(-34f, 24f, 4f), new Vector3(7f, 48f, 7f));
-        AddBox("EastSpire", new Vector3(34f, 30f, -5f), new Vector3(7f, 60f, 7f));
-        AddBox("NorthSpire", new Vector3(4f, 36f, -44f), new Vector3(8f, 72f, 8f));
-        AddBox("SouthSpire", new Vector3(-6f, 22f, 58f), new Vector3(8f, 44f, 8f));
+        // Widely separated major landmarks. These are intentionally farther apart than iteration 8
+        // so a good line can turn into a long, fast traversal rather than another short hop.
+        AddBox("WestSpire", new Vector3(-74f, 48f, 8f), new Vector3(10f, 96f, 10f));
+        AddBox("EastSpire", new Vector3(78f, 62f, -18f), new Vector3(10f, 124f, 10f));
+        AddBox("NorthSpire", new Vector3(12f, 68f, -104f), new Vector3(12f, 136f, 12f));
+        AddBox("SouthSpire", new Vector3(-18f, 52f, 118f), new Vector3(12f, 104f, 12f));
+        AddBox("FarWestTower", new Vector3(-100f, 58f, -82f), new Vector3(12f, 116f, 12f));
+        AddBox("FarEastTower", new Vector3(100f, 50f, 92f), new Vector3(12f, 100f, 12f));
 
-        // Mid-air targets for chaining rapid RMB retargets.
-        AddBox("BridgeLow", new Vector3(-12f, 20f, 8f), new Vector3(40f, 2f, 4f));
-        AddBox("BridgeMid", new Vector3(17f, 34f, -25f), new Vector3(38f, 2f, 4f));
-        AddBox("BridgeHigh", new Vector3(-14f, 50f, -36f), new Vector3(32f, 2f, 4f));
-        AddBox("SkyBar", new Vector3(0f, 62f, -8f), new Vector3(46f, 2f, 3f));
+        // Air routes give the player multiple height bands to chain without prescribing one path.
+        AddBox("BridgeLow", new Vector3(-24f, 30f, 18f), new Vector3(62f, 2f, 5f));
+        AddBox("BridgeMid", new Vector3(38f, 55f, -48f), new Vector3(72f, 2f, 5f));
+        AddBox("BridgeHigh", new Vector3(-36f, 84f, -74f), new Vector3(68f, 2f, 5f));
+        AddBox("SkyBarA", new Vector3(28f, 108f, -10f), new Vector3(82f, 2f, 4f));
+        AddBox("SkyBarB", new Vector3(-44f, 128f, 56f), new Vector3(70f, 2f, 4f));
 
-        // Vertical stepping route: progressively higher small targets rather than one solid wall.
-        AddBox("StepAir01", new Vector3(-24f, 10f, -18f), new Vector3(9f, 2f, 9f));
-        AddBox("StepAir02", new Vector3(-14f, 18f, -28f), new Vector3(9f, 2f, 9f));
-        AddBox("StepAir03", new Vector3(-4f, 27f, -36f), new Vector3(9f, 2f, 9f));
-        AddBox("StepAir04", new Vector3(8f, 38f, -42f), new Vector3(9f, 2f, 9f));
-        AddBox("StepAir05", new Vector3(20f, 50f, -35f), new Vector3(9f, 2f, 9f));
+        // Ascending targets support controlled practice before committing to the longest lines.
+        AddBox("StepAir01", new Vector3(-34f, 14f, -24f), new Vector3(11f, 2f, 11f));
+        AddBox("StepAir02", new Vector3(-22f, 27f, -42f), new Vector3(11f, 2f, 11f));
+        AddBox("StepAir03", new Vector3(-6f, 43f, -60f), new Vector3(11f, 2f, 11f));
+        AddBox("StepAir04", new Vector3(16f, 62f, -70f), new Vector3(11f, 2f, 11f));
+        AddBox("StepAir05", new Vector3(42f, 84f, -58f), new Vector3(11f, 2f, 11f));
+        AddBox("StepAir06", new Vector3(66f, 108f, -38f), new Vector3(11f, 2f, 11f));
 
-        // Thin hanging targets give precise long-range grapple points.
-        AddBox("NeedleA", new Vector3(-46f, 32f, -30f), new Vector3(2f, 36f, 2f));
-        AddBox("NeedleB", new Vector3(46f, 40f, 26f), new Vector3(2f, 44f, 2f));
-        AddBox("NeedleC", new Vector3(16f, 54f, 38f), new Vector3(2f, 28f, 2f));
+        // Thin targets reward accurate long-range retargeting.
+        AddBox("NeedleA", new Vector3(-96f, 48f, -20f), new Vector3(3f, 60f, 3f));
+        AddBox("NeedleB", new Vector3(96f, 70f, 34f), new Vector3(3f, 76f, 3f));
+        AddBox("NeedleC", new Vector3(28f, 92f, 112f), new Vector3(3f, 64f, 3f));
+        AddBox("NeedleD", new Vector3(-54f, 110f, -118f), new Vector3(3f, 54f, 3f));
 
-        // Long runway for checking momentum after cancelling/replacing a cable.
-        AddBox("SpeedLaneWestRail", new Vector3(-9f, 1f, 53f), new Vector3(1f, 2f, 38f));
-        AddBox("SpeedLaneEastRail", new Vector3(9f, 1f, 53f), new Vector3(1f, 2f, 38f));
+        // Long ground lane remains useful for checking carried momentum after a retarget/miss.
+        AddBox("SpeedLaneWestRail", new Vector3(-12f, 1f, 112f), new Vector3(1f, 2f, 82f));
+        AddBox("SpeedLaneEastRail", new Vector3(12f, 1f, 112f), new Vector3(1f, 2f, 82f));
 
         // Collision layer 2: solid but intentionally not grapplable.
         AddBox(
             "NoGrappleBlock",
-            new Vector3(48f, 5f, 54f),
-            new Vector3(10f, 10f, 10f),
+            new Vector3(102f, 7f, 128f),
+            new Vector3(14f, 14f, 14f),
             _forbiddenMaterial,
             collisionLayer: 2u);
     }
