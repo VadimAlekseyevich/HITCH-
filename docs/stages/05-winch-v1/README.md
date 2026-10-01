@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 7 DUAL CABLE**
+**Status: READY FOR HUMAN GATE — ITERATION 8 SINGLE CABLE**
 
 ## Objective
 
@@ -303,3 +303,48 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36809172303
 - dual-cable state/input/physics covered by automated tests.
 
 Iteration 7 is ready for human movement testing.
+
+
+## Human gate result — iteration 7
+
+**Result: ITERATE / SECOND CABLE REJECTED**
+
+Human feedback:
+
+- the second independent cable was unnecessary;
+- return to one cable;
+- a small residual orbit/rotation was still visible after the player appeared fully reeled in.
+
+The dual-cable state/input/physics are removed from the active implementation.
+
+## Root cause of residual post-arrival rotation
+
+The old completion rule used a fixed `0.9 m` center-to-anchor threshold.
+
+That is geometrically wrong for the controlled capsule:
+
+- capsule height: 1.8 m;
+- capsule half-height: 0.9 m;
+- collision margin: 0.02 m.
+
+When grappling a ceiling, the capsule center cannot physically reach closer than roughly 0.92 m before collision, so a `0.9 m` threshold could leave the cable permanently active even though the player looked fully reeled in.
+
+That continuing pull produced the small orbit/rotation.
+
+## Iteration 8 — single unlimited cable + capsule-aware completion
+
+Current behavior:
+
+- RMB is the only grapple input;
+- RMB raycasts/replaces the single cable and immediately starts pull;
+- LMB has no grapple behavior;
+- gameplay rope length remains unlimited;
+- current pull values remain 24 m/s initial impulse, 300 m/s² radial acceleration, 42 m/s inward radial target;
+- arrival is calculated from capsule geometry instead of a fixed center distance;
+- current extra contact tolerance is 0.06 m;
+- completed pull clears the cable and **fully zeroes residual velocity**;
+- ordinary gravity resumes immediately.
+
+The enclosed room and center crosshair remain.
+
+Iteration 8 must pass a new human movement test before Stage 5 may advance.
