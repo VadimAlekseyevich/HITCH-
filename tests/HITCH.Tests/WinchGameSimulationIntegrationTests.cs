@@ -199,6 +199,45 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
+    public void SpaceDetachPreservesFlightMomentumWithoutJumping()
+    {
+        var config = TestSimulationConfig();
+        var world = new MutableGrappleWorld(
+            new Vector3(0f, 5f, -200f));
+        var simulation = CreateAirborneSimulation(config);
+
+        simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
+
+        var beforeDetach =
+            simulation.State.Player.Velocity;
+
+        var detached = simulation.Step(
+            Input(
+                PlayerButtons.JumpPressed
+                | PlayerButtons.GrappleDetachPressed),
+            new NoHitWorld());
+
+        Assert.False(detached.Winch.HasTarget);
+        Assert.False(detached.Winch.IsPulling);
+
+        // Horizontal flight momentum survives the detach exactly.
+        Assert.InRange(
+            Math.Abs(detached.Player.Velocity.X - beforeDetach.X),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(detached.Player.Velocity.Z - beforeDetach.Z),
+            0f,
+            1e-5f);
+
+        // Space was consumed as detach, not as an upward jump.
+        Assert.True(detached.Player.Velocity.Y <= 0f);
+        Assert.True(detached.Player.Velocity.Z < -40f);
+    }
+
+    [Fact]
     public void RetargetRestartsLaunchBurst()
     {
         var config = TestSimulationConfig() with
@@ -208,8 +247,10 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullTargetInwardSpeed = 100f,
                 PullLongRangeInwardSpeed = 100f,
                 PullLongRangeDistance = 250f,
-                PullLaunchSpeedMultiplier = 1.45f,
-                PullLaunchDecaySeconds = 0.75f,
+                PullLaunchInitialMultiplier = 1.75f,
+                PullLaunchPeakMultiplier = 2.75f,
+                PullLaunchPeakSeconds = 0.10f,
+                PullLaunchDecaySeconds = 0.70f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
@@ -221,7 +262,7 @@ public sealed class WinchGameSimulationIntegrationTests
             Input(PlayerButtons.GrapplePullPressed),
             world);
 
-        for (var i = 0; i < 30; i++)
+        for (var i = 0; i < 50; i++)
         {
             simulation.Step(PlayerInput.Neutral, world);
         }
@@ -296,8 +337,10 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullTargetInwardSpeed = 42f,
                 PullLongRangeInwardSpeed = 42f,
                 PullLongRangeDistance = 250f,
-                PullLaunchSpeedMultiplier = 1f,
-                PullLaunchDecaySeconds = 0.75f,
+                PullLaunchInitialMultiplier = 1f,
+                PullLaunchPeakMultiplier = 1f,
+                PullLaunchPeakSeconds = 0.10f,
+                PullLaunchDecaySeconds = 0.70f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
