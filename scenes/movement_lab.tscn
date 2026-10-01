@@ -12,7 +12,7 @@ script = ExtResource("1_sim")
 script = ExtResource("2_lab")
 
 [node name="Spawn" type="Marker3D" parent="."]
-position = Vector3(0, 0, 32)
+position = Vector3(0, 0, 60)
 
 [node name="PlayerView" type="Node3D" parent="."]
 
@@ -36,3 +36,16 @@ offset_right = 780.0
 offset_bottom = 240.0
 text = "HITCH! movement lab starting..."
 script = ExtResource("3_overlay")
+
+[node name="CrosshairDot" type="ColorRect" parent="Hud"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0.9)
