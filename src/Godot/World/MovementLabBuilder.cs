@@ -244,6 +244,24 @@ public partial class MovementLabBuilder : Node3D
             32f,
             _roofMaterial);
 
+        // Thin wrap-test columns in open street space. These deliberately expose the
+        // piecewise rope behavior: the cable should catch successive sides as the player circles.
+        AddBox(
+            "WrapPostA",
+            new Vector3(-10f, 9f, 24f),
+            new Vector3(2.4f, 18f, 2.4f),
+            _buildingMaterialC);
+        AddBox(
+            "WrapPostB",
+            new Vector3(11f, 13f, -37f),
+            new Vector3(3f, 26f, 3f),
+            _buildingMaterialB);
+        AddBox(
+            "WrapPostC",
+            new Vector3(-9f, 7f, -100f),
+            new Vector3(2f, 14f, 2f),
+            _roofMaterial);
+
         AddBox(
             "SkyBridgeWest",
             new Vector3(-35f, 27f, 12f),
