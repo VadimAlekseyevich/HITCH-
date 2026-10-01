@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 18 FINITE ROPE + LMB REEL**
+**Status: READY FOR HUMAN GATE — ITERATION 19 ODM-INSPIRED REEL + GAS**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
@@ -429,7 +429,7 @@ No networking and no combat are needed.
 ### Grapple targeting
 
 - hitscan/raycast targeting;
-- current Stage 5 hypothesis uses a finite **100 m** maximum deployed rope/acquisition range; exact final balance remains open;
+- current Stage 5 hypothesis uses a finite **75 m** maximum deployed rope/acquisition range; exact final balance remains open;
 - valid vs forbidden grapple surfaces;
 - debug visualization of hit/anchor.
 
@@ -479,9 +479,9 @@ Exact math is experimental.
 
 ### Momentum behavior
 
-**Current Stage 5 experiment:** the attached rope is a finite, gravity-driven constraint rather than a direct-velocity rail. Tangential swing momentum is preserved; collision removes only velocity into the contacted surface; bend changes cannot instantly snap the full velocity vector.
+**Current Stage 5 experiment:** a single-cable ODM-inspired model. The attached rope remains a finite, gravity-driven constraint. LMB combines a moderate radial reel motor with separate gas-like acceleration projected onto the cable tangent. Gas authority fades smoothly at high speed rather than imposing a hard cap. Artificial launch-burst multipliers are neutralized in default tuning.
 
-RMB only attaches/retargets. LMB starts reel-in. Space detaches and preserves current flight velocity. The exact tension/reel coefficients remain experimental.
+RMB attaches/retargets. LMB engages reel + gas. Space detaches and preserves current flight velocity. Exact reel, gas, range, and locomotion values remain experimental.
 
 ### High-speed reel falloff experiment
 
