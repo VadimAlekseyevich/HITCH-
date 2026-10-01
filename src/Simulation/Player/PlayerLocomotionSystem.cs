@@ -17,8 +17,7 @@ public static class PlayerLocomotionSystem
         in PlayerInput input,
         PlayerLocomotionConfig config,
         IWorldQuery world,
-        float fixedDeltaSeconds,
-        bool suppressGroundBraking = false)
+        float fixedDeltaSeconds)
     {
         var velocity = player.Velocity;
 
@@ -29,8 +28,7 @@ public static class PlayerLocomotionSystem
                 input.Move,
                 player.ViewYawRadians,
                 config,
-                fixedDeltaSeconds,
-                suppressGroundBraking);
+                fixedDeltaSeconds);
 
             if (input.Has(PlayerButtons.JumpPressed))
             {
@@ -84,39 +82,23 @@ public static class PlayerLocomotionSystem
         Vector2 moveInput,
         float viewYawRadians,
         PlayerLocomotionConfig config,
-        float fixedDeltaSeconds,
-        bool suppressGroundBraking)
+        float fixedDeltaSeconds)
     {
         var horizontal = new Vector3(velocity.X, 0f, velocity.Z);
         var wishDirection = BuildWishDirection(moveInput, viewYawRadians);
 
-        if (wishDirection.LengthSquared() <= TinySpeedSquared)
-        {
-            if (suppressGroundBraking)
-            {
-                return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
-            }
+        var desired = wishDirection.LengthSquared() <= TinySpeedSquared
+            ? Vector3.Zero
+            : wishDirection * config.GroundMaxSpeed;
 
-            // Do not automatically kill future winch/external momentum just because it exceeds
-            // ordinary walking speed.
-            if (horizontal.LengthSquared()
-                <= config.GroundMaxSpeed * config.GroundMaxSpeed)
-            {
-                horizontal = MoveTowards(
-                    horizontal,
-                    Vector3.Zero,
-                    config.GroundBraking * fixedDeltaSeconds);
-            }
+        var response = desired == Vector3.Zero
+            ? config.GroundBraking
+            : config.GroundAcceleration;
 
-            return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
-        }
-
-        horizontal = AccelerateAlongWishDirection(
+        horizontal = MoveTowards(
             horizontal,
-            wishDirection,
-            config.GroundMaxSpeed,
-            config.GroundAcceleration,
-            fixedDeltaSeconds);
+            desired,
+            response * fixedDeltaSeconds);
 
         return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
     }
