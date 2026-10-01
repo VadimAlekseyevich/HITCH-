@@ -15,4 +15,8 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Simulation/Hitch.Simulation.csproj" />
+  </ItemGroup>
 </Project>
