@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING — ITERATION 7 DUAL CABLE BUILD READY
+**Status:** WAITING — ITERATION 8 SINGLE CABLE BUILD READY
 **Depends on:** Task 08
 
 ## Goal
@@ -123,3 +123,23 @@ Evaluate only the current dual-cable build:
 - when one cable finishes and the other still pulls, does movement continue naturally?
 - when the last cable finishes, does the complete stop feel correct rather than sticky or orbiting?
 - does the dual-cable movement feel fast/action-oriented enough while still being understandable?
+
+
+## Iteration 7 result
+
+**ITERATE — second cable was unnecessary.**
+
+The active build returns to a single RMB cable.
+
+## Iteration 8 focus
+
+Evaluate:
+
+- does RMB-only grapple feel simpler/better again?
+- does unlimited rope length still behave as intended?
+- when pulling to a wall, does the cable complete only when the body is actually near the surface?
+- when pulling to a ceiling, does the cable now complete instead of continuing to apply force forever?
+- after full completion, is all sideways/orbital motion gone?
+- does the player simply stop, then resume ordinary gravity without being slowly rotated around the anchor?
+- does retargeting before completion still preserve useful movement flow?
+- does the enclosed room continue to contain high-speed movement?
