@@ -80,3 +80,19 @@ Check:
 3. whether timing Space near the peak creates satisfying movement tech;
 4. whether Space cleanly detaches without accidental jump;
 5. whether free-flight momentum after detach feels useful without recreating the old active-grapple drift problem.
+
+
+### Iteration 14 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36918044665
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 72 passed / 0 failed;
+- two-stage launch curve covered by automated tests;
+- explicit detach preserves velocity;
+- Space detach is consumed instead of also triggering jump;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
