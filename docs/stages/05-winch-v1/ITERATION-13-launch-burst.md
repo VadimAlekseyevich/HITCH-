@@ -68,3 +68,19 @@ Check whether:
 3. chaining rapid retargets feels exciting because each new cable gets a fresh kick;
 4. 1.45× is strong enough without making close-range grapples unreadable;
 5. the decay time of 0.75 s feels natural for the intended ODM-like rhythm.
+
+
+### Iteration 13 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36916365526
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 69 passed / 0 failed;
+- burst-decay curve covered by automated tests;
+- pull elapsed time advances deterministically;
+- retarget restarts the launch burst;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
