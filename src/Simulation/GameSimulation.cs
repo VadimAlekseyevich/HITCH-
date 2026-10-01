@@ -151,9 +151,9 @@ public sealed class GameSimulation
                 finalWinch = finalWinch with
                 {
                     IsPulling = false,
-                    LastActualDistance = System.Numerics.Vector3.Distance(
+                    LastActualDistance = WinchSystem.ComputeRopePathLength(
                         movedPlayer.Position,
-                        finalWinch.Path.CurrentPullPoint),
+                        finalWinch.Path),
                     LastPullAcceleration = 0f,
                 };
                 movedPlayer = movedPlayer with
@@ -168,9 +168,9 @@ public sealed class GameSimulation
         {
             finalWinch = finalWinch with
             {
-                LastActualDistance = System.Numerics.Vector3.Distance(
+                LastActualDistance = WinchSystem.ComputeRopePathLength(
                     movedPlayer.Position,
-                    finalWinch.Path.CurrentPullPoint),
+                    finalWinch.Path),
             };
         }
 
