@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 19 ODM-INSPIRED REEL + GAS**
+**Status: READY FOR HUMAN GATE — ITERATION 20 DUAL-HOOK ODM**
 
 ## Objective
 
@@ -1222,3 +1222,134 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36929379224
 - city enclosure smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual Stage 5 gate.
+
+
+## Human gate result — iteration 19
+
+**Result: OVER-CORRECTED TOWARD REALISM / REEL TOO WEAK**
+
+Human feedback:
+
+- the restrained ODM-inspired model went too far in reducing reel power;
+- actual traversal became difficult enough that ordinary flying no longer felt viable;
+- strong/explosive reel-in is still desirable;
+- the more important ODM-like feature is two independent hooks rather than simply making one hook weak;
+- proposed control: repeated RMB clicks alternate between two hook units;
+- LMB should reel whichever hooks currently exist, one or both;
+- city should become much larger to support longer traversal lines.
+
+## Iteration 20 — dual-hook ODM + strong reel + expanded city
+
+### Dual hook control
+
+The simulation now stores two independent cable states.
+
+RMB alternates:
+
+```text
+1st RMB -> Left
+2nd RMB -> Right
+3rd RMB -> Left retarget
+4th RMB -> Right retarget
+...
+```
+
+HUD shows which side the next RMB will target.
+
+LMB starts reel-in on every currently attached cable.
+
+Space detaches both cables and preserves flight velocity.
+
+### Combined physics
+
+Both cables contribute to the same player velocity in one simulation tick.
+
+Gravity is applied exactly once.
+
+Each cable independently contributes:
+
+- its piecewise rope constraint;
+- its radial reel motor;
+- its tangential gas component;
+- wrap/unwrap geometry.
+
+When both cables are active, each motor uses **0.72×** normal motor authority.
+
+This gives more combined force and much more directional control without simply doubling every acceleration value.
+
+### Stronger reel
+
+Current single-cable reel profile:
+
+- short-line sustained target: **20 m/s**;
+- long-line sustained target: **32 m/s**;
+- long-range saturation: **110 m**;
+- radial acceleration: **110 m/s²**;
+- immediate motor assist: **1.25×**;
+- peak motor assist: **1.65×** after ~0.11 s;
+- decay to sustained reel: ~0.48 s.
+
+Gas remains secondary:
+
+- gas acceleration: **11 m/s²**;
+- full authority through ~24 m/s;
+- fades to zero added thrust by ~46 m/s.
+
+This intentionally brings back a noticeable explosive pull while leaving the full player velocity under rope/swing physics.
+
+### Rope range
+
+Each cable now has:
+
+- **150 m** maximum acquisition/deployed length.
+
+On the enlarged city this is long-range but not remotely map-wide.
+
+### Expanded city
+
+Iteration 19 city:
+
+- 200 × 250 m footprint.
+
+Iteration 20 city:
+
+- **640 × 800 m footprint**;
+- **180 m height**;
+- ~**10.24× horizontal area**.
+
+The city is not a stretched version of the old map.
+
+Local building and street scale remains similar, while the city now contains roughly:
+
+- ~80 varied greybox buildings;
+- three north/south avenues;
+- three major cross streets;
+- dense local gaps/alleys;
+- rooftop utility masses;
+- central wrap-test geometry;
+- far skyline spires;
+- enclosed floor/walls/ceiling.
+
+### Debug presentation
+
+- left cable: yellow;
+- right cable: magenta;
+- bend contacts remain visible;
+- HUD shows L/R state, rope/path length, bend count, radial/tangent speed, and next RMB side.
+
+### Technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36931936584
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: **101 passed / 0 failed**;
+- dual RMB alternation covered;
+- third RMB left-retarget behavior covered;
+- LMB reeling both cables covered;
+- Space detaching both covered;
+- two idle cables applying gravity exactly once covered;
+- enlarged-city spawn smoke passed;
+- enlarged-city west/east/back/front/ceiling smoke passed.
+
+Human movement feel remains the Stage 5 gate.
