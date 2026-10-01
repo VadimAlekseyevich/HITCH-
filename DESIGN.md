@@ -194,35 +194,53 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — replaces the previous spring/reel implementation for active testing.**
+**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 3.**
 
-The first human movement gate rejected the initial one-sided spring + accelerating reel model because it felt unpredictable, sticky, and difficult to control.
+The first human movement gate rejected the initial spring/reel model as unpredictable, sticky, and difficult to control.
 
-For the next local playtest, deliberately simplify the loop:
+Iteration 2 then simplified too far in the wrong direction by requiring RMB to be held. The requested control model is now explicit:
 
-- **LMB:** hitscan-select or replace one world target point;
-- selecting a point does not pull by itself;
-- **hold RMB:** immediately pull toward the selected point at a configured direct pull speed;
-- there is no pull acceleration ramp in this iteration;
-- **release RMB early:** pull force stops immediately while current momentum is retained;
-- **LMB while RMB is held:** immediately retargets the active pull to the new valid point;
-- reaching the target consumes/clears it, stops pulling, clears current velocity, and ordinary gravity resumes so the player falls away from the surface;
-- Q/E reel controls are disabled for this iteration.
+- **LMB:** throw/select a cable point by hitscan;
+- LMB always cancels any active pull first;
+- cancelling/replacing a cable must not erase current momentum;
+- if the new LMB throw hits a valid surface, a new idle cable is created;
+- if the LMB throw misses, the previous cable is cleared and the player continues only by inertia;
+- **RMB click once:** start automatic pull toward the currently selected point;
+- RMB is not held and release has no gameplay meaning;
+- starting pull gives an immediate strong velocity impulse toward the anchor;
+- while automatic pull is active, additional acceleration bends the existing trajectory toward the anchor;
+- the pull must preserve tangential momentum rather than replacing the entire velocity vector every tick;
+- clicking LMB during automatic pull stops the pull immediately and places/replaces the cable; another RMB click is required to pull again;
+- reaching the target stops automatic pull and removes inward motion into the anchor; gravity and ordinary control then resume;
+- Q/E reel controls are disabled in this iteration.
 
-This is intentionally a **simpler experiment**, not a declaration that spring/reel mechanics are permanently removed from HITCH!.
+The current prototype grapple range is **72 m**, intentionally about 3× the prior 24 m test value.
 
-The previously documented spring, reel motor, slack, and energy-gain requirements are **reopened/TBD for now**. Do not reintroduce them into the active prototype until the direct-pull loop has been tested.
+This remains an experiment. It does **not** permanently remove spring/reel mechanics from future HITCH! design.
+
+The older spring, reel motor, slack, and reel-energy requirements below are historical design direction and are currently **reopened/TBD for the active prototype**. Do not reintroduce them into Stage 5 without a new human decision.
 
 ### Base locomotion playtest correction
 
-The first playtest also reported ground movement feeling like walking on ice.
+Human feedback also reported ordinary movement as slow, floaty, and ice-like.
 
-Current requirement for the local prototype:
+Current local-prototype requirement:
 
-- grounded movement should respond quickly to direction changes;
-- releasing movement input should visibly brake horizontal ground velocity;
-- grounded control may dissipate excess horizontal momentum instead of preserving it indefinitely;
-- air/pull momentum remains physically important.
+- grounded movement must respond quickly to direction changes;
+- releasing input should strongly brake grounded horizontal velocity;
+- ground walking may dissipate excess momentum;
+- limited air steering is allowed so the player can correct obvious mistakes;
+- grapple movement must still be much more powerful than walking.
+
+### Current movement-lab usability
+
+For Stage 5 feel testing only:
+
+- the greybox lab is enlarged vertically;
+- multiple grappleable structures reach roughly 44–72 m;
+- a small center-screen crosshair marks the exact aiming direction.
+
+These are prototype-testing aids, not final arena/UI decisions.
 
 ---
 
