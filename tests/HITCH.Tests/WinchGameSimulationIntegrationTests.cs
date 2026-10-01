@@ -182,6 +182,51 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
+    public void GrappleWallContactSlidesInsteadOfAutoStopping()
+    {
+        var config = TestSimulationConfig() with
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 0.01f,
+                AirAcceleration = 0f,
+            },
+        };
+        var playerPosition = new Vector3(0f, 5f, 0f);
+        var anchor = new Vector3(20f, 5f, -20f);
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = playerPosition,
+                Velocity = Vector3.Zero,
+                IsGrounded = false,
+            },
+            Winch = new WinchState(
+                WinchTargetState.Selected,
+                WinchPathState.AtWorldAnchor(anchor),
+                true,
+                Vector3.Distance(playerPosition, anchor),
+                0f),
+        };
+        var simulation = new GameSimulation(
+            config,
+            initial);
+
+        var after = simulation.Step(
+            PlayerInput.Neutral,
+            new FirstSweepWallWorld());
+
+        Assert.True(after.Winch.IsPulling);
+        Assert.True(after.Player.Velocity.Z < -1f);
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.X),
+            0f,
+            1e-4f);
+        Assert.True(after.Player.Position.Z < 0f);
+    }
+
+    [Fact]
     public void CompletedGrappleRemainsStoppedUntilRmbReleasesOrRetargets()
     {
         var config = TestSimulationConfig() with
@@ -441,6 +486,40 @@ public sealed class WinchGameSimulationIntegrationTests
         {
             get => CurrentAnchor;
             set => CurrentAnchor = value;
+        }
+    }
+
+    private sealed class FirstSweepWallWorld : IWorldQuery
+    {
+        private int _sweepCount;
+
+        public bool TryRaycast(
+            in RayQuery query,
+            out WorldHit hit)
+        {
+            hit = default;
+            return false;
+        }
+
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
+        {
+            _sweepCount++;
+
+            if (_sweepCount == 1)
+            {
+                hit = new WorldHit(
+                    query.StartCenter
+                    + (query.Displacement * 0.5f),
+                    -Vector3.UnitX,
+                    0.5f,
+                    1u);
+                return true;
+            }
+
+            hit = default;
+            return false;
         }
     }
 
