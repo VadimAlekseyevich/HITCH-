@@ -10,6 +10,12 @@ public readonly record struct WinchState(
     float LastActualDistance,
     float LastPullAcceleration)
 {
+    /// <summary>
+    /// Time since the current pull started. Retargeting creates a fresh winch state and resets it.
+    /// Used only for the launch-speed envelope; it does not represent physical inertia.
+    /// </summary>
+    public float PullElapsedSeconds { get; init; }
+
     public bool HasTarget =>
         TargetState == WinchTargetState.Selected;
 
