@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 19: a single-cable ODM-inspired movement model. RMB attaches/retargets a finite 75 m cable; LMB engages moderate reel-in plus tangential gas propulsion; Space detaches. Artificial grapple launch burst is neutralized, reel speed is reduced to 9–16 m/s, gas thrust fades smoothly from full authority around 18 m/s to zero added thrust around 34 m/s, and base locomotion is returned toward human scale. Damage remains deliberately out of scope while core movement feel is being fixed.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 20: dual-hook ODM traversal. RMB alternates left/right hooks, LMB reels every active hook, reel power is raised substantially with a short controlled launch assist, and the enclosed city expands to roughly 640 × 800 × 180 m while retaining dense human-scale blocks. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
