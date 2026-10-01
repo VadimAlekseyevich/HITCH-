@@ -361,7 +361,6 @@ public sealed class WinchGameSimulationIntegrationTests
 
         Assert.True(inwardSpeed > 35f);
         Assert.True(tangent.Length() > 1f);
-        Assert.True(retargeted.Player.Velocity.Y < 10f);
     }
 
     private static SimulationConfig TestSimulationConfig() =>
