@@ -194,17 +194,19 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — DUAL-CABLE ITERATION.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 8.**
 
-The active local movement prototype now uses two independent grapple cables:
+The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
-- **LMB** owns the left cable;
-- **RMB** owns the right cable;
-- clicking a side raycasts a fresh world anchor for that side;
-- the clicked side replaces only its own previous cable;
+The active local movement prototype uses **one cable on RMB**:
+
+- RMB raycasts a fresh world anchor;
+- any previous cable is replaced;
 - pull starts immediately in the same simulation tick;
-- both cables may be active simultaneously;
-- a missed shot clears only that side.
+- RMB does not need to be held;
+- another RMB click immediately retargets;
+- a miss clears the cable and preserves current momentum;
+- LMB currently has no grapple action.
 
 ### Unlimited gameplay rope length
 
@@ -212,39 +214,43 @@ There is no gameplay rope-length cap in the active prototype.
 
 The physics query still uses a large finite endpoint because the world-query API requires one. That endpoint is an implementation detail and must not be exposed as a gameplay range.
 
-### Dual-cable pull model
+### Current pull model
 
-The goal is an action-oriented dual-cable feel inspired by fast aerial traversal rather than strict rope realism.
+During travel:
 
-For each active cable:
-
-- apply a one-time initial impulse toward that cable's anchor when fired;
-- continuously operate on radial speed toward that anchor;
+- apply a one-time initial impulse toward the anchor when fired;
+- continuously increase radial speed toward the anchor;
 - preserve tangential momentum for swing/arc movement;
 - do not reduce already-faster inward radial speed.
 
-When two cables are active:
-
-- calculate each cable's correction from the same base velocity;
-- sum both corrections;
-- keep left/right processing symmetric and order-independent.
-
-Current per-cable playtest values:
+Current playtest values:
 
 - initial impulse: **24 m/s**;
 - radial acceleration: **300 m/s²**;
 - target inward radial speed: **42 m/s**;
-- arrival distance: **0.9 m**.
+- arrival contact tolerance: **0.06 m** beyond the capsule's geometric support distance.
 
-### Arrival behavior
+### Capsule-aware completion
 
-Each cable can complete independently.
+A fixed center-to-anchor arrival distance is incorrect because the player is a capsule.
 
-- If one cable reaches its anchor while the other is still active, clear only the arrived cable.
-- When the **last active cable** completes, clear all player velocity.
-- Ordinary gravity and locomotion then resume.
+For example, with the current 1.8 m capsule, the center cannot physically approach a ceiling closer than roughly 0.92 m before collision margin/tolerance.
 
-This explicitly prevents the previously rejected endless orbiting after a completed reel-in.
+Therefore completion distance must account for:
+
+- capsule radius;
+- projected capsule half-segment length along the cable direction;
+- collision margin;
+- small configurable arrival contact tolerance.
+
+When the capsule has effectively reached the grapple surface:
+
+- the pull ends;
+- the cable clears;
+- **all player velocity is cleared**;
+- ordinary gravity/locomotion resume immediately.
+
+This rule exists specifically to prevent the rejected behavior where the player looked fully reeled in but continued to orbit/rotate because the cable never formally reached an unreachable surface point.
 
 ### Base locomotion playtest correction
 
@@ -293,14 +299,15 @@ Implementation expectation:
 
 ## 5.3 Grapple range
 
-**DECIDED:** medium range.
+**DECIDED:** no gameplay rope-length limit in the active MVP movement prototype.
 
-Intent:
+Implementation note:
 
-- enough range to traverse meaningful parts of the arena;
-- not enough to trivially reach every visible surface from anywhere.
+- world-query APIs may still require a finite ray endpoint;
+- use a sufficiently large engine-only query distance;
+- do not expose that technical distance as gameplay balance.
 
-**Exact numeric range is a tuning parameter, not yet locked.**
+This decision may be revisited later if unlimited reach proves harmful to PvP/map design, but agents must not silently reintroduce a gameplay range cap.
 
 ---
 
