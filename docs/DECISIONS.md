@@ -129,3 +129,5 @@ A task that changes a **DECIDED** item should:
 3. update this ledger;
 4. update architecture/roadmap if affected;
 5. mention the migration impact on existing implementation.
+
+| Runtime feel tuning | HYPOTHESIS | F2 opens a Russian in-game tuning panel. Sliders + exact numeric fields apply validated SimulationConfig changes without state reset. Clipboard export uses HITCH_TUNING_V1 for fast human/assistant iteration. |
