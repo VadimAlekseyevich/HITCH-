@@ -194,7 +194,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 4.**
+**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 5.**
 
 The active Stage 5 control model is deliberately minimal:
 
@@ -205,7 +205,10 @@ The active Stage 5 control model is deliberately minimal:
 - there is no separate LMB cable-placement step;
 - there is no RMB hold/release gameplay state;
 - pull begins with a strong immediate velocity impulse toward the anchor;
-- continuous acceleration then bends the existing trajectory toward the anchor;
+- continuous pull acts specifically on the **radial velocity component toward the anchor**;
+- the cable must strongly contract distance to the anchor rather than merely steer the trajectory;
+- tangential velocity is preserved so swinging/orbiting remains possible;
+- the current experiment drives radial inward speed toward a high minimum target instead of replacing the whole velocity vector;
 - tangential momentum is preserved rather than replacing the full velocity vector every tick;
 - another RMB click while pulling immediately retargets and starts pull toward the new hit;
 - an RMB miss clears the old cable and leaves the player flying on existing momentum;
@@ -215,7 +218,8 @@ Current experimental values:
 
 - grapple range: **72 m**;
 - initial pull impulse: **30 m/s**;
-- continuous pull acceleration: **60 m/s²**.
+- radial pull acceleration: **420 m/s²**;
+- target minimum inward radial speed: **55 m/s**.
 
 LMB currently has no grapple behavior.
 
