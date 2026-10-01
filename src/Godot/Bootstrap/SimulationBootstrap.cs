@@ -5,6 +5,7 @@ using Hitch.GodotIntegration.World;
 using Hitch.Simulation;
 using Hitch.Simulation.Input;
 using Hitch.Simulation.State;
+using Hitch.Simulation.Winch;
 using NumericsVector3 = System.Numerics.Vector3;
 
 namespace Hitch.GodotIntegration.Bootstrap;
@@ -102,25 +103,57 @@ public partial class SimulationBootstrap : Node
 
     private void DrawDebugVectors()
     {
-        var player = _simulation.State.Player;
+        var state = _simulation.State;
+        var player = state.Player;
         var origin = _yawPivot.GlobalPosition;
-        var forward = -_pitchPivot.GlobalTransform.Basis.Z;
-        var velocity = new Vector3(
-            player.Velocity.X,
-            player.Velocity.Y,
-            player.Velocity.Z);
+        var velocity = ToGodot(player.Velocity);
+        var aimRay = WinchSystem.BuildAimRay(
+            player,
+            _simulation.Config.Winch,
+            _simulation.Config.Locomotion);
 
         _debugLines.BeginFrame();
+
         _debugLines.DrawLine(
-            origin,
-            origin + (forward * 3f),
-            Colors.Cyan);
+            ToGodot(aimRay.From),
+            ToGodot(aimRay.To),
+            new Color(0.2f, 0.8f, 1f, 0.45f));
+
         _debugLines.DrawLine(
             origin,
             origin + velocity,
             Colors.Orange);
+
+        if (state.Winch.IsAttached)
+        {
+            var anchor = ToGodot(state.Winch.Path.CurrentPullPoint);
+            var playerCenter = ToGodot(player.Position);
+
+            _debugLines.DrawLine(
+                playerCenter,
+                anchor,
+                Colors.Yellow);
+
+            const float markerSize = 0.35f;
+            _debugLines.DrawLine(
+                anchor - (Vector3.Right * markerSize),
+                anchor + (Vector3.Right * markerSize),
+                Colors.LimeGreen);
+            _debugLines.DrawLine(
+                anchor - (Vector3.Up * markerSize),
+                anchor + (Vector3.Up * markerSize),
+                Colors.LimeGreen);
+            _debugLines.DrawLine(
+                anchor - (Vector3.Back * markerSize),
+                anchor + (Vector3.Back * markerSize),
+                Colors.LimeGreen);
+        }
+
         _debugLines.Commit();
     }
+
+    private static Vector3 ToGodot(NumericsVector3 value) =>
+        new(value.X, value.Y, value.Z);
 
     private void RefreshOverlay()
     {
@@ -128,6 +161,7 @@ public partial class SimulationBootstrap : Node
             _simulation.State,
             _simulation.Config,
             _lastInput,
+            _simulation.Telemetry,
             _input.IsMouseCaptured);
     }
 }
