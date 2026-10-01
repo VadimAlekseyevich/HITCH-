@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 2](../../ROADMAP.md)
 
-**Status: ACTIVE**
+**Status: DONE — 2026-10-01**
 
 ## Stage objective
 
@@ -18,12 +18,12 @@ There is still **no player locomotion, grapple, combat, or networking** in this 
 
 | ID | Task | Status | Depends on |
 |---|---|---|---|
-| 01 | [Create pure C# simulation assembly](./TASK-01-simulation-assembly.md) | PLANNED | Stage 1 |
-| 02 | [Define config, input, and explicit state contracts](./TASK-02-state-input-config.md) | PLANNED | 01 |
-| 03 | [Define minimal world-query boundary](./TASK-03-world-query.md) | PLANNED | 02 |
-| 04 | [Implement one-tick simulation kernel](./TASK-04-kernel.md) | PLANNED | 02, 03 |
-| 05 | [Connect kernel to Godot fixed physics tick](./TASK-05-godot-runner.md) | PLANNED | 04 |
-| 06 | [Verify Stage 2 gate and synchronize docs](./TASK-06-stage-gate.md) | PLANNED | 05 |
+| 01 | [Create pure C# simulation assembly](./TASK-01-simulation-assembly.md) | DONE | Stage 1 |
+| 02 | [Define config, input, and explicit state contracts](./TASK-02-state-input-config.md) | DONE | 01 |
+| 03 | [Define minimal world-query boundary](./TASK-03-world-query.md) | DONE | 02 |
+| 04 | [Implement one-tick simulation kernel](./TASK-04-kernel.md) | DONE | 02, 03 |
+| 05 | [Connect kernel to Godot fixed physics tick](./TASK-05-godot-runner.md) | DONE | 04 |
+| 06 | [Verify Stage 2 gate and synchronize docs](./TASK-06-stage-gate.md) | DONE | 05 |
 
 ## Stage exit gate
 
@@ -54,3 +54,24 @@ Do not implement:
 - final serialization format.
 
 Those belong to later roadmap stages.
+
+
+## Completion evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36795731472
+
+The implemented kernel has an explicit dependency direction:
+
+```text
+Godot fixed physics callback
+          │
+          ▼
+   GameSimulation.Step
+          │
+          ▼
+    SimulationState
+```
+
+Godot-specific adapters remain outside `Hitch.Simulation`.
+
+**Next:** Stage 3 — Greybox world, first-person shell, and debug instrumentation.
