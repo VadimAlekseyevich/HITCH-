@@ -38,7 +38,7 @@ public sealed record PlayerLocomotionConfig
 
     public int MaxSlideIterations { get; init; } = 4;
 
-    public uint WorldCollisionMask { get; init; } = 1u;
+    public uint WorldCollisionMask { get; init; } = 0b11u;
 
     public float CapsuleHalfSegmentLength =>
         (CapsuleHeight * 0.5f) - CapsuleRadius;
