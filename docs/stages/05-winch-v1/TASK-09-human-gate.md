@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING — ITERATION 4 BUILD READY  
+**Status:** WAITING — ITERATION 5 BUILD READY  
 **Depends on:** Task 08
 
 ## Goal
@@ -85,7 +85,7 @@ Evaluate:
 
 **ITERATE — input still had one unnecessary step.**
 
-## Iteration 4 focus
+## Iteration 5 focus
 
 Evaluate:
 
