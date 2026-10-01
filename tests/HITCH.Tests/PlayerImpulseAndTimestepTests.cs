@@ -91,8 +91,17 @@ public sealed class PlayerImpulseAndTimestepTests
             oneTwenty.Player.Velocity.X,
             oneTwenty.Player.Velocity.Z).Length();
 
-        Assert.InRange(Math.Abs(sixtySpeed - 3.5f), 0f, 1e-4f);
-        Assert.InRange(Math.Abs(oneTwentySpeed - 3.5f), 0f, 1e-4f);
+        var expectedWalkSpeed =
+            new SimulationConfig().Locomotion.GroundMaxSpeed;
+
+        Assert.InRange(
+            Math.Abs(sixtySpeed - expectedWalkSpeed),
+            0f,
+            1e-4f);
+        Assert.InRange(
+            Math.Abs(oneTwentySpeed - expectedWalkSpeed),
+            0f,
+            1e-4f);
         Assert.InRange(Math.Abs(sixtySpeed - oneTwentySpeed), 0f, 1e-4f);
         Assert.InRange(
             Math.Abs(sixty.Player.Position.Z - oneTwenty.Player.Position.Z),
