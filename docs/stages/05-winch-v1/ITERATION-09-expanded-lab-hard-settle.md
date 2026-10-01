@@ -49,6 +49,14 @@ This means the completed pull has an exact zero-velocity settle frame. Gravity r
 
 ## Verification
 
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36911381535
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 58 passed / 0 failed;
+- spawn smoke: `tick=45 y=0.9150 grounded=True`;
+- expanded-room smoke: west/east/back/front/ceiling all detected.
+
 Regression coverage now checks:
 
 - immediate ceiling contact settles to zero velocity;
