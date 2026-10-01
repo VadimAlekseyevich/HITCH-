@@ -651,3 +651,19 @@ The burst is explicit simulation state, not inherited momentum:
 - latched arrival remains exactly zero velocity.
 
 The existing speed-responsive FOV automatically reacts to the higher launch velocity, producing a visual kick without adding a separate fake camera-only boost.
+
+
+### Iteration 13 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36916365526
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 69 passed / 0 failed;
+- burst-decay curve covered by automated tests;
+- pull elapsed time advances deterministically;
+- retarget restarts the launch burst;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
