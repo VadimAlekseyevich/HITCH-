@@ -29,6 +29,7 @@ Optional command-line modes:
 ```text
 build_and_run.bat build
 build_and_run.bat test
+build_and_run.bat smoke
 build_and_run.bat run
 ```
 
@@ -77,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-The project is in **Stage 1 — Godot/C# project bootstrap**.
+**Stage 1 — Godot/C# project bootstrap is complete.** The next roadmap stage is **Stage 2 — Simulation kernel and explicit state**.
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
