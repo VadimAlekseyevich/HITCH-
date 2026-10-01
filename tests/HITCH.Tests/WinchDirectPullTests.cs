@@ -72,6 +72,61 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
+    public void BendDirectionChangeCannotCreateInstantRadialCatapult()
+    {
+        var config = TestConfig() with
+        {
+            PullRadialAcceleration = 120f,
+            PullTargetInwardSpeed = 80f,
+            PullLongRangeInwardSpeed = 80f,
+        };
+        var path = WinchPathState
+            .AtWorldAnchor(new Vector3(20f, 0f, -20f))
+            .PushContact(new Vector3(0f, 0f, -10f));
+        var winch = new WinchState(
+            WinchTargetState.Selected,
+            path,
+            true,
+            30f,
+            0f)
+        {
+            RopeLength = 30f,
+            PullElapsedSeconds = 0f,
+        };
+        var player = PlayerState.Initial with
+        {
+            // Large sideways velocity relative to the newest rope segment.
+            Velocity = new Vector3(45f, 0f, 0f),
+        };
+        const float dt = 1f / 60f;
+
+        var result = WinchSystem.Step(
+            player,
+            winch,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig
+            {
+                Gravity = 0.01f,
+            },
+            new NoHitWorld(),
+            dt);
+
+        var direction = Vector3.Normalize(
+            path.CurrentPullPoint - player.Position);
+        var radialAfter =
+            Vector3.Dot(result.Player.Velocity, direction);
+        var maxAllowedRadialChange =
+            config.PullRadialAcceleration * dt;
+
+        Assert.InRange(
+            radialAfter,
+            0f,
+            maxAllowedRadialChange + 1e-4f);
+        Assert.True(result.Player.Velocity.X > 40f);
+    }
+
+    [Fact]
     public void GravityBendsTrajectoryWhileGrappleRemainsActive()
     {
         var player = PlayerState.Initial with
