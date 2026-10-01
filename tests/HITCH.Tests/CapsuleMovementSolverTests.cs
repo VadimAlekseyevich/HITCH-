@@ -50,6 +50,29 @@ public sealed class CapsuleMovementSolverTests
     }
 
     [Fact]
+    public void HighSpeedSweepHonorsSafeTravelFraction()
+    {
+        var config = new PlayerLocomotionConfig();
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(1000f, 0f, 0f),
+        };
+        var world = new FirstSweepHitWorld(
+            0.1f,
+            -Vector3.UnitX);
+
+        var result = CapsuleMovementSolver.Move(
+            player,
+            config,
+            world,
+            1f);
+
+        Assert.InRange(Math.Abs(result.Position.X - 100f), 0f, 1e-4f);
+        Assert.Equal(0f, result.Velocity.X);
+        Assert.Equal(1, world.SweepCount);
+    }
+
+    [Fact]
     public void PathologicalZeroDistanceHitsAreBoundedByIterationLimit()
     {
         var config = new PlayerLocomotionConfig
