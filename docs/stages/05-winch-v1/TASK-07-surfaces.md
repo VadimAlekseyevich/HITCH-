@@ -1,6 +1,6 @@
 # Task 07 — Add Explicit Forbidden Grapple Surface
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 06
 
 ## Goal
