@@ -18,17 +18,17 @@ public sealed record PlayerLocomotionConfig
 
     public float Gravity { get; init; } = 18.0f;
 
-    public float GroundAcceleration { get; init; } = 32.0f;
+    public float GroundAcceleration { get; init; } = 80.0f;
 
-    public float GroundMaxSpeed { get; init; } = 3.5f;
+    public float GroundMaxSpeed { get; init; } = 6.0f;
 
-    public float GroundBraking { get; init; } = 48.0f;
+    public float GroundBraking { get; init; } = 100.0f;
 
     public float JumpSpeed { get; init; } = 4.2f;
 
-    public float AirAcceleration { get; init; } = 1.8f;
+    public float AirAcceleration { get; init; } = 5.0f;
 
-    public float AirControlMaxSpeed { get; init; } = 2.5f;
+    public float AirControlMaxSpeed { get; init; } = 5.0f;
 
     public float GroundProbeDistance { get; init; } = 0.08f;
 
