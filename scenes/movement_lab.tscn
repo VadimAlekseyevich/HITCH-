@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/Godot/Bootstrap/SimulationBootstrap.cs" id="1_sim"]
 [ext_resource type="Script" path="res://src/Godot/World/MovementLabBuilder.cs" id="2_lab"]
 [ext_resource type="Script" path="res://src/Godot/Debug/SimulationDebugOverlay.cs" id="3_overlay"]
 [ext_resource type="Script" path="res://src/Godot/Debug/DebugLineDrawer3D.cs" id="4_lines"]
+[ext_resource type="Script" path="res://src/Godot/Debug/RuntimeTuningPanel.cs" id="5_tuning"]
 
 [node name="MovementLab" type="Node"]
 script = ExtResource("1_sim")
@@ -49,3 +50,14 @@ offset_right = 2.0
 offset_bottom = 2.0
 mouse_filter = 2
 color = Color(1, 1, 1, 0.9)
+
+
+[node name="TuningPanel" type="Control" parent="Hud"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_tuning")
