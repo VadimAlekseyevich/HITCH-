@@ -50,18 +50,19 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Targeting | DECIDED | Hitscan/raycast. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
 | Range | DECIDED | Medium conceptually; exact value is tuning. |
-| Reattachment delay | DECIDED | Very small; exact value is tuning. |
-| Reel control | DECIDED | Player directly controls reel-in and reel-out. |
-| Reel behavior | DECIDED | Reel motor accelerates/decelerates rather than changing length instantaneously. |
-| Elasticity | DECIDED | Strong spring behavior is part of movement skill. |
-| Slack | DECIDED | System should try to remain under tension rather than behave as a freely dangling rope. |
-| Reel-generated energy | DECIDED | Reeling may add meaningful kinetic energy; effect should weaken at high speed. |
+| Reattachment delay | TBD | Previous cooldown model is not used by the active direct-pull playtest. |
+| Reel control | TBD | Reopened after first human movement gate; Q/E reel controls are disabled in the current direct-pull iteration. |
+| Reel behavior | TBD | Previous accelerating reel motor was rejected for the active playtest iteration. |
+| Elasticity | TBD | Previous spring implementation failed the first human feel gate; direct-pull prototype is being tested before revisiting elasticity. |
+| Slack | TBD | Not represented in the current selected-point direct-pull prototype. |
+| Reel-generated energy | TBD | Reopened while direct-pull movement is evaluated. |
 | Player grapple targets | DECIDED | Other players are valid targets and both players influence each other physically. |
 | Player attachment location | DECIDED | Use nearest point from predefined attachment points. |
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Exact spring force law | TBD | Current Stage 5 experiment is a one-sided spring with pretension, outward damping, and slack take-up. It remains tunable and must not be treated as final until human movement testing. |
+| Current Stage 5 pull model | HYPOTHESIS | LMB selects/replaces a point; holding RMB directly sets velocity toward it; release preserves momentum; reaching the point clears target/velocity and gravity resumes. |
+| Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
 
