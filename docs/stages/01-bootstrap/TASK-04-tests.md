@@ -1,6 +1,6 @@
 # Task 04 — Add C# Automated Test Harness
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap  
 **Depends on:** Task 03
 
