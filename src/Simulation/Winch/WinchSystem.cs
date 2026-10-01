@@ -7,18 +7,17 @@ using Hitch.Simulation.World;
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 dual-cable action prototype.
+/// Stage 5 single-cable action prototype.
 ///
-/// LMB owns the left cable. RMB owns the right cable.
-/// Each click raycasts/replaces only that side and starts its pull immediately.
-/// Both active cables contribute symmetrically to player velocity.
+/// RMB raycasts/replaces the cable and starts pull immediately.
+/// Gameplay rope length is unlimited inside the playable space.
 /// </summary>
 public static class WinchSystem
 {
     private const float TinyDistanceSquared = 1e-10f;
 
-    // IWorldQuery requires a finite ray endpoint. This is an engine-query distance only,
-    // deliberately far beyond the enclosed movement room. It is NOT a gameplay rope-length cap.
+    // Finite endpoint required by the world-query API only.
+    // This is deliberately far beyond the playable room and is NOT a gameplay range cap.
     private const float EngineSafeRaycastDistance = 10_000f;
 
     public static WinchStepResult Step(
@@ -34,68 +33,48 @@ public static class WinchSystem
         ArgumentNullException.ThrowIfNull(locomotionConfig);
         ArgumentNullException.ThrowIfNull(world);
 
-        var left = previousWinch.Left;
-        var right = previousWinch.Right;
+        var winch = previousWinch;
         var updatedPlayer = player;
+        var startedThisTick = false;
 
-        var leftStartedThisTick = false;
-        var rightStartedThisTick = false;
-
-        if (input.Has(PlayerButtons.LeftGrapplePressed))
+        if (input.Has(PlayerButtons.GrapplePullPressed))
         {
-            left = TryShootActiveCable(
+            winch = TryShootActiveCable(
                 player,
                 config,
                 locomotionConfig,
                 world);
-            leftStartedThisTick = left.IsPulling;
+            startedThisTick = winch.IsPulling;
         }
 
-        if (input.Has(PlayerButtons.RightGrapplePressed))
+        if (!winch.IsPulling)
         {
-            right = TryShootActiveCable(
-                player,
+            return new WinchStepResult(
+                updatedPlayer,
+                winch.HasTarget ? winch : WinchState.Initial);
+        }
+
+        var toTarget =
+            winch.Path.CurrentPullPoint - player.Position;
+        var distanceSquared = toTarget.LengthSquared();
+        var distance = distanceSquared <= TinyDistanceSquared
+            ? 0f
+            : MathF.Sqrt(distanceSquared);
+
+        var direction = distance > 0f
+            ? toTarget / distance
+            : Vector3.Zero;
+
+        var effectiveArrivalDistance =
+            ComputeCapsuleAwareArrivalDistance(
+                direction,
                 config,
-                locomotionConfig,
-                world);
-            rightStartedThisTick = right.IsPulling;
-        }
+                locomotionConfig);
 
-        var leftDistance = GetCableGeometry(
-            left,
-            player.Position,
-            out var leftDirection);
-        var rightDistance = GetCableGeometry(
-            right,
-            player.Position,
-            out var rightDirection);
-
-        var leftArrived =
-            left.IsPulling
-            && leftDistance <= config.ArrivalDistance;
-        var rightArrived =
-            right.IsPulling
-            && rightDistance <= config.ArrivalDistance;
-
-        if (leftArrived)
+        if (distance <= effectiveArrivalDistance)
         {
-            left = WinchCableState.Initial;
-            leftStartedThisTick = false;
-        }
-
-        if (rightArrived)
-        {
-            right = WinchCableState.Initial;
-            rightStartedThisTick = false;
-        }
-
-        // Preserve the established single-cable rule:
-        // when the LAST active cable fully reels in, stop completely.
-        // If the other cable is still active, only the arrived side clears.
-        if ((leftArrived || rightArrived)
-            && !left.IsPulling
-            && !right.IsPulling)
-        {
+            // Complete reel-in: no residual tangential/orbital velocity.
+            // Locomotion will apply ordinary gravity immediately after this step.
             updatedPlayer = updatedPlayer with
             {
                 Velocity = Vector3.Zero,
@@ -104,72 +83,51 @@ public static class WinchSystem
 
             return new WinchStepResult(
                 updatedPlayer,
-                new WinchState(left, right));
+                WinchState.Initial);
         }
 
         var velocity = updatedPlayer.Velocity;
 
-        if (leftStartedThisTick && leftDistance > 0f)
+        if (startedThisTick && distance > 0f)
         {
-            velocity += leftDirection * config.PullInitialImpulse;
+            velocity +=
+                direction * config.PullInitialImpulse;
         }
 
-        if (rightStartedThisTick && rightDistance > 0f)
+        var appliedRadialAcceleration = 0f;
+
+        if (distance > 0f)
         {
-            velocity += rightDirection * config.PullInitialImpulse;
-        }
+            var inwardSpeed =
+                Vector3.Dot(velocity, direction);
 
-        // Both cables read the same post-impulse base velocity, then their corrections are summed.
-        // This keeps left/right behavior symmetric instead of depending on update order.
-        var pullBaseVelocity = velocity;
-
-        var leftDelta = ComputeCableVelocityDelta(
-            left,
-            pullBaseVelocity,
-            leftDirection,
-            config,
-            fixedDeltaSeconds,
-            out var leftAcceleration);
-        var rightDelta = ComputeCableVelocityDelta(
-            right,
-            pullBaseVelocity,
-            rightDirection,
-            config,
-            fixedDeltaSeconds,
-            out var rightAcceleration);
-
-        velocity += leftDelta + rightDelta;
-
-        if (left.IsPulling)
-        {
-            left = left with
+            if (inwardSpeed < config.PullTargetInwardSpeed)
             {
-                LastActualDistance = leftDistance,
-                LastPullAcceleration = leftAcceleration,
-            };
+                var neededSpeed =
+                    config.PullTargetInwardSpeed - inwardSpeed;
+                var addedSpeed = MathF.Min(
+                    neededSpeed,
+                    config.PullRadialAcceleration * fixedDeltaSeconds);
+
+                velocity += direction * addedSpeed;
+                appliedRadialAcceleration =
+                    addedSpeed / fixedDeltaSeconds;
+            }
         }
 
-        if (right.IsPulling)
+        updatedPlayer = updatedPlayer with
         {
-            right = right with
-            {
-                LastActualDistance = rightDistance,
-                LastPullAcceleration = rightAcceleration,
-            };
-        }
-
-        if (left.IsPulling || right.IsPulling)
-        {
-            updatedPlayer = updatedPlayer with
-            {
-                Velocity = velocity,
-                IsGrounded = false,
-            };
-        }
+            Velocity = velocity,
+            IsGrounded = false,
+        };
 
         return new WinchStepResult(
             updatedPlayer,
-            new WinchState(left, right));
+            winch with
+            {
+                LastActualDistance = distance,
+                LastPullAcceleration = appliedRadialAcceleration,
+            });
     }
 
     public static RayQuery BuildAimRay(
@@ -178,7 +136,8 @@ public static class WinchSystem
         PlayerLocomotionConfig locomotionConfig)
     {
         var eye = player.Position
-            + (Vector3.UnitY * locomotionConfig.EyeOffsetFromCapsuleCenter);
+            + (Vector3.UnitY
+               * locomotionConfig.EyeOffsetFromCapsuleCenter);
         var direction = ViewForward(
             player.ViewYawRadians,
             player.ViewPitchRadians);
@@ -189,7 +148,29 @@ public static class WinchSystem
             config.GrappleCollisionMask);
     }
 
-    private static WinchCableState TryShootActiveCable(
+    internal static float ComputeCapsuleAwareArrivalDistance(
+        Vector3 cableDirection,
+        WinchConfig config,
+        PlayerLocomotionConfig locomotionConfig)
+    {
+        if (cableDirection.LengthSquared() <= TinyDistanceSquared)
+        {
+            return config.ArrivalContactTolerance;
+        }
+
+        // Support distance of a vertical capsule along an arbitrary direction:
+        // sphere radius + projected half-segment length.
+        var capsuleSupport =
+            locomotionConfig.CapsuleRadius
+            + (locomotionConfig.CapsuleHalfSegmentLength
+               * MathF.Abs(cableDirection.Y))
+            + locomotionConfig.CollisionMargin;
+
+        return capsuleSupport
+            + config.ArrivalContactTolerance;
+    }
+
+    private static WinchState TryShootActiveCable(
         in PlayerState player,
         WinchConfig config,
         PlayerLocomotionConfig locomotionConfig,
@@ -202,77 +183,17 @@ public static class WinchSystem
 
         if (!world.TryRaycast(query, out var hit))
         {
-            return WinchCableState.Initial;
+            return WinchState.Initial;
         }
 
-        return new WinchCableState(
+        return new WinchState(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(hit.Position),
             true,
-            Vector3.Distance(player.Position, hit.Position),
+            Vector3.Distance(
+                player.Position,
+                hit.Position),
             0f);
-    }
-
-    private static float GetCableGeometry(
-        in WinchCableState cable,
-        Vector3 playerPosition,
-        out Vector3 direction)
-    {
-        direction = Vector3.Zero;
-
-        if (!cable.IsPulling)
-        {
-            return 0f;
-        }
-
-        var toTarget =
-            cable.Path.CurrentPullPoint - playerPosition;
-        var distanceSquared = toTarget.LengthSquared();
-
-        if (distanceSquared <= TinyDistanceSquared)
-        {
-            return 0f;
-        }
-
-        var distance = MathF.Sqrt(distanceSquared);
-        direction = toTarget / distance;
-        return distance;
-    }
-
-    private static Vector3 ComputeCableVelocityDelta(
-        in WinchCableState cable,
-        Vector3 baseVelocity,
-        Vector3 direction,
-        WinchConfig config,
-        float fixedDeltaSeconds,
-        out float appliedRadialAcceleration)
-    {
-        appliedRadialAcceleration = 0f;
-
-        if (!cable.IsPulling
-            || direction.LengthSquared() <= TinyDistanceSquared)
-        {
-            return Vector3.Zero;
-        }
-
-        var inwardSpeed =
-            Vector3.Dot(baseVelocity, direction);
-
-        if (inwardSpeed >= config.PullTargetInwardSpeed)
-        {
-            return Vector3.Zero;
-        }
-
-        var neededSpeed =
-            config.PullTargetInwardSpeed - inwardSpeed;
-        var addedSpeed = MathF.Min(
-            neededSpeed,
-            config.PullRadialAcceleration * fixedDeltaSeconds);
-
-        appliedRadialAcceleration =
-            addedSpeed / fixedDeltaSeconds;
-
-        return direction * addedSpeed;
     }
 
     private static Vector3 ViewForward(
