@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 12 ODM SPEED**
+**Status: READY FOR HUMAN GATE — ITERATION 13 LAUNCH BURST**
 
 ## Objective
 
@@ -616,3 +616,38 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36915605205
 - large-room smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual gate.
+
+
+## Human gate result — iteration 12
+
+**Result: IMPROVED / REQUESTED LAUNCH BURST PROFILE**
+
+Human feedback:
+
+- the new ODM-scale 90–160 m/s traversal is substantially better;
+- the next desired feel change is temporal rather than simply "more top speed";
+- every fresh cable throw should feel strongest immediately;
+- while the cable keeps pulling, that initial speed should gradually decay.
+
+## Iteration 13 — launch burst + decay
+
+Iteration 13 keeps the iteration 12 movement/control model intact and changes only the speed envelope.
+
+Current launch profile:
+
+- sustained distance-based speed remains **90–160 m/s**;
+- a new grapple or retarget starts at **1.45×** the current distance-based pull speed;
+- the launch bonus smoothly decays back to 1.0 over **0.75 s**;
+- short-line launch speed is roughly **130 m/s**;
+- maximum long-line launch speed is roughly **232 m/s** (~835 km/h);
+- as travel continues, both the launch bonus and the existing distance-based speed naturally decrease.
+
+The burst is explicit simulation state, not inherited momentum:
+
+- previous velocity is still discarded;
+- retargeting immediately points velocity at the new anchor;
+- every retarget resets the burst timer;
+- wall/ceiling hard-stop behavior remains;
+- latched arrival remains exactly zero velocity.
+
+The existing speed-responsive FOV automatically reacts to the higher launch velocity, producing a visual kick without adding a separate fake camera-only boost.
