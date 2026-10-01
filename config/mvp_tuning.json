@@ -1,0 +1,36 @@
+{
+  "tickRateHz": 60,
+  "locomotion": {
+    "capsuleRadius": 0.45,
+    "capsuleHeight": 1.8,
+    "eyeOffsetFromCapsuleCenter": 0.65,
+    "gravity": 18.0,
+    "groundAcceleration": 12.0,
+    "groundMaxSpeed": 3.5,
+    "groundBraking": 14.0,
+    "jumpSpeed": 4.2,
+    "airAcceleration": 1.8,
+    "airControlMaxSpeed": 2.5,
+    "groundProbeDistance": 0.08,
+    "collisionMargin": 0.02,
+    "maxGroundSlopeDegrees": 50.0,
+    "maxSlideIterations": 4,
+    "worldCollisionMask": 3
+  },
+  "winch": {
+    "grappleRange": 24.0,
+    "grappleCollisionMask": 1,
+    "reattachCooldownSeconds": 0.08,
+    "minimumRopeLength": 1.5,
+    "reelMaxSpeed": 14.0,
+    "reelAcceleration": 48.0,
+    "reelDeceleration": 64.0,
+    "springAccelerationPerMeter": 42.0,
+    "pretensionDistance": 0.25,
+    "outwardDampingPerSecond": 5.5,
+    "slackTakeUpSpeed": 30.0,
+    "reelFalloffStartSpeed": 22.0,
+    "reelFalloffEndSpeed": 55.0,
+    "minimumReelInMultiplier": 0.25
+  }
+}
