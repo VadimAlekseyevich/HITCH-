@@ -6,7 +6,7 @@ using Hitch.Simulation.World;
 namespace Hitch.Simulation.Player;
 
 /// <summary>
-/// One fixed-tick update for non-winch player locomotion.
+/// One fixed-tick update for intentionally modest non-winch locomotion.
 /// </summary>
 public static class PlayerLocomotionSystem
 {
@@ -24,6 +24,23 @@ public static class PlayerLocomotionSystem
         if (player.IsGrounded)
         {
             velocity = ApplyGroundControl(
+                velocity,
+                input.Move,
+                player.ViewYawRadians,
+                config,
+                fixedDeltaSeconds);
+
+            if (input.Has(PlayerButtons.JumpPressed))
+            {
+                velocity = new Vector3(
+                    velocity.X,
+                    config.JumpSpeed,
+                    velocity.Z);
+            }
+        }
+        else
+        {
+            velocity = ApplyAirControl(
                 velocity,
                 input.Move,
                 player.ViewYawRadians,
@@ -68,9 +85,9 @@ public static class PlayerLocomotionSystem
         float fixedDeltaSeconds)
     {
         var horizontal = new Vector3(velocity.X, 0f, velocity.Z);
-        var inputLengthSquared = moveInput.LengthSquared();
+        var wishDirection = BuildWishDirection(moveInput, viewYawRadians);
 
-        if (inputLengthSquared <= TinySpeedSquared)
+        if (wishDirection.LengthSquared() <= TinySpeedSquared)
         {
             // Do not automatically kill future winch/external momentum just because it exceeds
             // ordinary walking speed.
@@ -86,6 +103,52 @@ public static class PlayerLocomotionSystem
             return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
         }
 
+        horizontal = AccelerateAlongWishDirection(
+            horizontal,
+            wishDirection,
+            config.GroundMaxSpeed,
+            config.GroundAcceleration,
+            fixedDeltaSeconds);
+
+        return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
+    }
+
+    private static Vector3 ApplyAirControl(
+        Vector3 velocity,
+        Vector2 moveInput,
+        float viewYawRadians,
+        PlayerLocomotionConfig config,
+        float fixedDeltaSeconds)
+    {
+        var wishDirection = BuildWishDirection(moveInput, viewYawRadians);
+
+        if (wishDirection.LengthSquared() <= TinySpeedSquared
+            || config.AirAcceleration <= 0f)
+        {
+            return velocity;
+        }
+
+        var horizontal = new Vector3(velocity.X, 0f, velocity.Z);
+        horizontal = AccelerateAlongWishDirection(
+            horizontal,
+            wishDirection,
+            config.AirControlMaxSpeed,
+            config.AirAcceleration,
+            fixedDeltaSeconds);
+
+        return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
+    }
+
+    private static Vector3 BuildWishDirection(
+        Vector2 moveInput,
+        float viewYawRadians)
+    {
+        var inputLengthSquared = moveInput.LengthSquared();
+        if (inputLengthSquared <= TinySpeedSquared)
+        {
+            return Vector3.Zero;
+        }
+
         var input = inputLengthSquared > 1f
             ? Vector2.Normalize(moveInput)
             : moveInput;
@@ -99,24 +162,33 @@ public static class PlayerLocomotionSystem
             0f,
             -MathF.Sin(viewYawRadians));
 
-        var wishDirection = (right * input.X) + (forward * input.Y);
-        if (wishDirection.LengthSquared() > TinySpeedSquared)
+        var direction = (right * input.X) + (forward * input.Y);
+
+        return direction.LengthSquared() > TinySpeedSquared
+            ? Vector3.Normalize(direction)
+            : Vector3.Zero;
+    }
+
+    private static Vector3 AccelerateAlongWishDirection(
+        Vector3 horizontalVelocity,
+        Vector3 wishDirection,
+        float controlMaxSpeed,
+        float acceleration,
+        float fixedDeltaSeconds)
+    {
+        var speedAlongWish = Vector3.Dot(horizontalVelocity, wishDirection);
+        var controllableSpeedRemaining = controlMaxSpeed - speedAlongWish;
+
+        if (controllableSpeedRemaining <= 0f)
         {
-            wishDirection = Vector3.Normalize(wishDirection);
+            return horizontalVelocity;
         }
 
-        var speedAlongWish = Vector3.Dot(horizontal, wishDirection);
-        var controllableSpeedRemaining = config.GroundMaxSpeed - speedAlongWish;
+        var addedSpeed = MathF.Min(
+            acceleration * fixedDeltaSeconds,
+            controllableSpeedRemaining);
 
-        if (controllableSpeedRemaining > 0f)
-        {
-            var addedSpeed = MathF.Min(
-                config.GroundAcceleration * fixedDeltaSeconds,
-                controllableSpeedRemaining);
-            horizontal += wishDirection * addedSpeed;
-        }
-
-        return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
+        return horizontalVelocity + (wishDirection * addedSpeed);
     }
 
     private static Vector3 MoveTowards(
