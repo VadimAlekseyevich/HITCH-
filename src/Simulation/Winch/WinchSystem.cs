@@ -148,7 +148,7 @@ public static class WinchSystem
             config.GrappleCollisionMask);
     }
 
-    internal static float ComputeCapsuleAwareArrivalDistance(
+    public static float ComputeCapsuleAwareArrivalDistance(
         Vector3 cableDirection,
         WinchConfig config,
         PlayerLocomotionConfig locomotionConfig)
