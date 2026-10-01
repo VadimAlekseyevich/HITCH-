@@ -30,6 +30,33 @@ public sealed class GameSimulation
 
     public double FixedDeltaSeconds => Config.FixedDeltaSeconds;
 
+    /// <summary>
+    /// Adds gameplay velocity without replacing momentum already present.
+    ///
+    /// The future winch, player collisions, and impulse weapons should use this path instead of
+    /// mutating Godot transforms or presentation nodes.
+    /// </summary>
+    public void ApplyPlayerVelocityImpulse(System.Numerics.Vector3 deltaVelocity)
+    {
+        if (!float.IsFinite(deltaVelocity.X)
+            || !float.IsFinite(deltaVelocity.Y)
+            || !float.IsFinite(deltaVelocity.Z))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(deltaVelocity),
+                deltaVelocity,
+                "Velocity impulse components must be finite.");
+        }
+
+        State = State with
+        {
+            Player = State.Player with
+            {
+                Velocity = State.Player.Velocity + deltaVelocity,
+            },
+        };
+    }
+
     public SimulationState Step(
         in PlayerInput input,
         IWorldQuery world)
