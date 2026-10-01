@@ -9,7 +9,7 @@ namespace Hitch.Tests;
 public sealed class PlayerJumpAirControlTests
 {
     [Fact]
-    public void GroundedJumpStartsWeakUpwardVelocityAndLeavesGround()
+    public void GroundedJumpStartsStrongUpwardVelocityAndLeavesGround()
     {
         var config = new SimulationConfig();
         var simulation = new GameSimulation(
@@ -37,7 +37,7 @@ public sealed class PlayerJumpAirControlTests
     }
 
     [Fact]
-    public void JumpPressedInAirDoesNotCreateAnotherJump()
+    public void OneAirJumpIsAvailableAndThenConsumed()
     {
         var config = new SimulationConfig();
         var initial = SimulationState.Initial with
@@ -45,12 +45,14 @@ public sealed class PlayerJumpAirControlTests
             Player = SimulationState.Initial.Player with
             {
                 Position = new Vector3(0f, 5f, 0f),
+                Velocity = new Vector3(0f, -3f, 0f),
                 IsGrounded = false,
+                AirJumpAvailable = true,
             },
         };
         var simulation = new GameSimulation(config, initial);
 
-        var after = simulation.Step(
+        var airJump = simulation.Step(
             new PlayerInput(
                 Vector2.Zero,
                 Vector2.Zero,
@@ -58,7 +60,56 @@ public sealed class PlayerJumpAirControlTests
                 PlayerButtons.JumpPressed),
             new NoHitWorld());
 
-        Assert.True(after.Player.Velocity.Y < 0f);
+        var expectedAirJumpVelocity =
+            config.Locomotion.AirJumpSpeed
+            - (config.Locomotion.Gravity / config.TickRateHz);
+
+        Assert.InRange(
+            Math.Abs(
+                airJump.Player.Velocity.Y
+                - expectedAirJumpVelocity),
+            0f,
+            1e-5f);
+        Assert.False(airJump.Player.AirJumpAvailable);
+
+        var beforeThirdPress = airJump.Player.Velocity.Y;
+
+        var thirdPress = simulation.Step(
+            new PlayerInput(
+                Vector2.Zero,
+                Vector2.Zero,
+                0f,
+                PlayerButtons.JumpPressed),
+            new NoHitWorld());
+
+        Assert.True(
+            thirdPress.Player.Velocity.Y
+            < beforeThirdPress);
+        Assert.False(thirdPress.Player.AirJumpAvailable);
+    }
+
+    [Fact]
+    public void LandingRestoresAirJump()
+    {
+        var config = new SimulationConfig();
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new Vector3(0f, 0.92f, 0f),
+                Velocity = new Vector3(0f, -1f, 0f),
+                IsGrounded = false,
+                AirJumpAvailable = false,
+            },
+        };
+        var simulation = new GameSimulation(config, initial);
+
+        var after = simulation.Step(
+            PlayerInput.Neutral,
+            new FlatFloorWorld());
+
+        Assert.True(after.Player.IsGrounded);
+        Assert.True(after.Player.AirJumpAvailable);
     }
 
     [Fact]
