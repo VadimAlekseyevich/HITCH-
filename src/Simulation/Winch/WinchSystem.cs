@@ -7,11 +7,11 @@ using Hitch.Simulation.World;
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Current Stage 5 direct-pull prototype.
+/// Stage 5 iteration 3.
 ///
-/// LMB selects/replaces a world point. Holding RMB pulls directly toward that point with immediate
-/// velocity. Reaching the point clears the target, stops the pull, zeroes velocity, and lets
-/// ordinary gravity take over.
+/// LMB selects/replaces a point and always cancels any active pull without touching momentum.
+/// One RMB click starts an automatic pull. Starting the pull gives an immediate impulse, then
+/// continuous acceleration bends the existing trajectory toward the target until arrival.
 /// </summary>
 public static class WinchSystem
 {
@@ -30,39 +30,23 @@ public static class WinchSystem
         ArgumentNullException.ThrowIfNull(locomotionConfig);
         ArgumentNullException.ThrowIfNull(world);
 
-        _ = fixedDeltaSeconds;
-
         var winch = previousWinch;
         var updatedPlayer = player;
 
         if (input.Has(PlayerButtons.SelectGrapplePointPressed))
         {
+            // Throwing/replacing the cable always ends the previous pull first.
+            // Velocity is untouched, so the player keeps flying only by inertia.
             winch = TrySelectTarget(
                 player,
-                winch,
                 config,
                 locomotionConfig,
                 world);
         }
 
-        if (input.Has(PlayerButtons.PullReleased))
-        {
-            winch = winch with
-            {
-                IsPulling = false,
-                LastPullSpeed = 0f,
-            };
-        }
-        else if (input.Has(PlayerButtons.PullPressed) && winch.HasTarget)
-        {
-            winch = winch with { IsPulling = true };
-        }
-
         if (!winch.HasTarget)
         {
-            return new WinchStepResult(
-                updatedPlayer,
-                WinchState.Initial);
+            return new WinchStepResult(updatedPlayer, WinchState.Initial);
         }
 
         var toTarget = winch.Path.CurrentPullPoint - player.Position;
@@ -71,6 +55,29 @@ public static class WinchSystem
             ? 0f
             : MathF.Sqrt(distanceSquared);
 
+        var direction = distance > 0f
+            ? toTarget / distance
+            : Vector3.Zero;
+
+        var startedThisTick =
+            input.Has(PlayerButtons.PullPressed)
+            && !winch.IsPulling;
+
+        if (startedThisTick)
+        {
+            winch = winch with { IsPulling = true };
+
+            if (distance > 0f)
+            {
+                updatedPlayer = updatedPlayer with
+                {
+                    Velocity = updatedPlayer.Velocity
+                        + (direction * config.PullInitialImpulse),
+                    IsGrounded = false,
+                };
+            }
+        }
+
         if (!winch.IsPulling)
         {
             return new WinchStepResult(
@@ -78,34 +85,51 @@ public static class WinchSystem
                 winch with
                 {
                     LastActualDistance = distance,
-                    LastPullSpeed = 0f,
+                    LastPullAcceleration = 0f,
                 });
         }
 
         if (distance <= config.ArrivalDistance)
         {
-            // Arrival is intentionally simple for this iteration:
-            // stop at the point, consume the target, and begin falling under normal locomotion.
-            updatedPlayer = player with { Velocity = Vector3.Zero };
+            // Pull is finished. Remove only motion still pointing into the anchor.
+            // Tangential momentum remains, while gravity/ordinary locomotion resume immediately.
+            var velocity = updatedPlayer.Velocity;
+            if (distance > 0f)
+            {
+                var inwardSpeed = Vector3.Dot(velocity, direction);
+                if (inwardSpeed > 0f)
+                {
+                    velocity -= direction * inwardSpeed;
+                }
+            }
+
+            updatedPlayer = updatedPlayer with
+            {
+                Velocity = velocity,
+                IsGrounded = false,
+            };
 
             return new WinchStepResult(
                 updatedPlayer,
                 WinchState.Initial);
         }
 
-        var direction = toTarget / distance;
-        updatedPlayer = player with
+        if (distance > 0f)
         {
-            Velocity = direction * config.PullSpeed,
-            IsGrounded = false,
-        };
+            updatedPlayer = updatedPlayer with
+            {
+                Velocity = updatedPlayer.Velocity
+                    + (direction * config.PullAcceleration * fixedDeltaSeconds),
+                IsGrounded = false,
+            };
+        }
 
         return new WinchStepResult(
             updatedPlayer,
             winch with
             {
                 LastActualDistance = distance,
-                LastPullSpeed = config.PullSpeed,
+                LastPullAcceleration = config.PullAcceleration,
             });
     }
 
@@ -128,7 +152,6 @@ public static class WinchSystem
 
     private static WinchState TrySelectTarget(
         in PlayerState player,
-        in WinchState current,
         WinchConfig config,
         PlayerLocomotionConfig locomotionConfig,
         IWorldQuery world)
@@ -137,16 +160,16 @@ public static class WinchSystem
 
         if (!world.TryRaycast(query, out var hit))
         {
-            // A miss does not destroy an existing useful target.
-            return current;
+            // LMB still retracts/cancels the old cable even if the new throw misses.
+            return WinchState.Initial;
         }
 
         return new WinchState(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(hit.Position),
-            current.IsPulling,
+            false,
             Vector3.Distance(player.Position, hit.Position),
-            current.IsPulling ? config.PullSpeed : 0f);
+            0f);
     }
 
     private static Vector3 ViewForward(
