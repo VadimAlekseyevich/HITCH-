@@ -61,3 +61,16 @@ Test:
 5. whether the large 800 × 1000 × 320 m lab finally has enough scale to exploit the speed.
 
 Do not proceed to damage/combat to compensate for weak traversal feel.
+
+
+### Iteration 12 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36915605205
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 65 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- large-room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual gate.
