@@ -1,21 +1,25 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Snapshot-friendly state for the current selected-point automatic-pull prototype.
+/// Snapshot-friendly dual-cable grapple state.
+///
+/// Left and right cables are fully independent gameplay channels.
 /// </summary>
 public readonly record struct WinchState(
-    WinchTargetState TargetState,
-    WinchPathState Path,
-    bool IsPulling,
-    float LastActualDistance,
-    float LastPullAcceleration)
+    WinchCableState Left,
+    WinchCableState Right)
 {
-    public bool HasTarget => TargetState == WinchTargetState.Selected;
+    public bool HasAnyTarget =>
+        Left.HasTarget || Right.HasTarget;
+
+    public bool IsPulling =>
+        Left.IsPulling || Right.IsPulling;
+
+    public int ActiveCableCount =>
+        (Left.IsPulling ? 1 : 0)
+        + (Right.IsPulling ? 1 : 0);
 
     public static WinchState Initial => new(
-        WinchTargetState.None,
-        default,
-        false,
-        0f,
-        0f);
+        WinchCableState.Initial,
+        WinchCableState.Initial);
 }
