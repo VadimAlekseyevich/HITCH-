@@ -123,7 +123,7 @@ Camera architecture should not make a future third-person experiment unnecessari
 - the winch is the primary movement method;
 - **CURRENT STAGE 5 OVERRIDE:** carried grapple inertia is disabled in the active prototype;
 - RMB miss/release clears grapple-carried velocity instead of preserving it;
-- wall/ceiling impacts hard-stop carried velocity instead of converting it into sideways sliding;
+- wall/ceiling contacts remove only velocity into the surface; tangential motion survives so grapple swing/wrap can continue along geometry;
 - direct air control outside grapple remains deliberately limited;
 - a very small amount of air steering is allowed as hidden usability assistance.
 
@@ -225,7 +225,7 @@ During travel:
 - existing tangential/orbital velocity is discarded;
 - ordinary gravity and air control are not mixed into active grapple travel;
 - direct pull speed is distance-scaled from roughly **90 m/s** on short lines to **160 m/s** on long lines;
-- wall/ceiling impacts hard-stop velocity instead of preserving tangential slide;
+- wall/ceiling contacts project velocity onto the allowed surface tangent instead of forcing a full stop;
 - RMB miss/release clears carried grapple velocity.
 
 This is intentionally arcade-direct. The earlier momentum-preserving hypothesis is rejected for the active Stage 5 prototype because human testing found the resulting inertia frustrating and difficult to read.
