@@ -87,7 +87,10 @@ public sealed class WinchDirectPullTests
             ActiveAt(new Vector3(0f, 0f, -20f)),
             PlayerInput.Neutral,
             TestConfig(),
-            new PlayerLocomotionConfig(),
+            new PlayerLocomotionConfig
+            {
+                Gravity = 18f,
+            },
             new NoHitWorld(),
             0.2f);
 
@@ -274,6 +277,7 @@ public sealed class WinchDirectPullTests
             PullLaunchInitialMultiplier = 1f,
             PullLaunchPeakMultiplier = 1f,
             PullLaunchPeakSeconds = 0.10f,
+            GasAcceleration = 0f,
         };
 
         var result = WinchSystem.Step(
@@ -281,7 +285,10 @@ public sealed class WinchDirectPullTests
             ActiveAt(new Vector3(0f, 0f, -300f)),
             PlayerInput.Neutral,
             config,
-            new PlayerLocomotionConfig(),
+            new PlayerLocomotionConfig
+            {
+                Gravity = 0.01f,
+            },
             new NoHitWorld(),
             1f / 60f);
 
@@ -289,7 +296,7 @@ public sealed class WinchDirectPullTests
         var maximumFirstTickRadialChange =
             config.PullRadialAcceleration / 60f;
         Assert.InRange(
-            result.Player.Velocity.Length(),
+            Math.Abs(result.Player.Velocity.Z),
             maximumFirstTickRadialChange - 0.02f,
             maximumFirstTickRadialChange + 0.02f);
         Assert.True(result.Player.Velocity.Z < 0f);
@@ -561,6 +568,7 @@ public sealed class WinchDirectPullTests
             PullLaunchPeakMultiplier = 1f,
             PullLaunchPeakSeconds = 0.10f,
             PullLaunchDecaySeconds = 0.75f,
+            GasAcceleration = 0f,
             ArrivalContactTolerance = 0.06f,
         };
 
