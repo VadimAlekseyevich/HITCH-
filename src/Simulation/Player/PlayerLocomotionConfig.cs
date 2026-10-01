@@ -22,6 +22,8 @@ public sealed record PlayerLocomotionConfig
 
     public float GroundMaxSpeed { get; init; } = 3.5f;
 
+    public float GroundBraking { get; init; } = 14.0f;
+
     public float JumpSpeed { get; init; } = 4.2f;
 
     public float AirAcceleration { get; init; } = 1.8f;
@@ -76,6 +78,7 @@ public sealed record PlayerLocomotionConfig
         RequireFinitePositive(Gravity, nameof(Gravity));
         RequireFiniteNonNegative(GroundAcceleration, nameof(GroundAcceleration));
         RequireFinitePositive(GroundMaxSpeed, nameof(GroundMaxSpeed));
+        RequireFiniteNonNegative(GroundBraking, nameof(GroundBraking));
         RequireFinitePositive(JumpSpeed, nameof(JumpSpeed));
         RequireFiniteNonNegative(AirAcceleration, nameof(AirAcceleration));
         RequireFinitePositive(GroundProbeDistance, nameof(GroundProbeDistance));
