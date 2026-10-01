@@ -1,0 +1,32 @@
+; Engine configuration file.
+; HITCH! MVP bootstrap project.
+
+config_version=5
+
+[application]
+
+config/name="HITCH!"
+config/description="HITCH! MVP development project"
+run/main_scene="res://scenes/bootstrap.tscn"
+config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+
+[dotnet]
+
+project/assembly_name="HITCH"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
