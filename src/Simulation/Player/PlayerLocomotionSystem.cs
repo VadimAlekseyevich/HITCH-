@@ -20,9 +20,13 @@ public static class PlayerLocomotionSystem
         float fixedDeltaSeconds)
     {
         var velocity = player.Velocity;
+        var airJumpAvailable = player.AirJumpAvailable;
 
         if (player.IsGrounded)
         {
+            // Touching ground restores the one airborne jump.
+            airJumpAvailable = true;
+
             velocity = ApplyGroundControl(
                 velocity,
                 input.Move,
@@ -46,6 +50,16 @@ public static class PlayerLocomotionSystem
                 player.ViewYawRadians,
                 config,
                 fixedDeltaSeconds);
+
+            if (input.Has(PlayerButtons.JumpPressed)
+                && airJumpAvailable)
+            {
+                velocity = new Vector3(
+                    velocity.X,
+                    config.AirJumpSpeed,
+                    velocity.Z);
+                airJumpAvailable = false;
+            }
         }
 
         // Gravity is applied every tick. A floor collision removes the downward component.
@@ -63,6 +77,11 @@ public static class PlayerLocomotionSystem
 
         var grounded = GroundDetector.IsGrounded(moved, config, world);
 
+        if (grounded)
+        {
+            airJumpAvailable = true;
+        }
+
         if (grounded && moved.Velocity.Y < 0f)
         {
             moved = moved with
@@ -74,7 +93,11 @@ public static class PlayerLocomotionSystem
             };
         }
 
-        return moved with { IsGrounded = grounded };
+        return moved with
+        {
+            IsGrounded = grounded,
+            AirJumpAvailable = airJumpAvailable,
+        };
     }
 
     private static Vector3 ApplyGroundControl(
