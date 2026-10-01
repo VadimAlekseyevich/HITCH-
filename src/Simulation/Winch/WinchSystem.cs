@@ -66,13 +66,11 @@ public static class WinchSystem
             ? toTarget / distance
             : Vector3.Zero;
 
-        var effectiveArrivalDistance =
-            ComputeCapsuleAwareArrivalDistance(
-                direction,
+        if (HasReachedAnchor(
+                updatedPlayer,
+                winch,
                 config,
-                locomotionConfig);
-
-        if (distance <= effectiveArrivalDistance)
+                locomotionConfig))
         {
             // Complete reel-in: no residual tangential/orbital velocity.
             // Locomotion will apply ordinary gravity immediately after this step.
@@ -162,14 +160,50 @@ public static class WinchSystem
             return false;
         }
 
-        var toTarget = winch.Path.CurrentPullPoint - player.Position;
-        var distanceSquared = toTarget.LengthSquared();
+        var anchor = winch.Path.CurrentPullPoint;
+        var fromAnchorToPlayer = player.Position - anchor;
+
+        if (winch.Path.HasAnchorSurfaceNormal)
+        {
+            var normal = winch.Path.WorldAnchorNormal;
+            var signedSurfaceDistance =
+                Vector3.Dot(fromAnchorToPlayer, normal);
+
+            // The selected raycast surface should remain on the outward side of the capsule.
+            // A small negative allowance covers numerical skin/margin noise without treating a
+            // completely different side of geometry as the same arrival.
+            if (signedSurfaceDistance < -config.ArrivalContactTolerance)
+            {
+                return false;
+            }
+
+            var surfaceArrivalDistance =
+                ComputeCapsuleAwareArrivalDistance(
+                    normal,
+                    config,
+                    locomotionConfig);
+
+            if (signedSurfaceDistance > surfaceArrivalDistance)
+            {
+                return false;
+            }
+
+            var tangentialOffset =
+                fromAnchorToPlayer - (normal * signedSurfaceDistance);
+
+            return tangentialOffset.LengthSquared()
+                <= config.ArrivalSurfaceCaptureRadius
+                   * config.ArrivalSurfaceCaptureRadius;
+        }
+
+        // Fallback for legacy/tests that do not carry an anchor surface normal.
+        var distanceSquared = fromAnchorToPlayer.LengthSquared();
         var distance = distanceSquared <= TinyDistanceSquared
             ? 0f
             : MathF.Sqrt(distanceSquared);
 
         var direction = distance > 0f
-            ? toTarget / distance
+            ? -fromAnchorToPlayer / distance
             : Vector3.Zero;
 
         return distance <= ComputeCapsuleAwareArrivalDistance(
@@ -218,7 +252,9 @@ public static class WinchSystem
 
         return new WinchState(
             WinchTargetState.Selected,
-            WinchPathState.AtWorldAnchor(hit.Position),
+            WinchPathState.AtWorldAnchor(
+                hit.Position,
+                hit.Normal),
             true,
             Vector3.Distance(
                 player.Position,
