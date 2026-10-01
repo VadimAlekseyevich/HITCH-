@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 17 PIECEWISE ROPE WRAP**
+**Status: READY FOR HUMAN GATE — ITERATION 18 FINITE ROPE + LMB REEL**
 
 ## Objective
 
@@ -985,3 +985,115 @@ The active/current rule is now:
 - reserve full zero-velocity stop for actual anchor latch.
 
 Older notes describing wall/ceiling hard-stop are historical behavior from earlier iterations, not the current Stage 5 rule.
+
+
+## Human gate result — iteration 17
+
+**Result: ROPE WRAP DIRECTION USEFUL / CONTROL AND TENSION MODEL NEED REWORK**
+
+Human feedback:
+
+- unlimited rope reach is too permissive; the cable should remain long-range but not reach arbitrarily across the whole city;
+- attaching and reeling should become separate actions;
+- RMB should attach/retarget only;
+- reel-in should start only after an LMB click;
+- occasional wall-adjacent pull behavior still enters unstable spinning;
+- creating a rope corner can produce an unrealistically strong throw;
+- ordinary movement should be much faster;
+- ground jump should be strong;
+- one additional jump should be available in mid-air.
+
+## Iteration 18 — finite rope + explicit reel control + faster locomotion
+
+### Input/state split
+
+Current controls:
+
+- **RMB:** attach or retarget a cable;
+- **LMB:** start automatic reel-in for an already attached cable;
+- **Space with cable:** detach while preserving full current velocity;
+- **Space without cable:** jump / consume the one available air jump.
+
+Important state change:
+
+- attached but not reeling is a real free-swing state;
+- it is no longer treated as the same thing as completed/latched arrival;
+- repeated LMB while already reeling does not restart the launch envelope;
+- RMB miss leaves an existing cable attached; Space is the explicit detach action.
+
+### Finite rope
+
+Current playtest maximum:
+
+- **100 m** maximum acquisition distance;
+- **100 m** maximum deployed rope length.
+
+This is intentionally large for the compact city, but cannot target arbitrary geometry across the full ~200 × 250 m map.
+
+The exact final maximum is still a tuning hypothesis.
+
+### Rope-length/tension model
+
+Rope behavior is now length-driven instead of continuously forcing the full velocity vector toward the nearest point.
+
+When attached but not reeling:
+
+- gravity remains active;
+- deployed rope length stays fixed;
+- tangential swing motion survives;
+- when taut, the rope prevents further outward radial motion.
+
+After LMB:
+
+- rope length starts shrinking;
+- reel target remains distance-scaled around **30–52 m/s**;
+- the restrained start envelope remains **1.35× immediate → 2.0× peak**;
+- radial velocity is allowed to approach the reel target only through the configured radial acceleration;
+- the full velocity vector is never instantly rotated to a new bend direction.
+
+### Bend-catapult correction
+
+A newly created bend may increase the geometric polyline length without any real player motion.
+
+To prevent that geometry change from becoming free kinetic energy:
+
+- a new bend may pay out only the path-length increase required by the new polyline;
+- payout is capped by the global 100 m rope maximum;
+- radial correction caused by remaining over-length is capped;
+- direction changes are acceleration-bounded;
+- automated coverage verifies that an abrupt bend direction cannot create an instantaneous radial catapult.
+
+### Faster base movement
+
+Current Stage 5 locomotion experiment:
+
+- ground max speed: **13 m/s**;
+- ground acceleration: **150 m/s²**;
+- ground braking: **160 m/s²**;
+- ground jump: **10 m/s**;
+- one air jump: **9.5 m/s**;
+- air acceleration: **20 m/s²**;
+- air control target speed: **12 m/s**.
+
+Landing restores the single air jump.
+
+This deliberately reopens the earlier slow/weak base-locomotion assumption for human feel testing.
+
+### Technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36925626760
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: **92 passed / 0 failed**;
+- finite acquisition range covered;
+- RMB attach without reel covered;
+- LMB reel transition covered;
+- repeated LMB does not restart burst;
+- bend direction radial acceleration bound covered;
+- one-air-jump consumption/restore covered;
+- detach preserves horizontal and vertical swing momentum without adding a jump;
+- spawn smoke: stable and grounded;
+- compact-city enclosure smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the Stage 5 gate.
