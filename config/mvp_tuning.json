@@ -33,6 +33,7 @@
     "pullLaunchPeakSeconds": 0.14,
     "ropeContactSurfaceOffset": 0.08,
     "ropeEndpointTolerance": 0.22,
-    "ropeMinimumContactSpacing": 0.35
+    "ropeMinimumContactSpacing": 0.35,
+    "ropeContactEdgeSearchDistance": 16
   }
 }
