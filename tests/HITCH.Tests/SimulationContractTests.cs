@@ -79,7 +79,12 @@ public sealed class SimulationContractTests
         Assert.Equal(0UL, initial.Tick.Value);
         Assert.Equal(1UL, after.Tick.Value);
         Assert.Equal(after, simulation.State);
-        Assert.Equal(initial.Player, after.Player);
+
+        // Player state is value data: advancing the simulation may change the new snapshot,
+        // but it must not mutate the previously captured snapshot.
+        Assert.Equal(Vector3.Zero, initial.Player.Position);
+        Assert.Equal(Vector3.Zero, initial.Player.Velocity);
+        Assert.NotEqual(initial.Player, after.Player);
     }
 
     [Fact]
