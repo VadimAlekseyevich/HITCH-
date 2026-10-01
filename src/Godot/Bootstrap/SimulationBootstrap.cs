@@ -22,6 +22,7 @@ public partial class SimulationBootstrap : Node
     private Node3D _pitchPivot = null!;
     private Camera3D _camera = null!;
     private SimulationDebugOverlay _overlay = null!;
+    private RuntimeTuningPanel _tuningPanel = null!;
     private DebugLineDrawer3D _debugLines = null!;
     private PlayerInput _lastInput = PlayerInput.Neutral;
     private bool _spawnSmokeValidationEnabled;
@@ -44,6 +45,7 @@ public partial class SimulationBootstrap : Node
         _pitchPivot = GetNode<Node3D>("PlayerView/Yaw/Pitch");
         _camera = GetNode<Camera3D>("PlayerView/Yaw/Pitch/Camera3D");
         _overlay = GetNode<SimulationDebugOverlay>("Hud/Status");
+        _tuningPanel = GetNode<RuntimeTuningPanel>("Hud/TuningPanel");
         _debugLines = GetNode<DebugLineDrawer3D>("DebugLines");
 
         var config = SimulationConfigLoader.Load();
@@ -69,6 +71,12 @@ public partial class SimulationBootstrap : Node
         _simulation = new GameSimulation(config, initialState);
         _world = new GodotWorldQuery(_playerRoot);
 
+        _tuningPanel.Initialize(
+            config,
+            ApplyRuntimeConfig);
+        _tuningPanel.CloseRequested +=
+            () => SetTuningPanelOpen(false);
+
         _yawPivot.Position = new Vector3(
             0f,
             config.Locomotion.EyeOffsetFromCapsuleCenter,
@@ -84,6 +92,36 @@ public partial class SimulationBootstrap : Node
 
     public override void _Input(InputEvent @event)
     {
+        if (@event is InputEventKey
+            {
+                Pressed: true,
+                Echo: false,
+                Keycode: Key.F2,
+            })
+        {
+            SetTuningPanelOpen(
+                !_tuningPanel.IsOpen);
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_tuningPanel.IsOpen)
+        {
+            if (@event is InputEventKey
+                {
+                    Pressed: true,
+                    Echo: false,
+                    Keycode: Key.Escape,
+                })
+            {
+                SetTuningPanelOpen(false);
+                GetViewport().SetInputAsHandled();
+            }
+
+            // Do not let tuning-window clicks/typing fire hooks or movement actions.
+            return;
+        }
+
         if (_input.HandleEvent(@event))
         {
             GetViewport().SetInputAsHandled();
@@ -93,6 +131,14 @@ public partial class SimulationBootstrap : Node
     public override void _PhysicsProcess(double delta)
     {
         _ = delta;
+
+        if (_tuningPanel.IsOpen)
+        {
+            _lastInput = PlayerInput.Neutral;
+            ApplySimulationPresentation();
+            DrawDebugVectors();
+            return;
+        }
 
         _lastInput = _input.ConsumePhysicsTickInput();
         _simulation.Step(_lastInput, _world);
@@ -335,6 +381,35 @@ public partial class SimulationBootstrap : Node
 
     private static Vector3 ToGodot(NumericsVector3 value) =>
         new(value.X, value.Y, value.Z);
+
+    private void ApplyRuntimeConfig(
+        SimulationConfig config)
+    {
+        _simulation.ApplyConfig(config);
+        Engine.PhysicsTicksPerSecond =
+            config.TickRateHz;
+
+        _yawPivot.Position = new Vector3(
+            0f,
+            config.Locomotion.EyeOffsetFromCapsuleCenter,
+            0f);
+
+        RefreshOverlay();
+    }
+
+    private void SetTuningPanelOpen(bool open)
+    {
+        if (open)
+        {
+            _tuningPanel.OpenPanel();
+            _input.ReleaseMouse();
+        }
+        else
+        {
+            _tuningPanel.ClosePanel();
+            _input.CaptureMouse();
+        }
+    }
 
     private void RefreshOverlay()
     {
