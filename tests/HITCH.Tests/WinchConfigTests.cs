@@ -16,6 +16,7 @@ public sealed class WinchConfigTests
         Assert.True(config.PullRadialAcceleration > 0f);
         Assert.True(config.PullTargetInwardSpeed > 0f);
         Assert.True(config.ArrivalContactTolerance >= 0f);
+        Assert.True(config.ArrivalSurfaceCaptureRadius > 0f);
     }
 
     [Fact]
