@@ -23,6 +23,7 @@
     "pullInitialImpulse": 24,
     "pullRadialAcceleration": 300,
     "pullTargetInwardSpeed": 42,
-    "arrivalContactTolerance": 0.06
+    "arrivalContactTolerance": 0.06,
+    "arrivalSurfaceCaptureRadius": 1.75
   }
 }
