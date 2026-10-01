@@ -39,6 +39,10 @@ This file should answer:
 - what state must be replayable/networkable;
 - which Godot features are adapters rather than gameplay truth.
 
+### [CONTROLS.md](./CONTROLS.md)
+
+Documents the current temporary development bindings. These are not final player controls.
+
 ### [TOOLCHAIN.md](./TOOLCHAIN.md)
 
 Pins Godot, .NET, Jolt, the bootstrap platform, and one-click setup behavior.
