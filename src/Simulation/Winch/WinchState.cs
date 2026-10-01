@@ -13,6 +13,9 @@ public readonly record struct WinchState(
     public bool HasTarget =>
         TargetState == WinchTargetState.Selected;
 
+    public bool IsLatched =>
+        HasTarget && !IsPulling;
+
     public static WinchState Initial => new(
         WinchTargetState.None,
         default,
