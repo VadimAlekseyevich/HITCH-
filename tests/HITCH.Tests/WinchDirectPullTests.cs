@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchDirectPullTests
 {
     [Fact]
-    public void PullDiscardsTangentialMomentumBeforeArrival()
+    public void PullPreservesTangentialMomentumAndAppliesGravity()
     {
         var player = PlayerState.Initial with
         {
@@ -28,7 +28,11 @@ public sealed class WinchDirectPullTests
 
         Assert.True(result.Winch.IsPulling);
         Assert.InRange(
-            Math.Abs(result.Player.Velocity.X),
+            Math.Abs(result.Player.Velocity.X - 17f),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Y + 3.6f),
             0f,
             1e-5f);
         Assert.InRange(
@@ -60,6 +64,42 @@ public sealed class WinchDirectPullTests
             1e-5f);
         Assert.InRange(
             Math.Abs(result.Player.Velocity.X),
+            0f,
+            1e-5f);
+        Assert.True(result.Player.Velocity.Y < 0f);
+    }
+
+    [Fact]
+    public void GravityBendsTrajectoryWhileGrappleRemainsActive()
+    {
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(12f, 8f, 0f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            ActiveAt(new Vector3(0f, 0f, -50f)),
+            PlayerInput.Neutral,
+            TestConfig(),
+            new PlayerLocomotionConfig
+            {
+                Gravity = 18f,
+            },
+            new NoHitWorld(),
+            0.25f);
+
+        Assert.True(result.Winch.IsPulling);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.X - 12f),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Y - 3.5f),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Z + 42f),
             0f,
             1e-5f);
     }
