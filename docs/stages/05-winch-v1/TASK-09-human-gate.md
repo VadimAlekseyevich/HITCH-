@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** WAITING  
+**Status:** IN PROGRESS — ITERATION 2  
 **Depends on:** Task 08
 
 ## Goal
@@ -38,3 +38,22 @@ Stage 5 may be marked DONE and Stage 6 planned.
 Keep Stage 5 ACTIVE. Record concrete feel problems and change tuning/model before proceeding.
 
 CI cannot decide this gate.
+
+
+## Iteration 1 result
+
+**ITERATE**
+
+The initial spring/reel implementation failed the feel gate. See the Stage 5 README for concrete feedback.
+
+## Iteration 2 focus
+
+Evaluate only:
+
+- whether LMB target placement is obvious and reliable;
+- whether RMB pull begins immediately;
+- whether RMB release stops force immediately;
+- whether LMB retargeting during a pull feels predictable;
+- whether reaching a point cleanly drops the player instead of sticking;
+- whether ordinary WASD ground motion no longer feels like ice;
+- whether early RMB release creates useful, understandable momentum.
