@@ -168,6 +168,10 @@ No manual editor-only ritual should be required for basic verification if it can
 
 # Stage 2 — Simulation kernel and explicit state
 
+**Status: DONE — 2026-10-01**
+
+**Task breakdown:** [docs/stages/02-simulation-kernel/README.md](./stages/02-simulation-kernel/README.md)
+
 ## Goal
 
 Create the minimum gameplay-simulation skeleton needed for future movement without yet attempting to make movement fun.
