@@ -30,10 +30,10 @@ public partial class SimulationBootstrap : Node
     private const ulong SpawnSmokeValidationTick = 45UL;
     private const float SpawnSmokeMaximumDropMeters = 0.10f;
 
-    private const float BaseCameraFovDegrees = 82f;
-    private const float MaximumSpeedCameraFovDegrees = 108f;
-    private const float SpeedFovStartMetersPerSecond = 20f;
-    private const float SpeedFovMaximumMetersPerSecond = 160f;
+    private const float BaseCameraFovDegrees = 80f;
+    private const float MaximumSpeedCameraFovDegrees = 96f;
+    private const float SpeedFovStartMetersPerSecond = 12f;
+    private const float SpeedFovMaximumMetersPerSecond = 36f;
     private const float SpeedFovResponsePerTick = 0.18f;
 
     public override void _Ready()
