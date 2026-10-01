@@ -93,10 +93,12 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | .NET SDK | DECIDED | 8.0.425, pinned by `global.json`; game target framework is `net8.0`. |
 | Test framework | DECIDED | xUnit v3 (4.0.1) for ordinary C# tests. |
 | Tuning configuration convention | DECIDED | Godot/editor authoring may use Resources, but simulation consumes plain typed C# configuration snapshots. |
+| Simulation assembly | DECIDED | `src/Simulation/Hitch.Simulation.csproj` is plain net8.0 and has no Godot dependency. |
+| Simulation numeric types | DECIDED | Core simulation uses `System.Numerics`; Godot adapters convert at engine boundaries. |
 | Core movement | DECIDED | Custom gameplay simulation rather than opaque rigid-body locomotion. |
 | Core winch | DECIDED | Custom gameplay model rather than relying entirely on a physics joint. |
 | Target platform | HYPOTHESIS | Desktop first. Stage 1 local/CI bootstrap targets Windows x86_64. |
-| Simulation frequency | HYPOTHESIS | Compare 60 Hz and 120 Hz; prefer 120 Hz only if value is measurable and affordable. |
+| Simulation frequency | HYPOTHESIS | Temporary baseline is 60 Hz. Compare 60 Hz and 120 Hz during movement work; prefer 120 Hz only if value is measurable and affordable. |
 | Networking transport | HYPOTHESIS | Godot multiplayer/ENet as initial transport candidate. |
 | Server model | HYPOTHESIS | Authoritative server. |
 | Local-player networking | HYPOTHESIS | Client-side prediction + reconciliation. |
