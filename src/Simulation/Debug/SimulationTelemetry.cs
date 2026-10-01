@@ -79,7 +79,7 @@ public sealed class SimulationTelemetry
     }
 
     private void ObserveCable(
-        in Winch.WinchCableState cable,
+        in Hitch.Simulation.Winch.WinchCableState cable,
         ref bool hadTarget,
         ref bool wasPulling)
     {
