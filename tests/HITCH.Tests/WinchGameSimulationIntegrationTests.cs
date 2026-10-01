@@ -340,8 +340,15 @@ public sealed class WinchGameSimulationIntegrationTests
             0f,
             1e-5f);
 
-        // Space was consumed as detach, not as an upward jump.
-        Assert.True(detached.Player.Velocity.Y <= 0f);
+        // Space was consumed as detach, not as an extra jump. Existing vertical swing
+        // momentum survives; only ordinary gravity changes Y on the detach tick.
+        var expectedY =
+            beforeDetach.Y
+            - (config.Locomotion.Gravity / config.TickRateHz);
+        Assert.InRange(
+            Math.Abs(detached.Player.Velocity.Y - expectedY),
+            0f,
+            1e-5f);
         Assert.True(
             Math.Abs(detached.Player.Velocity.Z) > 5f);
     }
