@@ -35,8 +35,6 @@ public static class WinchSystem
 
         var winch = previousWinch;
         var updatedPlayer = player;
-        var startedThisTick = false;
-
         if (input.Has(PlayerButtons.GrapplePullPressed))
         {
             winch = TryShootActiveCable(
@@ -44,7 +42,16 @@ public static class WinchSystem
                 config,
                 locomotionConfig,
                 world);
-            startedThisTick = winch.IsPulling;
+
+            // RMB miss is an explicit release. Do not carry old grapple momentum forward.
+            if (!winch.HasTarget)
+            {
+                updatedPlayer = updatedPlayer with
+                {
+                    Velocity = Vector3.Zero,
+                    IsGrounded = false,
+                };
+            }
         }
 
         if (!winch.IsPulling)
@@ -91,40 +98,23 @@ public static class WinchSystem
                 true);
         }
 
-        var velocity = updatedPlayer.Velocity;
-
-        if (startedThisTick && distance > 0f)
-        {
-            velocity +=
-                direction * config.PullInitialImpulse;
-        }
-
-        var appliedRadialAcceleration = 0f;
-
-        if (distance > 0f)
-        {
-            var inwardSpeed =
-                Vector3.Dot(velocity, direction);
-
-            if (inwardSpeed < config.PullTargetInwardSpeed)
-            {
-                var neededSpeed =
-                    config.PullTargetInwardSpeed - inwardSpeed;
-                var addedSpeed = MathF.Min(
-                    neededSpeed,
-                    config.PullRadialAcceleration * fixedDeltaSeconds);
-
-                velocity += direction * addedSpeed;
-                appliedRadialAcceleration =
-                    addedSpeed / fixedDeltaSeconds;
-            }
-        }
+        // Iteration 11 intentionally removes inherited momentum from grapple travel.
+        // The cable owns movement while pulling: every tick points velocity directly at the anchor.
+        // No tangential/orbital component from an earlier trajectory survives.
+        var velocity = distance > 0f
+            ? direction * config.PullTargetInwardSpeed
+            : Vector3.Zero;
 
         updatedPlayer = updatedPlayer with
         {
             Velocity = velocity,
             IsGrounded = false,
         };
+
+        var appliedRadialAcceleration =
+            distance > 0f
+                ? config.PullTargetInwardSpeed / fixedDeltaSeconds
+                : 0f;
 
         return new WinchStepResult(
             updatedPlayer,
