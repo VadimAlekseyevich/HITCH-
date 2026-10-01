@@ -87,12 +87,15 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Topic | Status | Decision |
 |---|---|---|
 | Engine family | DECIDED | Godot 4.x. |
-| Exact Godot version | TBD | Pin one version during repository bootstrap. |
+| Exact Godot version | DECIDED | Godot 4.7.2 stable .NET build. |
 | Language | DECIDED | C#. |
 | Physics backend | DECIDED | Jolt/Godot physics for collision/world queries and secondary physics. |
+| .NET SDK | DECIDED | 8.0.425, pinned by `global.json`; game target framework is `net8.0`. |
+| Test framework | DECIDED | xUnit v3 (4.0.1) for ordinary C# tests. |
+| Tuning configuration convention | DECIDED | Godot/editor authoring may use Resources, but simulation consumes plain typed C# configuration snapshots. |
 | Core movement | DECIDED | Custom gameplay simulation rather than opaque rigid-body locomotion. |
 | Core winch | DECIDED | Custom gameplay model rather than relying entirely on a physics joint. |
-| Target platform | HYPOTHESIS | Desktop first. |
+| Target platform | HYPOTHESIS | Desktop first. Stage 1 local/CI bootstrap targets Windows x86_64. |
 | Simulation frequency | HYPOTHESIS | Compare 60 Hz and 120 Hz; prefer 120 Hz only if value is measurable and affordable. |
 | Networking transport | HYPOTHESIS | Godot multiplayer/ENet as initial transport candidate. |
 | Server model | HYPOTHESIS | Authoritative server. |
