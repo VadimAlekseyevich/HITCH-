@@ -140,6 +140,48 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
+    public void ActiveGrappleAppliesGravityAndCreatesSwingTangent()
+    {
+        var config = TestSimulationConfig() with
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 18f,
+                AirAcceleration = 0f,
+            },
+        };
+        var target = new Vector3(0f, 30f, -40f);
+        var world = new FixedGrappleWorld(target);
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new Vector3(0f, 10f, 0f),
+                Velocity = new Vector3(12f, 0f, 0f),
+                IsGrounded = false,
+            },
+        };
+        var simulation = new GameSimulation(config, initial);
+
+        var after = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
+
+        Assert.True(after.Winch.IsPulling);
+        Assert.True(after.Player.Velocity.X > 10f);
+
+        var toAnchor = Vector3.Normalize(
+            target - after.Player.Position);
+        var radial =
+            Vector3.Dot(after.Player.Velocity, toAnchor);
+        var tangent =
+            after.Player.Velocity - (toAnchor * radial);
+
+        Assert.True(radial > 0f);
+        Assert.True(tangent.Length() > 1f);
+    }
+
+    [Fact]
     public void CompletedGrappleRemainsStoppedUntilRmbReleasesOrRetargets()
     {
         var config = TestSimulationConfig() with
@@ -288,7 +330,7 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
-    public void RetargetDiscardsExistingMomentumAndStartsNewDirectPull()
+    public void RetargetReplacesRadialMotionButKeepsSwingTangent()
     {
         var config = TestSimulationConfig();
         var world = new MutableGrappleWorld(
@@ -311,15 +353,15 @@ public sealed class WinchGameSimulationIntegrationTests
 
         var direction = Vector3.Normalize(
             world.Anchor - retargeted.Player.Position);
-        var velocityDirection = Vector3.Normalize(
-            retargeted.Player.Velocity);
+        var inwardSpeed =
+            Vector3.Dot(retargeted.Player.Velocity, direction);
+        var tangent =
+            retargeted.Player.Velocity
+            - (direction * inwardSpeed);
 
-        Assert.True(
-            Vector3.Dot(direction, velocityDirection) > 0.999f);
-        Assert.InRange(
-            retargeted.Player.Velocity.Length(),
-            41.99f,
-            42.01f);
+        Assert.True(inwardSpeed > 35f);
+        Assert.True(tangent.Length() > 1f);
+        Assert.True(retargeted.Player.Velocity.Y < 10f);
     }
 
     private static SimulationConfig TestSimulationConfig() =>
