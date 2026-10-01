@@ -18,10 +18,16 @@ public sealed record WinchConfig
     public float PullInitialImpulse { get; init; } = 30f;
 
     /// <summary>
-    /// Continuous acceleration toward the selected target while automatic pull is active.
-    /// Existing tangential momentum is preserved instead of being replaced every tick.
+    /// Maximum rate at which the cable changes radial speed toward the anchor.
+    /// Tangential velocity is preserved.
     /// </summary>
-    public float PullAcceleration { get; init; } = 60f;
+    public float PullRadialAcceleration { get; init; } = 220f;
+
+    /// <summary>
+    /// While pulling, the cable aggressively establishes at least this much inward radial speed.
+    /// Existing faster inward speed is not clamped.
+    /// </summary>
+    public float PullTargetInwardSpeed { get; init; } = 48f;
 
     /// <summary>
     /// Target surface points cannot be reached by the capsule center exactly.
@@ -33,7 +39,8 @@ public sealed record WinchConfig
     {
         RequireFinitePositive(GrappleRange, nameof(GrappleRange));
         RequireFinitePositive(PullInitialImpulse, nameof(PullInitialImpulse));
-        RequireFinitePositive(PullAcceleration, nameof(PullAcceleration));
+        RequireFinitePositive(PullRadialAcceleration, nameof(PullRadialAcceleration));
+        RequireFinitePositive(PullTargetInwardSpeed, nameof(PullTargetInwardSpeed));
         RequireFinitePositive(ArrivalDistance, nameof(ArrivalDistance));
     }
 
