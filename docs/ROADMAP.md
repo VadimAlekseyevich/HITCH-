@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 7 DUAL CABLE**
+**Status: READY FOR HUMAN GATE — ITERATION 8 SINGLE CABLE**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
@@ -429,7 +429,7 @@ No networking and no combat are needed.
 ### Grapple targeting
 
 - hitscan/raycast targeting;
-- medium-range configurable limit;
+- no gameplay rope-length cap in the active prototype;
 - valid vs forbidden grapple surfaces;
 - debug visualization of hit/anchor.
 
@@ -518,7 +518,7 @@ This stage should explicitly test:
 - reel acceleration;
 - reel maximum speed;
 - gravity;
-- grapple range;
+- grapple reach/target behavior;
 - reattach delay;
 - air correction;
 - 60 vs 120 simulation Hz if unresolved.
@@ -947,7 +947,6 @@ Transmit/validate:
 Server owns authoritative decisions such as:
 
 - target validity;
-- grapple range;
 - valid surface;
 - attachment state.
 
@@ -1142,7 +1141,7 @@ Focus on:
 - reel acceleration;
 - spring behavior;
 - damping;
-- grapple range;
+- grapple target behavior;
 - reattach delay;
 - air assistance;
 - gravity;
