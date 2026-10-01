@@ -20,9 +20,9 @@
   "winch": {
     "grappleRange": 72,
     "grappleCollisionMask": 1,
-    "pullInitialImpulse": 30,
+    "pullInitialImpulse": 24,
     "arrivalDistance": 0.9,
-    "pullRadialAcceleration": 420,
-    "pullTargetInwardSpeed": 55
+    "pullRadialAcceleration": 300,
+    "pullTargetInwardSpeed": 42
   }
 }
