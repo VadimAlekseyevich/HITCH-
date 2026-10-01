@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 3**
+**Status: READY FOR HUMAN GATE — ITERATION 4**
 
 ## Objective
 
@@ -164,3 +164,48 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36805953261
 - one-click bootstrap remains `build_and_run.bat`.
 
 Iteration 3 is technically ready. Stage 5 remains blocked on human movement feel.
+
+
+## Human gate result — iteration 3
+
+**Result: ITERATE / SIMPLIFY INPUT AGAIN**
+
+Human correction:
+
+- one RMB click should both shoot the cable and immediately start pulling;
+- there should be no separate LMB grapple-placement action;
+- pull should be noticeably faster/stronger.
+
+Iteration 3 two-step cable-then-pull input is superseded.
+
+## Iteration 4 — one-button grapple + pull
+
+Current active loop:
+
+1. Aim with the center crosshair.
+2. Click RMB.
+3. Raycast a fresh target.
+4. Replace any previous cable.
+5. Create the new cable and begin pull in the same simulation tick.
+6. Apply an immediate pull impulse.
+7. Continue automatic pull acceleration until arrival or another RMB retarget.
+8. RMB miss clears the old cable and preserves current momentum.
+
+Current pull tuning:
+
+- grapple range: 72 m;
+- initial impulse: 30 m/s;
+- continuous acceleration: 60 m/s²;
+- arrival distance: 0.9 m.
+
+## Iteration 4 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36807075655
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 55 passed / 0 failed;
+- spawn stability smoke: `tick=45 y=0.9150 grounded=True`;
+- one-click local run remains `build_and_run.bat`.
+
+Iteration 4 is technically ready. Stage 5 remains blocked on human movement feel.
