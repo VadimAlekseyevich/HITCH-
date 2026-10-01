@@ -128,20 +128,19 @@ public partial class SimulationBootstrap : Node
             origin + velocity,
             Colors.Orange);
 
-        DrawCableDebug(
-            state.Winch.Left,
-            ToGodot(player.Position),
-            new Color(0.30f, 0.72f, 1.00f, 0.95f));
-        DrawCableDebug(
-            state.Winch.Right,
-            ToGodot(player.Position),
-            new Color(1.00f, 0.78f, 0.20f, 0.95f));
+        if (state.Winch.HasTarget)
+        {
+            DrawCableDebug(
+                state.Winch,
+                ToGodot(player.Position),
+                Colors.Yellow);
+        }
 
         _debugLines.Commit();
     }
 
     private void DrawCableDebug(
-        in WinchCableState cable,
+        in WinchState cable,
         Vector3 playerPosition,
         Color cableColor)
     {
