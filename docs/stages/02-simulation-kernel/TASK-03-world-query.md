@@ -1,6 +1,6 @@
 # Task 03 — Define Minimal World-Query Boundary
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 02
 
 ## Goal
