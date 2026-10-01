@@ -98,11 +98,12 @@ public static class WinchSystem
                 true);
         }
 
-        // Iteration 11 intentionally removes inherited momentum from grapple travel.
-        // The cable owns movement while pulling: every tick points velocity directly at the anchor.
-        // No tangential/orbital component from an earlier trajectory survives.
+        // Zero-inertia remains, but iteration 12 raises actual traversal speed into an
+        // intentionally exaggerated ODM-like range. Long lines are faster than short lines so
+        // crossing the large movement lab feels like high-speed aerial traversal rather than a zipline.
+        var pullSpeed = ComputeDirectPullSpeed(distance, config);
         var velocity = distance > 0f
-            ? direction * config.PullTargetInwardSpeed
+            ? direction * pullSpeed
             : Vector3.Zero;
 
         updatedPlayer = updatedPlayer with
@@ -113,7 +114,7 @@ public static class WinchSystem
 
         var appliedRadialAcceleration =
             distance > 0f
-                ? config.PullTargetInwardSpeed / fixedDeltaSeconds
+                ? pullSpeed / fixedDeltaSeconds
                 : 0f;
 
         return new WinchStepResult(
@@ -124,6 +125,35 @@ public static class WinchSystem
                 LastPullAcceleration = appliedRadialAcceleration,
             },
             false);
+    }
+
+    public static float ComputeDirectPullSpeed(
+        float distance,
+        WinchConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+
+        if (!float.IsFinite(distance) || distance <= 0f)
+        {
+            return 0f;
+        }
+
+        var normalizedDistance = Math.Clamp(
+            distance / config.PullLongRangeDistance,
+            0f,
+            1f);
+
+        // Smoothstep avoids a visible speed discontinuity while still letting long lines
+        // become dramatically faster.
+        var speedBlend =
+            normalizedDistance
+            * normalizedDistance
+            * (3f - (2f * normalizedDistance));
+
+        return config.PullTargetInwardSpeed
+            + ((config.PullLongRangeInwardSpeed
+                - config.PullTargetInwardSpeed)
+               * speedBlend);
     }
 
     public static RayQuery BuildAimRay(
