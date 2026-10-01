@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 11: one unlimited-length RMB cable with zero carried inertia. While pulling, velocity is set directly toward the anchor at the configured pull speed; prior tangential velocity is discarded, gravity/air control are suppressed, wall/ceiling impacts hard-stop, arrival latches at zero velocity, and RMB miss releases with zero carried grapple velocity. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 12: one unlimited-length RMB cable with zero carried inertia and intentionally extreme direct traversal speed. Pull speed scales smoothly from 90 m/s on short lines toward 160 m/s by 250 m anchor distance; prior tangential velocity is discarded, gravity/air control are suppressed, wall/ceiling impacts hard-stop, arrival latches at zero velocity, and RMB miss releases with zero carried grapple velocity. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
