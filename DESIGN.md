@@ -194,43 +194,42 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 3.**
+**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 4.**
 
-The first human movement gate rejected the initial spring/reel model as unpredictable, sticky, and difficult to control.
+The active Stage 5 control model is deliberately minimal:
 
-Iteration 2 then simplified too far in the wrong direction by requiring RMB to be held. The requested control model is now explicit:
+- **RMB click is the only grapple action**;
+- RMB immediately raycasts along the center crosshair;
+- on a valid hit, any previous cable is replaced;
+- the new cable is created and automatic pull begins in the same simulation tick;
+- there is no separate LMB cable-placement step;
+- there is no RMB hold/release gameplay state;
+- pull begins with a strong immediate velocity impulse toward the anchor;
+- continuous acceleration then bends the existing trajectory toward the anchor;
+- tangential momentum is preserved rather than replacing the full velocity vector every tick;
+- another RMB click while pulling immediately retargets and starts pull toward the new hit;
+- an RMB miss clears the old cable and leaves the player flying on existing momentum;
+- reaching the target ends automatic pull and removes inward motion into the surface while ordinary gravity/control resume.
 
-- **LMB:** throw/select a cable point by hitscan;
-- LMB always cancels any active pull first;
-- cancelling/replacing a cable must not erase current momentum;
-- if the new LMB throw hits a valid surface, a new idle cable is created;
-- if the LMB throw misses, the previous cable is cleared and the player continues only by inertia;
-- **RMB click once:** start automatic pull toward the currently selected point;
-- RMB is not held and release has no gameplay meaning;
-- starting pull gives an immediate strong velocity impulse toward the anchor;
-- while automatic pull is active, additional acceleration bends the existing trajectory toward the anchor;
-- the pull must preserve tangential momentum rather than replacing the entire velocity vector every tick;
-- clicking LMB during automatic pull stops the pull immediately and places/replaces the cable; another RMB click is required to pull again;
-- reaching the target stops automatic pull and removes inward motion into the anchor; gravity and ordinary control then resume;
-- Q/E reel controls are disabled in this iteration.
+Current experimental values:
 
-The current prototype grapple range is **72 m**, intentionally about 3× the prior 24 m test value.
+- grapple range: **72 m**;
+- initial pull impulse: **30 m/s**;
+- continuous pull acceleration: **60 m/s²**.
 
-This remains an experiment. It does **not** permanently remove spring/reel mechanics from future HITCH! design.
+LMB currently has no grapple behavior.
 
-The older spring, reel motor, slack, and reel-energy requirements below are historical design direction and are currently **reopened/TBD for the active prototype**. Do not reintroduce them into Stage 5 without a new human decision.
+This remains an experiment and does not permanently resolve future spring/reel design.
 
 ### Base locomotion playtest correction
-
-Human feedback also reported ordinary movement as slow, floaty, and ice-like.
 
 Current local-prototype requirement:
 
 - grounded movement must respond quickly to direction changes;
 - releasing input should strongly brake grounded horizontal velocity;
 - ground walking may dissipate excess momentum;
-- limited air steering is allowed so the player can correct obvious mistakes;
-- grapple movement must still be much more powerful than walking.
+- limited air steering is allowed for corrections;
+- grapple movement must remain substantially more powerful than walking.
 
 ### Current movement-lab usability
 
