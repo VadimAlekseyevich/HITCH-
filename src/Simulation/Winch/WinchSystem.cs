@@ -82,7 +82,12 @@ public static class WinchSystem
 
             return new WinchStepResult(
                 updatedPlayer,
-                WinchState.Initial,
+                winch with
+                {
+                    IsPulling = false,
+                    LastActualDistance = distance,
+                    LastPullAcceleration = 0f,
+                },
                 true);
         }
 
