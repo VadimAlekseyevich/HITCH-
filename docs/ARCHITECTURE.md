@@ -361,7 +361,7 @@ Examples:
 - ranged damage;
 - fire interval.
 
-The exact Godot resource/config implementation is decided during bootstrap.
+The Stage 1 convention is defined in [`CONVENTIONS.md`](./CONVENTIONS.md): editor-facing tuning may use Godot `Resource` data, but gameplay simulation consumes a plain typed C# configuration snapshot rather than reading scene/editor state directly.
 
 Requirements:
 
