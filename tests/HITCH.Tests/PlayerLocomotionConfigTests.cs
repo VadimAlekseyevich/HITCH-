@@ -18,7 +18,7 @@ public sealed class PlayerLocomotionConfigTests
         Assert.InRange(config.GroundMaxSpeed, 7f, 9f);
         Assert.InRange(config.JumpSpeed, 5f, 7f);
         Assert.InRange(config.AirJumpSpeed, 4f, 6f);
-        Assert.InRange(config.Gravity, 9f, 12f);
+        Assert.InRange(config.Gravity, 14f, 15f);
         Assert.True(config.AirAcceleration < config.GroundAcceleration);
         Assert.True(config.AirControlMaxSpeed < config.GroundMaxSpeed);
         Assert.True(config.GroundBraking > config.GroundAcceleration);
