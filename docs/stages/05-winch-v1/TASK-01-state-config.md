@@ -1,6 +1,6 @@
 # Task 01 — Define Winch Config, Path Abstraction, and Explicit State
 
-**Status:** PLANNED
+**Status:** DONE
 
 ## Goal
 
