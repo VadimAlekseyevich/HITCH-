@@ -26,6 +26,8 @@
     "arrivalContactTolerance": 0.06,
     "arrivalSurfaceCaptureRadius": 1.75,
     "pullLongRangeInwardSpeed": 160,
-    "pullLongRangeDistance": 250
+    "pullLongRangeDistance": 250,
+    "pullLaunchSpeedMultiplier": 1.45,
+    "pullLaunchDecaySeconds": 0.75
   }
 }
