@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 11 ZERO INERTIA**
+**Status: READY FOR HUMAN GATE — ITERATION 12 ODM SPEED**
 
 ## Objective
 
@@ -567,3 +567,39 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36914543762
 - room smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual gate.
+
+
+## Human gate result — iteration 11
+
+**Result: IMPROVED CONTROL / SPEED STILL TOO LOW**
+
+Human feedback:
+
+- removing carried inertia made the movement noticeably better and more controllable;
+- however the traversal still lacks the extreme speed expected from the intended Attack-on-Titan-like movement fantasy;
+- 42 m/s direct travel reads as fast FPS traversal, not extraordinary aerial movement.
+
+## Iteration 12 — ODM-scale direct speed
+
+Control rules from iteration 11 stay intact:
+
+- zero carried grapple inertia;
+- immediate retarget direction;
+- no gravity/air-control mixed into active pull;
+- wall/ceiling impacts hard-stop;
+- surface arrival latches at zero velocity.
+
+Traversal speed is now deliberately exaggerated:
+
+- short/medium grapple speed: **90 m/s** (~324 km/h);
+- long-range maximum: **160 m/s** (~576 km/h);
+- maximum is reached around **250 m** anchor distance;
+- speed scales smoothly with line distance rather than switching abruptly.
+
+Presentation now reinforces real speed:
+
+- camera baseline FOV: **82°**;
+- FOV expands smoothly toward **108°** as actual player speed approaches 160 m/s;
+- FOV returns toward baseline as speed drops.
+
+This iteration is specifically testing whether extreme direct speed, while retaining the new zero-inertia control model, moves the prototype closer to the intended high-energy aerial PvP fantasy.
