@@ -131,3 +131,19 @@ Test:
 5. Do bends disappear naturally when returning around the corner?
 6. Are four contacts enough for the intended city traversal?
 7. Does any bend jitter or rapid contact spam appear on flat walls?
+
+
+## Collision correction
+
+Human playtest immediately exposed that the older "any wall/ceiling contact = hard stop" rule is incompatible with rope wrapping.
+
+Current collision behavior:
+
+- collision removes only the velocity component pointing into the contacted surface;
+- velocity tangent to the surface survives;
+- active grapple remains active after ordinary wall contact;
+- the rope may continue pulling along the surface and/or create a bend around the geometry;
+- only actual anchor arrival/latch performs the intentional full stop;
+- a purely head-on collision with no tangent can still momentarily reach zero velocity, but the active cable may generate a new allowed direction on following ticks.
+
+This preserves obstacle interaction without turning every touch into an automatic hang state.
