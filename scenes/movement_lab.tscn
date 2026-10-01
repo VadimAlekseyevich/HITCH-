@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/Godot/Bootstrap/SimulationBootstrap.cs" id="1_sim"]
+[ext_resource type="Script" path="res://src/Godot/World/MovementLabBuilder.cs" id="2_lab"]
+
+[node name="MovementLab" type="Node"]
+script = ExtResource("1_sim")
+
+[node name="World" type="Node3D" parent="."]
+script = ExtResource("2_lab")
+
+[node name="PlayerView" type="Node3D" parent="."]
+position = Vector3(0, 1.6, 32)
+
+[node name="Yaw" type="Node3D" parent="PlayerView"]
+
+[node name="Pitch" type="Node3D" parent="PlayerView/Yaw"]
+
+[node name="Camera3D" type="Camera3D" parent="PlayerView/Yaw/Pitch"]
+current = true
+near = 0.05
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="Hud"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 760.0
+offset_bottom = 150.0
+text = "HITCH! movement lab starting..."
