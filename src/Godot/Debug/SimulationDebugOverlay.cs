@@ -33,6 +33,7 @@ public partial class SimulationDebugOverlay : Label
 
         Text =
             "HITCH! Stage 5 winch debug\n" +
+            "Controls: hold RMB grapple | Q reel out | E reel in | WASD move | Space jump | Esc cursor\n" +
             $"Tick: {simulationState.Tick.Value} | Rate: {config.TickRateHz} Hz\n" +
             $"Position: ({player.Position.X:F2}, {player.Position.Y:F2}, {player.Position.Z:F2})\n" +
             $"Velocity: ({player.Velocity.X:F2}, {player.Velocity.Y:F2}, {player.Velocity.Z:F2}) | Speed: {speed:F2}\n" +
