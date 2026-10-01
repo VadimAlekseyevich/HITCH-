@@ -6,7 +6,7 @@ namespace Hitch.Tests;
 public sealed class PlayerLocomotionConfigTests
 {
     [Fact]
-    public void DefaultsDescribeWeakCapsuleLocomotion()
+    public void DefaultsDescribeResponsiveButWinchSecondaryLocomotion()
     {
         var config = new PlayerLocomotionConfig();
 
@@ -15,8 +15,9 @@ public sealed class PlayerLocomotionConfigTests
         Assert.Equal(0.45f, config.CapsuleRadius);
         Assert.Equal(1.80f, config.CapsuleHeight);
         Assert.Equal(0.45f, config.CapsuleHalfSegmentLength, 5);
-        Assert.True(config.GroundMaxSpeed < 5f);
+        Assert.InRange(config.GroundMaxSpeed, 5f, 7f);
         Assert.True(config.AirAcceleration < config.GroundAcceleration);
+        Assert.True(config.GroundBraking > config.GroundAcceleration);
     }
 
     [Fact]
