@@ -1,6 +1,6 @@
 # Task 09 — Human Core-Movement Gate
 
-**Status:** IN PROGRESS — ITERATION 2  
+**Status:** WAITING — ITERATION 2 BUILD READY  
 **Depends on:** Task 08
 
 ## Goal
