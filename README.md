@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stage 1 — Godot/C# project bootstrap is complete.** The next roadmap stage is **Stage 2 — Simulation kernel and explicit state**.
+**Stages 1–2 are complete.** The next roadmap stage is **Stage 3 — Greybox world, first-person shell, and debug instrumentation**.
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
