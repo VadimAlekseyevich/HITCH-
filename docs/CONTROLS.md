@@ -9,34 +9,58 @@ They are **not** the final control scheme.
 | Mouse | Look |
 | W / A / S / D | Responsive ground movement + limited air steering |
 | Space | Weak jump |
-| Right mouse button click | Raycast a new grapple point and immediately start pulling toward it |
+| Left mouse button | Shoot/replace the **left** cable and immediately start its pull |
+| Right mouse button | Shoot/replace the **right** cable and immediately start its pull |
 | F | Reserved melee intent for later combat work |
 | Escape | Release mouse cursor |
-| Left click while cursor is released | Recapture mouse only |
-
-LMB has no grapple action in the active Stage 5 iteration.
+| Left click while cursor is released | Recapture mouse only; does not fire a cable |
 
 Q/E reel controls remain disabled.
 
-## Current pull loop
+## Dual-cable loop
 
-1. Aim using the small center crosshair.
-2. Click RMB once.
-3. The game raycasts immediately.
-4. On a valid hit, the old cable is replaced, a new cable is created, and pull starts in the same simulation tick.
-5. Pull begins with a strong immediate impulse and then continues automatically with acceleration toward the anchor.
-6. The player does not hold RMB.
-7. Clicking RMB again while already pulling immediately shoots/replaces the cable and starts pulling toward the new hit point.
-8. If RMB misses, the old cable is cleared and the player continues with existing momentum.
-9. Reaching the anchor ends the pull automatically; inward motion into the surface is removed while tangential momentum remains.
+Each mouse button owns one independent cable.
 
-## Current playtest tuning
+### LMB
 
-- grapple range: **72 m**
-- initial pull impulse: **30 m/s**
-- continuous pull acceleration: **60 m/s²**
+- raycasts a new left anchor;
+- replaces only the previous left cable;
+- starts left-cable pull in the same simulation tick;
+- a miss clears only the left cable.
 
-These values are experimental.
+### RMB
+
+- raycasts a new right anchor;
+- replaces only the previous right cable;
+- starts right-cable pull in the same simulation tick;
+- a miss clears only the right cable.
+
+Both cables may be active simultaneously.
+
+When both are active:
+
+- both pull contributions are applied in the same fixed tick;
+- left/right processing is symmetric;
+- tangential momentum remains available for swinging;
+- the result is intentionally more action-oriented than a realistic rope simulation.
+
+## Rope length
+
+There is **no gameplay rope-length limit** in the current prototype.
+
+The simulation ray query uses a very large finite endpoint internally because the physics API requires one. That number is an engine implementation detail, not a gameplay range.
+
+Any visible valid surface in the enclosed Stage 5 movement room should be reachable.
+
+## Arrival behavior
+
+Each cable ends independently when its anchor is reached.
+
+- If one cable finishes while the other still pulls, only that cable clears.
+- When the **last active cable** finishes, player velocity is cleared completely.
+- Ordinary gravity/locomotion then resume.
+
+This avoids endless orbiting after a completed pull while still allowing two-cable traversal.
 
 ## Architecture rule
 
