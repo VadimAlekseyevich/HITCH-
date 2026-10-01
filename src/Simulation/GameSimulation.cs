@@ -1,3 +1,4 @@
+using Hitch.Simulation.Debug;
 using Hitch.Simulation.Input;
 using Hitch.Simulation.Player;
 using Hitch.Simulation.State;
@@ -23,11 +24,14 @@ public sealed class GameSimulation
 
         Config = config;
         State = initialState;
+        Telemetry = new SimulationTelemetry();
     }
 
     public SimulationConfig Config { get; }
 
     public SimulationState State { get; private set; }
+
+    public SimulationTelemetry Telemetry { get; }
 
     public double FixedDeltaSeconds => Config.FixedDeltaSeconds;
 
@@ -113,6 +117,8 @@ public sealed class GameSimulation
             Player = movedPlayer,
             Winch = finalWinch,
         };
+
+        Telemetry.Observe(State);
 
         return State;
     }
