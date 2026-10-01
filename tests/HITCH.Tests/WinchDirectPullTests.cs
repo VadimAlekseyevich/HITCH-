@@ -65,6 +65,70 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
+    public void LongGrappleUsesExtremeTraversalSpeed()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 90f,
+            PullLongRangeInwardSpeed = 160f,
+            PullLongRangeDistance = 250f,
+        };
+
+        var speed = WinchSystem.ComputeDirectPullSpeed(
+            300f,
+            config);
+
+        Assert.InRange(speed, 159.99f, 160.01f);
+    }
+
+    [Fact]
+    public void GrappleSpeedBuildsWithAnchorDistance()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 90f,
+            PullLongRangeInwardSpeed = 160f,
+            PullLongRangeDistance = 250f,
+        };
+
+        var shortSpeed = WinchSystem.ComputeDirectPullSpeed(20f, config);
+        var mediumSpeed = WinchSystem.ComputeDirectPullSpeed(125f, config);
+        var longSpeed = WinchSystem.ComputeDirectPullSpeed(250f, config);
+
+        Assert.True(shortSpeed >= 90f);
+        Assert.True(mediumSpeed > shortSpeed);
+        Assert.True(longSpeed > mediumSpeed);
+        Assert.InRange(longSpeed, 159.99f, 160.01f);
+    }
+
+    [Fact]
+    public void LongRangeStepActuallyMovesAtExtremeSpeed()
+    {
+        var config = new WinchConfig
+        {
+            PullTargetInwardSpeed = 90f,
+            PullLongRangeInwardSpeed = 160f,
+            PullLongRangeDistance = 250f,
+        };
+
+        var result = WinchSystem.Step(
+            PlayerState.Initial,
+            ActiveAt(new Vector3(0f, 0f, -300f)),
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.True(result.Winch.IsPulling);
+        Assert.InRange(
+            result.Player.Velocity.Length(),
+            159.99f,
+            160.01f);
+        Assert.True(result.Player.Velocity.Z < -159f);
+    }
+
+    [Fact]
     public void HorizontalWallArrivalUsesCapsuleRadiusInsteadOfOldFixedDistance()
     {
         var config = TestConfig();
@@ -196,6 +260,8 @@ public sealed class WinchDirectPullTests
             PullInitialImpulse = 24f,
             PullRadialAcceleration = 300f,
             PullTargetInwardSpeed = 42f,
+            PullLongRangeInwardSpeed = 42f,
+            PullLongRangeDistance = 250f,
             ArrivalContactTolerance = 0.06f,
         };
 
