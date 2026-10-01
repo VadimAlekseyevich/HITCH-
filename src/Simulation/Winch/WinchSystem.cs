@@ -136,6 +136,23 @@ public static class WinchSystem
             });
     }
 
+    public static RayQuery BuildAimRay(
+        in PlayerState player,
+        WinchConfig config,
+        Player.PlayerLocomotionConfig locomotionConfig)
+    {
+        var eye = player.Position
+            + (Vector3.UnitY * locomotionConfig.EyeOffsetFromCapsuleCenter);
+        var direction = ViewForward(
+            player.ViewYawRadians,
+            player.ViewPitchRadians);
+
+        return new RayQuery(
+            eye,
+            eye + (direction * config.GrappleRange),
+            config.GrappleCollisionMask);
+    }
+
     public static float GetReelInMultiplier(
         float playerSpeed,
         WinchConfig config)
@@ -164,16 +181,7 @@ public static class WinchSystem
         Player.PlayerLocomotionConfig locomotionConfig,
         IWorldQuery world)
     {
-        var eye = player.Position
-            + (Vector3.UnitY * locomotionConfig.EyeOffsetFromCapsuleCenter);
-        var direction = ViewForward(
-            player.ViewYawRadians,
-            player.ViewPitchRadians);
-
-        var query = new RayQuery(
-            eye,
-            eye + (direction * config.GrappleRange),
-            config.GrappleCollisionMask);
+        var query = BuildAimRay(player, config, locomotionConfig);
 
         if (!world.TryRaycast(query, out var hit))
         {
