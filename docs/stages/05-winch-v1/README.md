@@ -970,3 +970,18 @@ Three thin columns were added to the city specifically for rope-wrap playtesting
 These make it easier to test winding/unwinding without relying only on large building corners.
 
 The human gate should now focus on whether the rope actually feels like it catches and releases geometry naturally rather than whether the mathematical representation is physically exact.
+
+
+### Iteration 17 collision correction
+
+A follow-up human playtest found that automatic hard-stop on any wall contact caused the player to hang unnaturally against geometry even while the cable should continue pulling.
+
+The active/current rule is now:
+
+- remove only velocity into the collision normal;
+- preserve tangential velocity along walls/ceilings;
+- keep grapple active through ordinary contacts;
+- allow rope wrapping / corner bends to redirect the pull;
+- reserve full zero-velocity stop for actual anchor latch.
+
+Older notes describing wall/ceiling hard-stop are historical behavior from earlier iterations, not the current Stage 5 rule.
