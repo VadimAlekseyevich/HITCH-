@@ -1,4 +1,5 @@
 using Hitch.Simulation.Player;
+using Hitch.Simulation.Winch;
 
 namespace Hitch.Simulation;
 
@@ -18,6 +19,8 @@ public sealed record SimulationConfig
 
     public PlayerLocomotionConfig Locomotion { get; init; } = new();
 
+    public WinchConfig Winch { get; init; } = new();
+
     /// <summary>
     /// Prevents the first-person view from reaching the exact vertical singularity.
     /// </summary>
@@ -28,7 +31,9 @@ public sealed record SimulationConfig
     public void Validate()
     {
         ArgumentNullException.ThrowIfNull(Locomotion);
+        ArgumentNullException.ThrowIfNull(Winch);
         Locomotion.Validate();
+        Winch.Validate();
 
         if (TickRateHz <= 0)
         {
