@@ -16,12 +16,12 @@ public sealed record WinchConfig
     /// Direct grapple speed for short/medium pulls.
     /// Iteration 15 scales absolute speed down with the compact city while preserving strong relative motion.
     /// </summary>
-    public float PullTargetInwardSpeed { get; init; } = 22.5f;
+    public float PullTargetInwardSpeed { get; init; } = 30f;
 
     /// <summary>
     /// Maximum direct grapple speed reached on long lines.
     /// </summary>
-    public float PullLongRangeInwardSpeed { get; init; } = 40f;
+    public float PullLongRangeInwardSpeed { get; init; } = 52f;
 
     /// <summary>
     /// Anchor distance at which the long-range grapple speed reaches its maximum.
@@ -31,12 +31,12 @@ public sealed record WinchConfig
     /// <summary>
     /// Immediate speed multiplier on the exact tick a fresh grapple starts.
     /// </summary>
-    public float PullLaunchInitialMultiplier { get; init; } = 2.0f;
+    public float PullLaunchInitialMultiplier { get; init; } = 2.25f;
 
     /// <summary>
     /// Stronger multiplier reached shortly after launch, creating a distinct second-stage blast.
     /// </summary>
-    public float PullLaunchPeakMultiplier { get; init; } = 4.0f;
+    public float PullLaunchPeakMultiplier { get; init; } = 4.5f;
 
     /// <summary>
     /// Time from grapple fire to the second-stage launch peak.
@@ -46,7 +46,7 @@ public sealed record WinchConfig
     /// <summary>
     /// Time after the peak for the launch bonus to decay naturally back to sustained pull speed.
     /// </summary>
-    public float PullLaunchDecaySeconds { get; init; } = 0.65f;
+    public float PullLaunchDecaySeconds { get; init; } = 0.72f;
 
     /// <summary>
     /// Extra distance beyond the capsule's geometric support radius used to recognize that
