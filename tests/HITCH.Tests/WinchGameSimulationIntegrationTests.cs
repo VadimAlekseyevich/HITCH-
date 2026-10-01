@@ -75,8 +75,9 @@ public sealed class WinchGameSimulationIntegrationTests
             PlayerInput.Neutral,
             new NoHitWorld());
 
-        Assert.False(after.Winch.HasTarget);
+        Assert.True(after.Winch.HasTarget);
         Assert.False(after.Winch.IsPulling);
+        Assert.True(after.Winch.IsLatched);
 
         // Full reel-in clears orbital/tangential motion.
         Assert.InRange(
@@ -132,13 +133,14 @@ public sealed class WinchGameSimulationIntegrationTests
             PlayerInput.Neutral,
             new NoHitWorld());
 
-        Assert.False(after.Winch.HasTarget);
+        Assert.True(after.Winch.HasTarget);
         Assert.False(after.Winch.IsPulling);
+        Assert.True(after.Winch.IsLatched);
         Assert.Equal(Vector3.Zero, after.Player.Velocity);
     }
 
     [Fact]
-    public void GravityResumesOnTickAfterHardSettle()
+    public void CompletedGrappleRemainsStoppedUntilRmbReleasesOrRetargets()
     {
         var config = TestSimulationConfig() with
         {
@@ -173,14 +175,27 @@ public sealed class WinchGameSimulationIntegrationTests
         var settled = simulation.Step(
             PlayerInput.Neutral,
             new NoHitWorld());
+
+        Assert.True(settled.Winch.IsLatched);
         Assert.Equal(Vector3.Zero, settled.Player.Velocity);
 
-        var resumed = simulation.Step(
-            PlayerInput.Neutral,
+        for (var i = 0; i < 10; i++)
+        {
+            var held = simulation.Step(
+                PlayerInput.Neutral,
+                new NoHitWorld());
+
+            Assert.True(held.Winch.IsLatched);
+            Assert.Equal(settled.Player.Position, held.Player.Position);
+            Assert.Equal(Vector3.Zero, held.Player.Velocity);
+        }
+
+        var released = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
             new NoHitWorld());
 
-        Assert.True(resumed.Player.Velocity.Y < 0f);
-        Assert.True(resumed.Player.Velocity.Y > -1f);
+        Assert.False(released.Winch.HasTarget);
+        Assert.True(released.Player.Velocity.Y < 0f);
     }
 
     [Fact]
