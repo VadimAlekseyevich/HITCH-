@@ -60,6 +60,35 @@ public sealed class WinchRopeWrapTests
     }
 
     [Fact]
+    public void BendSearchMovesAlongSurfaceTowardClearCorner()
+    {
+        var config = TestConfig() with
+        {
+            RopeContactEdgeSearchDistance = 8f,
+        };
+        var anchor = new Vector3(10f, 0f, 4f);
+        var path =
+            WinchPathState.AtWorldAnchor(anchor);
+        var world = new EdgeSearchWorld(anchor);
+
+        var updated = WinchSystem.UpdateRopePath(
+            Vector3.Zero,
+            path,
+            config,
+            world);
+
+        Assert.Equal(1, updated.ContactCount);
+        Assert.InRange(
+            updated.CurrentPullPoint.X,
+            1.90f,
+            1.94f);
+        Assert.InRange(
+            updated.CurrentPullPoint.Z,
+            1.90f,
+            2.10f);
+    }
+
+    [Fact]
     public void EndpointHitDoesNotCreateDuplicateBend()
     {
         var config = TestConfig();
@@ -199,6 +228,64 @@ public sealed class WinchRopeWrapTests
         {
             hit = _hit;
             return true;
+        }
+
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
+        {
+            hit = default;
+            return false;
+        }
+    }
+
+    private sealed class EdgeSearchWorld : IWorldQuery
+    {
+        private readonly Vector3 _anchor;
+
+        public EdgeSearchWorld(Vector3 anchor)
+        {
+            _anchor = anchor;
+        }
+
+        public bool TryRaycast(
+            in RayQuery query,
+            out WorldHit hit)
+        {
+            if (Vector3.DistanceSquared(
+                    query.To,
+                    _anchor)
+                < 1e-6f)
+            {
+                if (query.From.LengthSquared() < 1e-6f)
+                {
+                    // Initial player->anchor obstruction: side face of a box.
+                    hit = new WorldHit(
+                        new Vector3(2f, 0f, 0f),
+                        -Vector3.UnitX,
+                        0.2f,
+                        1u);
+                    return true;
+                }
+
+                // Candidate->anchor clears only after sliding about two meters
+                // along the contacted face toward its edge.
+                if (query.From.Z < 2f)
+                {
+                    hit = new WorldHit(
+                        new Vector3(2f, 0f, 0.5f),
+                        -Vector3.UnitX,
+                        0.2f,
+                        1u);
+                    return true;
+                }
+
+                hit = default;
+                return false;
+            }
+
+            hit = default;
+            return false;
         }
 
         public bool TrySweepCapsule(
