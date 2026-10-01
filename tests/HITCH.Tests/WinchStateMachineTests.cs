@@ -39,10 +39,11 @@ public sealed class WinchStateMachineTests
 
         Assert.Equal(
             new Vector3(2f, 3.65f, 4f),
-            world.LastRay.From);
+            world.FirstRay.From);
         Assert.Equal(
             new Vector3(2f, 3.65f, -9996f),
-            world.LastRay.To);
+            world.FirstRay.To);
+        Assert.True(world.RayCount >= 2);
     }
 
     [Fact]
@@ -129,11 +130,22 @@ public sealed class WinchStateMachineTests
             _hit = hit;
         }
 
+        public RayQuery FirstRay { get; private set; }
+
         public RayQuery LastRay { get; private set; }
+
+        public int RayCount { get; private set; }
 
         public bool TryRaycast(in RayQuery query, out WorldHit hit)
         {
+            if (RayCount == 0)
+            {
+                FirstRay = query;
+            }
+
             LastRay = query;
+            RayCount++;
+
             hit = new WorldHit(
                 _hit,
                 Vector3.UnitZ,
