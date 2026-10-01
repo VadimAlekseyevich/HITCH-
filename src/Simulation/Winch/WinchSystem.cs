@@ -9,16 +9,12 @@ namespace Hitch.Simulation.Winch;
 /// <summary>
 /// Stage 5 single-cable action prototype.
 ///
-/// RMB raycasts/replaces the cable and starts pull immediately.
-/// Gameplay rope length is unlimited inside the playable space.
+/// RMB attaches/replaces a finite cable. LMB starts automatic reel-in.
+/// The rope remains swingable under gravity before and during reel-in.
 /// </summary>
 public static class WinchSystem
 {
     private const float TinyDistanceSquared = 1e-10f;
-
-    // Finite endpoint required by the world-query API only.
-    // This is deliberately far beyond the playable room and is NOT a gameplay range cap.
-    private const float EngineSafeRaycastDistance = 10_000f;
 
     public static WinchStepResult Step(
         in PlayerState player,
@@ -39,74 +35,112 @@ public static class WinchSystem
         if (input.Has(PlayerButtons.GrappleDetachPressed)
             && previousWinch.HasTarget)
         {
-            // Explicit Space detach: remove the cable but preserve the exact current velocity.
-            // Ordinary locomotion/gravity resumes after this step.
+            // Space is the only explicit detach. Preserve full flight velocity.
             return new WinchStepResult(
                 updatedPlayer,
                 WinchState.Initial,
                 false);
         }
 
-        if (input.Has(PlayerButtons.GrapplePullPressed))
+        if (input.Has(PlayerButtons.GrappleShootPressed))
         {
-            winch = TryShootActiveCable(
-                player,
-                config,
-                locomotionConfig,
-                world);
-
-            // RMB miss is an explicit release. Do not carry old grapple momentum forward.
-            if (!winch.HasTarget)
+            // RMB only attaches/replaces the rope. A miss leaves an existing cable alone;
+            // Space is the deliberate detach control.
+            if (TryShootCable(
+                    player,
+                    config,
+                    locomotionConfig,
+                    world,
+                    out var shot))
             {
-                updatedPlayer = updatedPlayer with
-                {
-                    Velocity = Vector3.Zero,
-                    IsGrounded = false,
-                };
+                winch = shot;
             }
         }
 
-        if (!winch.IsPulling)
+        if (input.Has(PlayerButtons.GrappleReelPressed)
+            && winch.HasTarget
+            && !winch.IsLatched
+            && !winch.IsPulling)
+        {
+            // LMB starts automatic reel-in once. Repeated clicks while reeling do not
+            // restart the launch envelope.
+            winch = winch with
+            {
+                IsPulling = true,
+                PullElapsedSeconds = 0f,
+            };
+        }
+
+        if (!winch.HasTarget)
         {
             return new WinchStepResult(
                 updatedPlayer,
-                winch.HasTarget ? winch : WinchState.Initial,
+                WinchState.Initial,
                 false);
         }
 
+        if (winch.IsLatched)
+        {
+            return new WinchStepResult(
+                updatedPlayer with
+                {
+                    Velocity = Vector3.Zero,
+                    IsGrounded = false,
+                },
+                winch,
+                false);
+        }
+
+        var previousPath = winch.Path;
         var updatedPath = UpdateRopePath(
             updatedPlayer.Position,
-            winch.Path,
+            previousPath,
             config,
             world);
+        var pathChanged = updatedPath != previousPath;
+
         winch = winch with
         {
             Path = updatedPath,
         };
 
-        var toTarget =
+        var toPullPoint =
             winch.Path.CurrentPullPoint - updatedPlayer.Position;
-        var distanceSquared = toTarget.LengthSquared();
-        var distance = distanceSquared <= TinyDistanceSquared
-            ? 0f
-            : MathF.Sqrt(distanceSquared);
-        var ropePathLength =
-            ComputeRopePathLength(
-                updatedPlayer.Position,
-                winch.Path);
+        var pullPointDistanceSquared = toPullPoint.LengthSquared();
+        var pullPointDistance =
+            pullPointDistanceSquared <= TinyDistanceSquared
+                ? 0f
+                : MathF.Sqrt(pullPointDistanceSquared);
+        var direction =
+            pullPointDistance > 0f
+                ? toPullPoint / pullPointDistance
+                : Vector3.Zero;
 
-        var direction = distance > 0f
-            ? toTarget / distance
-            : Vector3.Zero;
+        var pathLength = ComputeRopePathLength(
+            updatedPlayer.Position,
+            winch.Path);
 
-        if (HasReachedAnchor(
+        var ropeLength = winch.RopeLength > 0f
+            ? winch.RopeLength
+            : MathF.Min(pathLength, config.MaxRopeLength);
+
+        // A new geometric bend can make the polyline longer without the player moving.
+        // Pay out only that geometric increase (up to the global rope limit) so adding a
+        // corner cannot become an artificial catapult.
+        if (pathChanged && pathLength > ropeLength)
+        {
+            ropeLength = MathF.Min(
+                pathLength,
+                config.MaxRopeLength);
+        }
+
+        if (winch.IsPulling
+            && HasReachedAnchor(
                 updatedPlayer,
                 winch,
                 config,
                 locomotionConfig))
         {
-            // Complete reel-in: no residual tangential/orbital velocity.
-            // The anchor remains latched so the player can actually arrive and stay stopped.
             updatedPlayer = updatedPlayer with
             {
                 Velocity = Vector3.Zero,
@@ -118,39 +152,90 @@ public static class WinchSystem
                 winch with
                 {
                     IsPulling = false,
-                    LastActualDistance = ropePathLength,
+                    IsArrivedLatched = true,
+                    RopeLength = ropeLength,
+                    LastActualDistance = pathLength,
                     LastPullAcceleration = 0f,
                 },
                 true);
         }
 
-        // Iteration 16 turns the active grapple into a controlled swing.
-        // Gravity acts while attached. The cable owns only the radial component toward the
-        // anchor; tangential velocity survives so the player can arc around the hook point.
-        var pullSpeed = ComputeDirectPullSpeed(
-            ropePathLength,
-            winch.PullElapsedSeconds,
-            config);
+        var reelSpeed = 0f;
+        if (winch.IsPulling)
+        {
+            reelSpeed = ComputeDirectPullSpeed(
+                ropeLength,
+                winch.PullElapsedSeconds,
+                config);
 
-        var gravityVelocity = updatedPlayer.Velocity
+            var fixedTailLength =
+                MathF.Max(0f, pathLength - pullPointDistance);
+            var minimumRopeLength = fixedTailLength;
+
+            ropeLength = MathF.Max(
+                minimumRopeLength,
+                ropeLength - (reelSpeed * fixedDeltaSeconds));
+        }
+
+        var gravityVelocity =
+            updatedPlayer.Velocity
             + new Vector3(
                 0f,
                 -locomotionConfig.Gravity * fixedDeltaSeconds,
                 0f);
 
-        var velocity = Vector3.Zero;
-        if (distance > 0f)
+        var velocity = gravityVelocity;
+        var appliedRadialAcceleration = 0f;
+
+        if (pullPointDistance > 0f)
         {
             var radialSpeed =
-                Vector3.Dot(gravityVelocity, direction);
+                Vector3.Dot(velocity, direction);
             var tangentialVelocity =
-                gravityVelocity - (direction * radialSpeed);
+                velocity - (direction * radialSpeed);
 
-            // Never let inherited velocity fight the cable by moving away from the anchor.
-            // The cable sets a predictable inward reel speed; only tangent motion is preserved.
+            var excessLength =
+                MathF.Max(0f, pathLength - ropeLength);
+            var ropeTaut =
+                pathLength >= ropeLength - config.RopeTautTolerance;
+
+            if (ropeTaut)
+            {
+                var requiredInwardSpeed =
+                    winch.IsPulling
+                        ? reelSpeed
+                        : 0f;
+
+                if (excessLength > 0f)
+                {
+                    requiredInwardSpeed = MathF.Max(
+                        requiredInwardSpeed,
+                        MathF.Min(
+                            excessLength / fixedDeltaSeconds,
+                            config.RopeConstraintCorrectionSpeed));
+                }
+
+                if (radialSpeed < requiredInwardSpeed)
+                {
+                    var neededDelta =
+                        requiredInwardSpeed - radialSpeed;
+
+                    // Crucial for bends/walls: never rotate the full velocity vector in one
+                    // tick. Radial tension ramps at a bounded acceleration.
+                    var addedRadialSpeed = MathF.Min(
+                        neededDelta,
+                        config.PullRadialAcceleration
+                        * fixedDeltaSeconds);
+
+                    radialSpeed += addedRadialSpeed;
+                    appliedRadialAcceleration =
+                        addedRadialSpeed / fixedDeltaSeconds;
+                }
+            }
+
             velocity =
                 tangentialVelocity
-                + (direction * pullSpeed);
+                + (direction * radialSpeed);
         }
 
         updatedPlayer = updatedPlayer with
@@ -159,19 +244,17 @@ public static class WinchSystem
             IsGrounded = false,
         };
 
-        var appliedRadialAcceleration =
-            distance > 0f
-                ? pullSpeed / fixedDeltaSeconds
-                : 0f;
-
         return new WinchStepResult(
             updatedPlayer,
             winch with
             {
-                LastActualDistance = ropePathLength,
+                RopeLength = ropeLength,
+                LastActualDistance = pathLength,
                 LastPullAcceleration = appliedRadialAcceleration,
                 PullElapsedSeconds =
-                    winch.PullElapsedSeconds + fixedDeltaSeconds,
+                    winch.IsPulling
+                        ? winch.PullElapsedSeconds + fixedDeltaSeconds
+                        : 0f,
             },
             false);
     }
@@ -518,7 +601,7 @@ public static class WinchSystem
 
         return new RayQuery(
             eye,
-            eye + (direction * EngineSafeRaycastDistance),
+            eye + (direction * config.MaxRopeLength),
             config.GrappleCollisionMask);
     }
 
@@ -612,11 +695,12 @@ public static class WinchSystem
             + config.ArrivalContactTolerance;
     }
 
-    private static WinchState TryShootActiveCable(
+    private static bool TryShootCable(
         in PlayerState player,
         WinchConfig config,
         PlayerLocomotionConfig locomotionConfig,
-        IWorldQuery world)
+        IWorldQuery world,
+        out WinchState winch)
     {
         var query = BuildAimRay(
             player,
@@ -625,19 +709,36 @@ public static class WinchSystem
 
         if (!world.TryRaycast(query, out var hit))
         {
-            return WinchState.Initial;
+            winch = default;
+            return false;
         }
 
-        return new WinchState(
+        var ropeLength =
+            Vector3.Distance(
+                player.Position,
+                hit.Position);
+
+        if (ropeLength > config.MaxRopeLength)
+        {
+            winch = default;
+            return false;
+        }
+
+        winch = new WinchState(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(
                 hit.Position,
                 hit.Normal),
-            true,
-            Vector3.Distance(
-                player.Position,
-                hit.Position),
-            0f);
+            false,
+            ropeLength,
+            0f)
+        {
+            RopeLength = ropeLength,
+            PullElapsedSeconds = 0f,
+            IsArrivedLatched = false,
+        };
+
+        return true;
     }
 
     private static Vector3 ViewForward(
