@@ -73,7 +73,7 @@ public static class WinchSystem
                 locomotionConfig))
         {
             // Complete reel-in: no residual tangential/orbital velocity.
-            // Locomotion will apply ordinary gravity immediately after this step.
+            // The anchor remains latched so the player can actually arrive and stay stopped.
             updatedPlayer = updatedPlayer with
             {
                 Velocity = Vector3.Zero,
