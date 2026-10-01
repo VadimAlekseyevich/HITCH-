@@ -196,7 +196,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 11, ZERO INERTIA.**
+**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 12, ODM-SCALE SPEED + ZERO INERTIA.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
@@ -224,7 +224,7 @@ During travel:
 - every simulation tick sets velocity directly toward the active anchor;
 - existing tangential/orbital velocity is discarded;
 - ordinary gravity and air control are not mixed into active grapple travel;
-- current direct pull speed is **42 m/s**;
+- direct pull speed is distance-scaled from roughly **90 m/s** on short lines to **160 m/s** on long lines;
 - wall/ceiling impacts hard-stop velocity instead of preserving tangential slide;
 - RMB miss/release clears carried grapple velocity.
 
