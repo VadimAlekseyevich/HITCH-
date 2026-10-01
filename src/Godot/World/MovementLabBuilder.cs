@@ -22,6 +22,12 @@ public partial class MovementLabBuilder : Node3D
         Roughness = 0.82f,
     };
 
+    private readonly StandardMaterial3D _forbiddenMaterial = new()
+    {
+        AlbedoColor = new Color(0.72f, 0.12f, 0.12f),
+        Roughness = 0.82f,
+    };
+
     public override void _Ready()
     {
         AddEnvironment();
@@ -77,13 +83,23 @@ public partial class MovementLabBuilder : Node3D
         AddBox("SpeedLaneWestRail", new Vector3(-7f, 1f, 22f), new Vector3(1f, 2f, 28f));
         AddBox("SpeedLaneEastRail", new Vector3(7f, 1f, 22f), new Vector3(1f, 2f, 28f));
         AddBox("SpeedLaneCrashWall", new Vector3(0f, 3f, 8f), new Vector3(15f, 6f, 1f));
+
+        // Collision layer 2: physically solid for locomotion, intentionally invisible to grapple
+        // targeting because WinchConfig.GrappleCollisionMask defaults to layer 1 only.
+        AddBox(
+            "NoGrappleBlock",
+            new Vector3(23f, 2f, 28f),
+            new Vector3(6f, 4f, 6f),
+            _forbiddenMaterial,
+            collisionLayer: 2u);
     }
 
     private void AddBox(
         string name,
         Vector3 position,
         Vector3 size,
-        Material? material = null)
+        Material? material = null,
+        uint collisionLayer = 1u)
     {
         AddChild(new CsgBox3D
         {
@@ -92,6 +108,7 @@ public partial class MovementLabBuilder : Node3D
             Size = size,
             Material = material ?? _obstacleMaterial,
             UseCollision = true,
+            CollisionLayer = collisionLayer,
         });
     }
 }
