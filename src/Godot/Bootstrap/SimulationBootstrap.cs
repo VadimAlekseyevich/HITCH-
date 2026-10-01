@@ -22,6 +22,11 @@ public partial class SimulationBootstrap : Node
     private SimulationDebugOverlay _overlay = null!;
     private DebugLineDrawer3D _debugLines = null!;
     private PlayerInput _lastInput = PlayerInput.Neutral;
+    private bool _spawnSmokeValidationEnabled;
+    private float _expectedSpawnCenterY;
+
+    private const ulong SpawnSmokeValidationTick = 45UL;
+    private const float SpawnSmokeMaximumDropMeters = 0.10f;
 
     public override void _Ready()
     {
@@ -48,6 +53,9 @@ public partial class SimulationBootstrap : Node
                 Position = new NumericsVector3(spawn.X, capsuleCenterY, spawn.Z),
             },
         };
+
+        _expectedSpawnCenterY = capsuleCenterY;
+        _spawnSmokeValidationEnabled = HasUserArgument("--hitch-smoke");
 
         _simulation = new GameSimulation(config, initialState);
         _world = new GodotWorldQuery(_playerRoot);
@@ -77,6 +85,11 @@ public partial class SimulationBootstrap : Node
 
         _lastInput = _input.ConsumePhysicsTickInput();
         _simulation.Step(_lastInput, _world);
+
+        if (ValidateSpawnSmokeIfRequested())
+        {
+            return;
+        }
 
         ApplySimulationPresentation();
         DrawDebugVectors();
@@ -150,6 +163,48 @@ public partial class SimulationBootstrap : Node
         }
 
         _debugLines.Commit();
+    }
+
+    private bool ValidateSpawnSmokeIfRequested()
+    {
+        if (!_spawnSmokeValidationEnabled
+            || _simulation.State.Tick.Value < SpawnSmokeValidationTick)
+        {
+            return false;
+        }
+
+        var player = _simulation.State.Player;
+        var minimumAllowedY =
+            _expectedSpawnCenterY - SpawnSmokeMaximumDropMeters;
+
+        if (player.Position.Y < minimumAllowedY || !player.IsGrounded)
+        {
+            GD.PushError(
+                $"HITCH_SMOKE_SPAWN_FAILED tick={_simulation.State.Tick.Value} " +
+                $"y={player.Position.Y:F4} expected>={minimumAllowedY:F4} " +
+                $"grounded={player.IsGrounded}");
+            GetTree().Quit(1);
+            return true;
+        }
+
+        GD.Print(
+            $"HITCH_SMOKE_SPAWN_STABLE tick={_simulation.State.Tick.Value} " +
+            $"y={player.Position.Y:F4} grounded={player.IsGrounded}");
+        GetTree().Quit(0);
+        return true;
+    }
+
+    private static bool HasUserArgument(string expected)
+    {
+        foreach (var argument in OS.GetCmdlineUserArgs())
+        {
+            if (argument == expected)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static Vector3 ToGodot(NumericsVector3 value) =>
