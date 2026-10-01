@@ -14,7 +14,8 @@ public sealed class WinchConfigTests
 
         Assert.True(config.GrappleRange > 0f);
         Assert.True(config.PullInitialImpulse > 0f);
-        Assert.True(config.PullAcceleration > 0f);
+        Assert.True(config.PullRadialAcceleration > 0f);
+        Assert.True(config.PullTargetInwardSpeed > 0f);
         Assert.True(config.ArrivalDistance > 0f);
     }
 
@@ -36,7 +37,7 @@ public sealed class WinchConfigTests
         {
             Winch = new WinchConfig
             {
-                PullAcceleration = float.NaN,
+                PullRadialAcceleration = float.NaN,
             },
         };
 
