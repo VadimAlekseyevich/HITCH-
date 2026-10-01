@@ -61,7 +61,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Exact spring force law | TBD | Must remain tunable during local movement phase. |
+| Exact spring force law | TBD | Current Stage 5 experiment is a one-sided spring with pretension, outward damping, and slack take-up. It remains tunable and must not be treated as final until human movement testing. |
 
 # Combat
 
