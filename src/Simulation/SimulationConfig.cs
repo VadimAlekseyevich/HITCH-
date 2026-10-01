@@ -1,3 +1,5 @@
+using Hitch.Simulation.Player;
+
 namespace Hitch.Simulation;
 
 /// <summary>
@@ -14,6 +16,8 @@ public sealed record SimulationConfig
 
     public int TickRateHz { get; init; } = TemporaryDefaultTickRateHz;
 
+    public PlayerLocomotionConfig Locomotion { get; init; } = new();
+
     /// <summary>
     /// Prevents the first-person view from reaching the exact vertical singularity.
     /// </summary>
@@ -23,6 +27,9 @@ public sealed record SimulationConfig
 
     public void Validate()
     {
+        ArgumentNullException.ThrowIfNull(Locomotion);
+        Locomotion.Validate();
+
         if (TickRateHz <= 0)
         {
             throw new ArgumentOutOfRangeException(
