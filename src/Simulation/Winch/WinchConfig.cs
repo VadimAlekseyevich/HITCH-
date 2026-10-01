@@ -1,36 +1,40 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Current Stage 5 iteration: simple selected-point direct pull.
+/// Stage 5 iteration 3: selected point + one-click automatic pull.
 ///
-/// This deliberately replaces the previous spring/reel experiment for the active human playtest.
-/// It is not assumed to be the final HITCH! winch model.
+/// LMB selects a world point and cancels any previous pull.
+/// One RMB click starts a strong automatic pull until the target is reached or LMB is clicked again.
 /// </summary>
 public sealed record WinchConfig
 {
-    public float GrappleRange { get; init; } = 24f;
+    public float GrappleRange { get; init; } = 72f;
 
-    /// <summary>
-    /// World layers that may be selected as grapple targets.
-    /// </summary>
     public uint GrappleCollisionMask { get; init; } = 1u;
 
     /// <summary>
-    /// While RMB pull is active, player velocity is immediately set toward the selected point
-    /// at this speed. There is intentionally no acceleration ramp in this prototype.
+    /// Immediate delta-velocity applied once when RMB starts the pull.
+    /// This removes the slow spool-up feel from the previous prototype.
     /// </summary>
-    public float PullSpeed { get; init; } = 18f;
+    public float PullInitialImpulse { get; init; } = 18f;
 
     /// <summary>
-    /// The target lives on a surface while the player is represented by a capsule center.
-    /// Arrival must therefore happen before the center tries to reach the exact surface point.
+    /// Continuous acceleration toward the selected target while automatic pull is active.
+    /// Existing tangential momentum is preserved instead of being replaced every tick.
     /// </summary>
-    public float ArrivalDistance { get; init; } = 0.75f;
+    public float PullAcceleration { get; init; } = 32f;
+
+    /// <summary>
+    /// Target surface points cannot be reached by the capsule center exactly.
+    /// Pull ends once the center is within this distance.
+    /// </summary>
+    public float ArrivalDistance { get; init; } = 0.9f;
 
     public void Validate()
     {
         RequireFinitePositive(GrappleRange, nameof(GrappleRange));
-        RequireFinitePositive(PullSpeed, nameof(PullSpeed));
+        RequireFinitePositive(PullInitialImpulse, nameof(PullInitialImpulse));
+        RequireFinitePositive(PullAcceleration, nameof(PullAcceleration));
         RequireFinitePositive(ArrivalDistance, nameof(ArrivalDistance));
     }
 
