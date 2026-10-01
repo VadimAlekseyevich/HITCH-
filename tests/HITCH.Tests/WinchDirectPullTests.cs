@@ -14,9 +14,9 @@ public sealed class WinchDirectPullTests
     {
         var config = new WinchConfig
         {
-            PullInitialImpulse = 30f,
-            PullRadialAcceleration = 420f,
-            PullTargetInwardSpeed = 55f,
+            PullInitialImpulse = 24f,
+            PullRadialAcceleration = 300f,
+            PullTargetInwardSpeed = 42f,
             ArrivalDistance = 0.5f,
         };
 
@@ -31,7 +31,7 @@ public sealed class WinchDirectPullTests
 
         Assert.True(result.Winch.IsPulling);
         AssertVectorClose(
-            new Vector3(0f, 0f, -55f),
+            new Vector3(0f, 0f, -42f),
             result.Player.Velocity);
         Assert.True(result.Winch.LastPullAcceleration > 0f);
     }
@@ -41,9 +41,9 @@ public sealed class WinchDirectPullTests
     {
         var config = new WinchConfig
         {
-            PullInitialImpulse = 30f,
-            PullRadialAcceleration = 420f,
-            PullTargetInwardSpeed = 55f,
+            PullInitialImpulse = 24f,
+            PullRadialAcceleration = 300f,
+            PullTargetInwardSpeed = 42f,
             ArrivalDistance = 0.5f,
         };
         var player = PlayerState.Initial with
@@ -63,7 +63,7 @@ public sealed class WinchDirectPullTests
 
         Assert.True(result.Winch.IsPulling);
         Assert.InRange(Math.Abs(result.Player.Velocity.X - 17f), 0f, 1e-5f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 55f), 0f, 1e-5f);
+        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 42f), 0f, 1e-5f);
     }
 
     [Fact]
@@ -71,8 +71,8 @@ public sealed class WinchDirectPullTests
     {
         var config = new WinchConfig
         {
-            PullRadialAcceleration = 420f,
-            PullTargetInwardSpeed = 55f,
+            PullRadialAcceleration = 300f,
+            PullTargetInwardSpeed = 42f,
             ArrivalDistance = 0.5f,
         };
         var player = PlayerState.Initial with
@@ -88,10 +88,10 @@ public sealed class WinchDirectPullTests
             config,
             new PlayerLocomotionConfig(),
             new NoHitWorld(),
-            0.1f);
+            0.2f);
 
         Assert.True(result.Player.Velocity.Z < 0f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 12f), 0f, 1e-5f);
+        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 30f), 0f, 1e-5f);
     }
 
     [Fact]
@@ -99,8 +99,8 @@ public sealed class WinchDirectPullTests
     {
         var config = new WinchConfig
         {
-            PullRadialAcceleration = 420f,
-            PullTargetInwardSpeed = 55f,
+            PullRadialAcceleration = 300f,
+            PullTargetInwardSpeed = 42f,
         };
         var player = PlayerState.Initial with
         {
@@ -134,9 +134,9 @@ public sealed class WinchDirectPullTests
             Input(PlayerButtons.GrapplePullPressed),
             new WinchConfig
             {
-                PullInitialImpulse = 30f,
-                PullRadialAcceleration = 420f,
-                PullTargetInwardSpeed = 55f,
+                PullInitialImpulse = 24f,
+                PullRadialAcceleration = 300f,
+                PullTargetInwardSpeed = 42f,
             },
             new PlayerLocomotionConfig(),
             new FixedHitWorld(newTarget),
@@ -145,7 +145,7 @@ public sealed class WinchDirectPullTests
         Assert.True(result.Winch.HasTarget);
         Assert.True(result.Winch.IsPulling);
         Assert.Equal(newTarget, result.Winch.Path.CurrentPullPoint);
-        Assert.True(result.Player.Velocity.X > velocity.X + 29f);
+        Assert.True(result.Player.Velocity.X > velocity.X + 23f);
         Assert.InRange(
             Math.Abs(result.Player.Velocity.Z - velocity.Z),
             0f,
@@ -173,7 +173,7 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
-    public void ArrivalStopsPullButKeepsTangentialVelocity()
+    public void ArrivalStopsPullAndZeroesAllVelocity()
     {
         var config = new WinchConfig
         {
@@ -197,9 +197,7 @@ public sealed class WinchDirectPullTests
 
         Assert.False(result.Winch.HasTarget);
         Assert.False(result.Winch.IsPulling);
-        AssertVectorClose(
-            new Vector3(4f, -2f, 0f),
-            result.Player.Velocity);
+        Assert.Equal(Vector3.Zero, result.Player.Velocity);
     }
 
     private static PlayerInput Input(PlayerButtons buttons) =>
