@@ -110,8 +110,9 @@ public sealed class WinchDirectPullTests
             new NoHitWorld(),
             1f / 60f);
 
-        Assert.False(result.Winch.HasTarget);
+        Assert.True(result.Winch.HasTarget);
         Assert.False(result.Winch.IsPulling);
+        Assert.True(result.Winch.IsLatched);
         Assert.Equal(Vector3.Zero, result.Player.Velocity);
     }
 
