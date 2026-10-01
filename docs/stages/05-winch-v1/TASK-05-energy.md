@@ -1,6 +1,6 @@
 # Task 05 — Add High-Speed Reel Falloff and Verify Detach Momentum
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Task 04
 
 ## Goal
