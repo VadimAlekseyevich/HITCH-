@@ -4,6 +4,7 @@ namespace Hitch.Simulation.State;
 
 /// <summary>
 /// Minimal gameplay-relevant player state.
+/// Position is the center of the upright gameplay capsule.
 ///
 /// BodyOrientation is intentionally separate from view yaw/pitch. Future physical impact rotation
 /// may affect the body without automatically deciding how the first-person camera should react.
