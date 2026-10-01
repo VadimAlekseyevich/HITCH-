@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 — Winch v1 is technically complete and is now `READY FOR HUMAN GATE`. Run `build_and_run.bat` and evaluate movement feel before proceeding to Stage 6.**
+**Stages 1–4 are complete. Stage 5 is ACTIVE in iteration 2 after the first human movement gate failed. The current build tests a much simpler LMB-select / RMB-direct-pull model before any Stage 6 work.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
