@@ -14,7 +14,7 @@ public sealed class SimulationTelemetry
 
     public float PeakPlayerSpeed { get; private set; }
 
-    public float PeakPullSpeed { get; private set; }
+    public float PeakPullAcceleration { get; private set; }
 
     public ulong TargetSelectionCount { get; private set; }
 
@@ -32,9 +32,9 @@ public sealed class SimulationTelemetry
         var speed = state.Player.Velocity.Length();
 
         PeakPlayerSpeed = MathF.Max(PeakPlayerSpeed, speed);
-        PeakPullSpeed = MathF.Max(
-            PeakPullSpeed,
-            state.Winch.LastPullSpeed);
+        PeakPullAcceleration = MathF.Max(
+            PeakPullAcceleration,
+            state.Winch.LastPullAcceleration);
 
         _speedSampleSum += speed;
         _speedSampleCount++;
@@ -60,7 +60,7 @@ public sealed class SimulationTelemetry
     public void Reset()
     {
         PeakPlayerSpeed = 0f;
-        PeakPullSpeed = 0f;
+        PeakPullAcceleration = 0f;
         TargetSelectionCount = 0;
         PullStartCount = 0;
         PullStopCount = 0;
