@@ -75,7 +75,10 @@ Current contact tuning:
 
 - surface offset: 0.08 m;
 - endpoint tolerance: 0.22 m;
-- minimum contact spacing: 0.35 m.
+- minimum contact spacing: 0.35 m;
+- edge/corner search distance: up to 16 m.
+
+A new bend does not simply stay at the first ray-hit point. For box-like city geometry, the simulation projects toward the old target along the contacted surface and searches for the nearest candidate where both neighboring rope segments are clear. It then refines that point back toward the edge. This is still an approximation, but it prevents the obvious failure mode where one polyline segment immediately cuts through the same building behind a mid-face contact.
 
 ## Pull behavior with bends
 
