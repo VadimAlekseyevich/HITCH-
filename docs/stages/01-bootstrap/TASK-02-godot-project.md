@@ -1,6 +1,6 @@
 # Task 02 — Create Minimal Godot C# Project
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Stage:** 1 — Godot/C# Project Bootstrap  
 **Depends on:** Task 01
 
