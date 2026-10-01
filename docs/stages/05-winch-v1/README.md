@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 13 LAUNCH BURST**
+**Status: READY FOR HUMAN GATE — ITERATION 14 EXPLOSIVE SURGE + SPACE DETACH**
 
 ## Objective
 
@@ -667,3 +667,49 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36916365526
 - room smoke: west/east/back/front/ceiling all detected.
 
 Human feel remains the actual Stage 5 gate.
+
+
+## Human gate result — iteration 13
+
+**Result: IMPROVED / LAUNCH IMPACT STILL TOO WEAK**
+
+Human feedback:
+
+- the temporal burst idea is correct;
+- the launch still does not feel explosive enough;
+- desired profile is not merely "highest speed on frame zero";
+- the cable should launch hard immediately, surge even harder almost immediately afterward, then decay naturally;
+- Space should fully detach the current cable while preserving the current flight direction/speed so the player can convert a grapple burst into free flight.
+
+## Iteration 14 — two-stage explosive surge + Space detach
+
+The sustained ODM-speed model remains:
+
+- short/medium sustained speed around **90 m/s**;
+- long sustained speed up to **160 m/s**.
+
+The launch envelope is now deliberately extreme:
+
+1. **Immediate launch:** 1.75× sustained speed at t = 0.
+2. **Second-stage surge:** smooth rise to 2.75× at t ≈ 0.10 s.
+3. **Natural decay:** smooth fall from the peak back to normal over the next 0.70 s.
+
+At the 160 m/s long-line base this is approximately:
+
+- **280 m/s immediately**;
+- **440 m/s peak** (~1580 km/h);
+- then decay back toward **160 m/s**.
+
+This is still explicit direct velocity, not accumulated physical inertia. A retarget discards the previous direction and starts a new two-stage surge toward the new anchor.
+
+### Space detach
+
+Space is context-sensitive:
+
+- no grapple: ordinary jump intent;
+- grapple active/latched: fully detach current cable;
+- detach preserves the current player velocity;
+- the same Space press is consumed as detach, so it does not also trigger a jump;
+- after detach, ordinary gravity/air locomotion resumes.
+
+This allows the player to deliberately detach during the launch peak and carry that speed into free flight.
