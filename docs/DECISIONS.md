@@ -48,9 +48,10 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Topic | Status | Decision |
 |---|---|---|
 | Targeting | DECIDED | Hitscan/raycast. |
-| Dual cable controls | DECIDED | LMB controls the left cable and RMB controls the right cable; both may be active simultaneously. |
+| Current grapple control | DECIDED | RMB shoots/replaces the single active cable and starts pull immediately; LMB has no grapple action in the active prototype. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
 | Range | DECIDED | No gameplay rope-length limit in the active MVP movement prototype. Finite ray length is engine-only. |
+| Pull completion geometry | DECIDED | Completion must account for capsule geometry rather than a fixed center-to-anchor distance; full completion clears all residual velocity. |
 | Reattachment delay | TBD | Previous cooldown model is not used by the active direct-pull playtest. |
 | Reel control | TBD | Reopened after first human movement gate; Q/E reel controls are disabled in the current direct-pull iteration. |
 | Reel behavior | TBD | Previous accelerating reel motor was rejected for the active playtest iteration. |
@@ -62,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Two independent action-oriented cables: LMB=left, RMB=right. Each click raycasts/replaces that side and starts pull immediately. Both cables can pull simultaneously; their symmetric radial corrections are summed while tangential momentum is preserved. |
+| Current Stage 5 pull model | HYPOTHESIS | One unlimited-length RMB cable. Pull preserves tangential momentum in flight while aggressively building inward radial speed. Completion is capsule-aware; when the body physically reaches the anchor surface, the cable clears and all residual velocity is removed. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
