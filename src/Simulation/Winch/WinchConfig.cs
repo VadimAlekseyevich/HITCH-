@@ -199,7 +199,7 @@ public sealed record WinchConfig
         RequireFiniteNonNegative(
             RopeTautTolerance,
             nameof(RopeTautTolerance));
-        RequireFinitePositive(
+        RequireFiniteNonNegative(
             GasAcceleration,
             nameof(GasAcceleration));
         RequireFiniteNonNegative(
