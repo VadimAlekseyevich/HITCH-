@@ -20,6 +20,7 @@ public partial class SimulationBootstrap : Node
     private Node3D _playerRoot = null!;
     private Node3D _yawPivot = null!;
     private Node3D _pitchPivot = null!;
+    private Camera3D _camera = null!;
     private SimulationDebugOverlay _overlay = null!;
     private DebugLineDrawer3D _debugLines = null!;
     private PlayerInput _lastInput = PlayerInput.Neutral;
@@ -29,12 +30,19 @@ public partial class SimulationBootstrap : Node
     private const ulong SpawnSmokeValidationTick = 45UL;
     private const float SpawnSmokeMaximumDropMeters = 0.10f;
 
+    private const float BaseCameraFovDegrees = 82f;
+    private const float MaximumSpeedCameraFovDegrees = 108f;
+    private const float SpeedFovStartMetersPerSecond = 20f;
+    private const float SpeedFovMaximumMetersPerSecond = 160f;
+    private const float SpeedFovResponsePerTick = 0.18f;
+
     public override void _Ready()
     {
         var spawnMarker = GetNode<Marker3D>("Spawn");
         _playerRoot = GetNode<Node3D>("PlayerView");
         _yawPivot = GetNode<Node3D>("PlayerView/Yaw");
         _pitchPivot = GetNode<Node3D>("PlayerView/Yaw/Pitch");
+        _camera = GetNode<Camera3D>("PlayerView/Yaw/Pitch/Camera3D");
         _overlay = GetNode<SimulationDebugOverlay>("Hud/Status");
         _debugLines = GetNode<DebugLineDrawer3D>("DebugLines");
 
@@ -65,6 +73,8 @@ public partial class SimulationBootstrap : Node
             0f,
             config.Locomotion.EyeOffsetFromCapsuleCenter,
             0f);
+
+        _camera.Fov = BaseCameraFovDegrees;
 
         _input.CaptureMouse();
         ApplySimulationPresentation();
@@ -113,6 +123,25 @@ public partial class SimulationBootstrap : Node
 
         _yawPivot.Rotation = new Vector3(0f, player.ViewYawRadians, 0f);
         _pitchPivot.Rotation = new Vector3(player.ViewPitchRadians, 0f, 0f);
+
+        var speed = player.Velocity.Length();
+        var normalizedSpeed = Mathf.Clamp(
+            (speed - SpeedFovStartMetersPerSecond)
+            / (SpeedFovMaximumMetersPerSecond - SpeedFovStartMetersPerSecond),
+            0f,
+            1f);
+        var easedSpeed = normalizedSpeed
+            * normalizedSpeed
+            * (3f - (2f * normalizedSpeed));
+        var targetFov = Mathf.Lerp(
+            BaseCameraFovDegrees,
+            MaximumSpeedCameraFovDegrees,
+            easedSpeed);
+
+        _camera.Fov = Mathf.Lerp(
+            _camera.Fov,
+            targetFov,
+            SpeedFovResponsePerTick);
     }
 
     private void DrawDebugVectors()
