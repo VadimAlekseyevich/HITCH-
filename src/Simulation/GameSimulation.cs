@@ -35,15 +35,37 @@ public sealed class GameSimulation
     {
         ArgumentNullException.ThrowIfNull(world);
 
-        // Stage 2 establishes state ownership and tick semantics only.
-        // Later stages consume input and world queries to evolve PlayerState.
-        _ = input;
+        // View orientation is gameplay state because aiming/grapple direction will depend on it.
+        // Input adapters provide LookDelta in radians; raw mouse pixels never enter simulation.
+        var player = State.Player;
+        var yaw = WrapRadians(player.ViewYawRadians + input.LookDelta.X);
+        var pitch = Math.Clamp(
+            player.ViewPitchRadians + input.LookDelta.Y,
+            -Config.ViewPitchLimitRadians,
+            Config.ViewPitchLimitRadians);
 
         State = State with
         {
             Tick = State.Tick.Next(),
+            Player = player with
+            {
+                ViewYawRadians = yaw,
+                ViewPitchRadians = pitch,
+            },
         };
 
         return State;
+    }
+
+    private static float WrapRadians(float angle)
+    {
+        var wrapped = (angle + MathF.PI) % MathF.Tau;
+
+        if (wrapped < 0f)
+        {
+            wrapped += MathF.Tau;
+        }
+
+        return wrapped - MathF.PI;
     }
 }
