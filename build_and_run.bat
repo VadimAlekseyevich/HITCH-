@@ -51,7 +51,16 @@ if errorlevel 1 goto :fail
 echo.
 echo [HITCH] Running tests...
 "!DOTNET_CMD!" test "%ROOT%\tests\HITCH.Tests\HITCH.Tests.csproj" -c Debug --no-restore --verbosity normal
-if errorlevel 1 goto :fail
+if errorlevel 1 (
+    echo.
+    echo [HITCH] Test failure details:
+    for /r "%ROOT%\tests\HITCH.Tests\bin\Debug\net8.0\TestResults" %%F in (*.log) do (
+        echo ------------------------------------------------------------
+        echo %%F
+        type "%%F"
+    )
+    goto :fail
+)
 
 if /I "%MODE%"=="test" goto :success
 
