@@ -412,7 +412,7 @@ This stage is successful even if ordinary locomotion is not particularly excitin
 
 # Stage 5 — Winch v1: world-anchor movement
 
-**Status: READY FOR HUMAN GATE — ITERATION 10 SURFACE LATCH + LARGE ARENA**
+**Status: READY FOR HUMAN GATE — ITERATION 11 ZERO INERTIA**
 
 **Task breakdown:** [docs/stages/05-winch-v1/README.md](./stages/05-winch-v1/README.md)
 
@@ -477,9 +477,11 @@ Honor the design intent that the attached system generally tries to stay under t
 
 Exact math is experimental.
 
-### Momentum preservation
+### Momentum behavior
 
-Detaching must preserve earned movement momentum almost completely.
+**Current Stage 5 experiment:** carried grapple inertia is disabled. Active grapple travel directly owns velocity, wall/ceiling impacts hard-stop, and RMB miss/release clears grapple-carried velocity.
+
+The earlier momentum-preservation hypothesis is reopened and may only return if human movement testing specifically supports it.
 
 ### High-speed reel falloff experiment
 
