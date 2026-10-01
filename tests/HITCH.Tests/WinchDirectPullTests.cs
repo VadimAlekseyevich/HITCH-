@@ -116,6 +116,55 @@ public sealed class WinchDirectPullTests
     }
 
     [Fact]
+    public void WallSurfaceContactCompletesDespiteTangentialSlidePastExactAnchorPoint()
+    {
+        var config = TestConfig() with
+        {
+            ArrivalSurfaceCaptureRadius = 1.75f,
+        };
+        var locomotion = new PlayerLocomotionConfig();
+        var player = PlayerState.Initial with
+        {
+            Position = new Vector3(0.50f, 0f, 1.20f),
+            Velocity = new Vector3(-20f, 0f, 14f),
+        };
+        var winch = ActiveAtSurface(
+            Vector3.Zero,
+            Vector3.UnitX);
+
+        Assert.True(
+            WinchSystem.HasReachedAnchor(
+                player,
+                winch,
+                config,
+                locomotion));
+    }
+
+    [Fact]
+    public void TouchingSameWallFarFromSelectedAnchorDoesNotCompletePull()
+    {
+        var config = TestConfig() with
+        {
+            ArrivalSurfaceCaptureRadius = 1.75f,
+        };
+        var locomotion = new PlayerLocomotionConfig();
+        var player = PlayerState.Initial with
+        {
+            Position = new Vector3(0.50f, 0f, 2.25f),
+        };
+        var winch = ActiveAtSurface(
+            Vector3.Zero,
+            Vector3.UnitX);
+
+        Assert.False(
+            WinchSystem.HasReachedAnchor(
+                player,
+                winch,
+                config,
+                locomotion));
+    }
+
+    [Fact]
     public void HorizontalCableDoesNotFinishTooEarlyAtOldPointNineThreshold()
     {
         var point = new Vector3(0.80f, 0f, 0f);
@@ -150,6 +199,16 @@ public sealed class WinchDirectPullTests
         new(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(point),
+            true,
+            Vector3.Distance(Vector3.Zero, point),
+            0f);
+
+    private static WinchState ActiveAtSurface(
+        Vector3 point,
+        Vector3 normal) =>
+        new(
+            WinchTargetState.Selected,
+            WinchPathState.AtWorldAnchor(point, normal),
             true,
             Vector3.Distance(Vector3.Zero, point),
             0f);
