@@ -46,7 +46,7 @@ public sealed class WinchStateMachineTests
     }
 
     [Fact]
-    public void RmbMissClearsCableAndPreservesMomentum()
+    public void RmbMissClearsCableAndKillsMomentum()
     {
         var velocity = new Vector3(8f, 3f, -6f);
 
@@ -61,7 +61,7 @@ public sealed class WinchStateMachineTests
 
         Assert.False(result.Winch.HasTarget);
         Assert.False(result.Winch.IsPulling);
-        Assert.Equal(velocity, result.Player.Velocity);
+        Assert.Equal(Vector3.Zero, result.Player.Velocity);
     }
 
     [Fact]
