@@ -10,210 +10,189 @@ namespace Hitch.Tests;
 public sealed class WinchDirectPullTests
 {
     [Fact]
-    public void RmbShotImmediatelyEstablishesStrongInwardSpeed()
+    public void LeftCableImmediatelyEstablishesStrongInwardSpeed()
     {
-        var config = new WinchConfig
-        {
-            PullInitialImpulse = 24f,
-            PullRadialAcceleration = 300f,
-            PullTargetInwardSpeed = 42f,
-            ArrivalDistance = 0.5f,
-        };
-
         var result = WinchSystem.Step(
             PlayerState.Initial,
             WinchState.Initial,
-            Input(PlayerButtons.GrapplePullPressed),
-            config,
+            Input(PlayerButtons.LeftGrapplePressed),
+            TestConfig(),
             new PlayerLocomotionConfig(),
             new FixedHitWorld(new Vector3(0f, 0f, -20f)),
             0.1f);
 
-        Assert.True(result.Winch.IsPulling);
+        Assert.True(result.Winch.Left.IsPulling);
+        Assert.False(result.Winch.Right.IsPulling);
         AssertVectorClose(
             new Vector3(0f, 0f, -42f),
             result.Player.Velocity);
-        Assert.True(result.Winch.LastPullAcceleration > 0f);
     }
 
     [Fact]
-    public void PullPreservesTangentialSwingWhileForcingInwardRadialSpeed()
+    public void TwoSymmetricCablesCombinePullWithoutSideBias()
     {
-        var config = new WinchConfig
+        var state = new WinchState(
+            ActiveCable(new Vector3(-20f, 0f, -20f)),
+            ActiveCable(new Vector3(20f, 0f, -20f)));
+
+        var result = WinchSystem.Step(
+            PlayerState.Initial,
+            state,
+            PlayerInput.Neutral,
+            TestConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.2f);
+
+        Assert.Equal(2, result.Winch.ActiveCableCount);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.X),
+            0f,
+            1e-4f);
+        Assert.True(result.Player.Velocity.Z < -59f);
+    }
+
+    [Fact]
+    public void TwoCablesPreserveExistingTangentialMomentum()
+    {
+        var state = new WinchState(
+            ActiveCable(new Vector3(-20f, 0f, -20f)),
+            ActiveCable(new Vector3(20f, 0f, -20f)));
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(0f, 15f, 0f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            state,
+            PlayerInput.Neutral,
+            TestConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.2f);
+
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Y - 15f),
+            0f,
+            1e-5f);
+        Assert.True(result.Player.Velocity.Z < -59f);
+    }
+
+    [Fact]
+    public void OneCableArrivalDoesNotStopWhileOtherCableStillPulls()
+    {
+        var config = TestConfig() with
+        {
+            ArrivalDistance = 0.75f,
+        };
+        var state = new WinchState(
+            ActiveCable(new Vector3(0f, 0f, -0.5f)),
+            ActiveCable(new Vector3(0f, 0f, -20f)));
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(8f, 3f, 0f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            state,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            0.1f);
+
+        Assert.False(result.Winch.Left.HasTarget);
+        Assert.True(result.Winch.Right.IsPulling);
+        Assert.NotEqual(Vector3.Zero, result.Player.Velocity);
+        Assert.True(result.Player.Velocity.Z < 0f);
+    }
+
+    [Fact]
+    public void LastCableArrivalStopsAllVelocity()
+    {
+        var config = TestConfig() with
+        {
+            ArrivalDistance = 0.75f,
+        };
+        var state = new WinchState(
+            ActiveCable(new Vector3(0f, 0f, -0.5f)),
+            WinchCableState.Initial);
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(8f, 3f, -20f),
+        };
+
+        var result = WinchSystem.Step(
+            player,
+            state,
+            PlayerInput.Neutral,
+            config,
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.Equal(0, result.Winch.ActiveCableCount);
+        Assert.Equal(Vector3.Zero, result.Player.Velocity);
+    }
+
+    [Fact]
+    public void FasterExistingInwardSpeedIsNotClampedDown()
+    {
+        var player = PlayerState.Initial with
+        {
+            Velocity = new Vector3(8f, 0f, -80f),
+        };
+        var state = new WinchState(
+            ActiveCable(new Vector3(0f, 0f, -20f)),
+            WinchCableState.Initial);
+
+        var result = WinchSystem.Step(
+            player,
+            state,
+            PlayerInput.Neutral,
+            TestConfig(),
+            new PlayerLocomotionConfig(),
+            new NoHitWorld(),
+            1f / 60f);
+
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.X - 8f),
+            0f,
+            1e-5f);
+        Assert.InRange(
+            Math.Abs(result.Player.Velocity.Z + 80f),
+            0f,
+            1e-5f);
+        Assert.Equal(
+            0f,
+            result.Winch.Left.LastPullAcceleration);
+    }
+
+    private static WinchConfig TestConfig() =>
+        new()
         {
             PullInitialImpulse = 24f,
             PullRadialAcceleration = 300f,
             PullTargetInwardSpeed = 42f,
             ArrivalDistance = 0.5f,
         };
-        var player = PlayerState.Initial with
-        {
-            // X is tangential to a target straight down -Z.
-            Velocity = new Vector3(17f, 0f, 0f),
-        };
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
-            PlayerInput.Neutral,
-            config,
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            0.2f);
-
-        Assert.True(result.Winch.IsPulling);
-        Assert.InRange(Math.Abs(result.Player.Velocity.X - 17f), 0f, 1e-5f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 42f), 0f, 1e-5f);
-    }
-
-    [Fact]
-    public void PullRapidlyReversesVelocityMovingAwayFromAnchor()
-    {
-        var config = new WinchConfig
-        {
-            PullRadialAcceleration = 300f,
-            PullTargetInwardSpeed = 42f,
-            ArrivalDistance = 0.5f,
-        };
-        var player = PlayerState.Initial with
-        {
-            // Target is -Z, so +Z is moving directly away from the anchor.
-            Velocity = new Vector3(0f, 0f, 30f),
-        };
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
-            PlayerInput.Neutral,
-            config,
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            0.2f);
-
-        Assert.True(result.Player.Velocity.Z < 0f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 30f), 0f, 1e-5f);
-    }
-
-    [Fact]
-    public void ExistingFasterInwardSpeedIsNotClampedDown()
-    {
-        var config = new WinchConfig
-        {
-            PullRadialAcceleration = 300f,
-            PullTargetInwardSpeed = 42f,
-        };
-        var player = PlayerState.Initial with
-        {
-            Velocity = new Vector3(8f, 0f, -80f),
-        };
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(new Vector3(0f, 0f, -20f), 0f),
-            PlayerInput.Neutral,
-            config,
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            1f / 60f);
-
-        Assert.InRange(Math.Abs(result.Player.Velocity.X - 8f), 0f, 1e-5f);
-        Assert.InRange(Math.Abs(result.Player.Velocity.Z + 80f), 0f, 1e-5f);
-        Assert.Equal(0f, result.Winch.LastPullAcceleration);
-    }
-
-    [Fact]
-    public void NewRmbShotPreservesOldMomentumThenAddsNewPull()
-    {
-        var velocity = new Vector3(14f, 3f, -9f);
-        var player = PlayerState.Initial with { Velocity = velocity };
-        var newTarget = new Vector3(20f, 0f, 0f);
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(new Vector3(0f, 10f, -20f), 0f),
-            Input(PlayerButtons.GrapplePullPressed),
-            new WinchConfig
-            {
-                PullInitialImpulse = 24f,
-                PullRadialAcceleration = 300f,
-                PullTargetInwardSpeed = 42f,
-            },
-            new PlayerLocomotionConfig(),
-            new FixedHitWorld(newTarget),
-            1f / 60f);
-
-        Assert.True(result.Winch.HasTarget);
-        Assert.True(result.Winch.IsPulling);
-        Assert.Equal(newTarget, result.Winch.Path.CurrentPullPoint);
-        Assert.True(result.Player.Velocity.X > velocity.X + 23f);
-        Assert.InRange(
-            Math.Abs(result.Player.Velocity.Z - velocity.Z),
-            0f,
-            1e-5f);
-    }
-
-    [Fact]
-    public void MissedRmbShotClearsCableWithoutChangingVelocity()
-    {
-        var velocity = new Vector3(12f, 4f, -7f);
-        var player = PlayerState.Initial with { Velocity = velocity };
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(new Vector3(0f, 10f, -20f), 0f),
-            Input(PlayerButtons.GrapplePullPressed),
-            new WinchConfig(),
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            1f / 60f);
-
-        Assert.False(result.Winch.HasTarget);
-        Assert.False(result.Winch.IsPulling);
-        Assert.Equal(velocity, result.Player.Velocity);
-    }
-
-    [Fact]
-    public void ArrivalStopsPullAndZeroesAllVelocity()
-    {
-        var config = new WinchConfig
-        {
-            ArrivalDistance = 0.75f,
-        };
-        var point = new Vector3(0f, 0f, -10f);
-        var player = PlayerState.Initial with
-        {
-            Position = new Vector3(0f, 0f, -9.5f),
-            Velocity = new Vector3(4f, -2f, -30f),
-        };
-
-        var result = WinchSystem.Step(
-            player,
-            ActiveAt(point, 0f),
-            PlayerInput.Neutral,
-            config,
-            new PlayerLocomotionConfig(),
-            new NoHitWorld(),
-            1f / 60f);
-
-        Assert.False(result.Winch.HasTarget);
-        Assert.False(result.Winch.IsPulling);
-        Assert.Equal(Vector3.Zero, result.Player.Velocity);
-    }
 
     private static PlayerInput Input(PlayerButtons buttons) =>
         new(Vector2.Zero, Vector2.Zero, 0f, buttons);
 
-    private static WinchState ActiveAt(
-        Vector3 point,
-        float pullAcceleration) =>
+    private static WinchCableState ActiveCable(Vector3 point) =>
         new(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(point),
             true,
             Vector3.Distance(Vector3.Zero, point),
-            pullAcceleration);
+            0f);
 
-    private static void AssertVectorClose(Vector3 expected, Vector3 actual)
+    private static void AssertVectorClose(
+        Vector3 expected,
+        Vector3 actual)
     {
         Assert.InRange(Math.Abs(actual.X - expected.X), 0f, 1e-5f);
         Assert.InRange(Math.Abs(actual.Y - expected.Y), 0f, 1e-5f);
@@ -235,7 +214,9 @@ public sealed class WinchDirectPullTests
             return true;
         }
 
-        public bool TrySweepCapsule(in CapsuleSweepQuery query, out WorldHit hit)
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
         {
             hit = default;
             return false;
@@ -250,7 +231,9 @@ public sealed class WinchDirectPullTests
             return false;
         }
 
-        public bool TrySweepCapsule(in CapsuleSweepQuery query, out WorldHit hit)
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
         {
             hit = default;
             return false;
