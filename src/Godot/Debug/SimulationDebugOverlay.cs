@@ -39,7 +39,7 @@ public partial class SimulationDebugOverlay : Label
             $"Grounded: {player.IsGrounded} | Move: ({input.Move.X:F2}, {input.Move.Y:F2})\n" +
             targetLine + "\n" +
             pointLine + "\n" +
-            $"Pull: initial impulse {config.Winch.PullInitialImpulse:F1} m/s | accel {winch.LastPullAcceleration:F1}/{config.Winch.PullAcceleration:F1} m/s²\n" +
+            $"Pull: impulse {config.Winch.PullInitialImpulse:F1} m/s | inward target {config.Winch.PullTargetInwardSpeed:F1} m/s | radial accel {winch.LastPullAcceleration:F0}/{config.Winch.PullRadialAcceleration:F0} m/s²\n" +
             $"Telemetry — peak speed: {telemetry.PeakPlayerSpeed:F2} | avg speed: {telemetry.AveragePlayerSpeed:F2} | peak pull accel: {telemetry.PeakPullAcceleration:F1}\n" +
             $"Targets: {telemetry.TargetSelectionCount} | pull start/stop: {telemetry.PullStartCount}/{telemetry.PullStopCount} | Mouse: {mouseCaptured}";
     }
