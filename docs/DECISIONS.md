@@ -49,7 +49,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 |---|---|---|
 | Targeting | DECIDED | Hitscan/raycast. |
 | Valid world targets | DECIDED | Almost all surfaces except explicitly forbidden ones. |
-| Range | DECIDED | Medium conceptually; exact value is tuning. |
+| Range | DECIDED | Medium conceptually; exact value is tuning. Stage 5 iteration 3 temporarily uses 72 m (about 3× the prior value) for vertical movement testing. |
 | Reattachment delay | TBD | Previous cooldown model is not used by the active direct-pull playtest. |
 | Reel control | TBD | Reopened after first human movement gate; Q/E reel controls are disabled in the current direct-pull iteration. |
 | Reel behavior | TBD | Previous accelerating reel motor was rejected for the active playtest iteration. |
@@ -61,7 +61,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | LMB selects/replaces a point; holding RMB directly sets velocity toward it; release preserves momentum; reaching the point clears target/velocity and gravity resumes. |
+| Current Stage 5 pull model | HYPOTHESIS | LMB throws/replaces an idle cable and cancels any active pull without deleting momentum. One RMB click starts automatic pull: immediate impulse + continued acceleration toward the anchor while tangential momentum is preserved. LMB during pull cancels it and requires another RMB click for the new cable. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
