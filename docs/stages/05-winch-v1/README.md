@@ -2,7 +2,7 @@
 
 Parent roadmap stage: [ROADMAP.md — Stage 5](../../ROADMAP.md)
 
-**Status: READY FOR HUMAN GATE — ITERATION 15 COMPACT CITY SCALE**
+**Status: READY FOR HUMAN GATE — ITERATION 16 GRAVITY SWING**
 
 ## Objective
 
@@ -806,3 +806,74 @@ CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36919217312
 - compact enclosed shell smoke: west/east/back/front/ceiling all detected.
 
 The human gate now needs to judge **relative speed against readable urban scale**, not numerical velocity in isolation.
+
+
+## Human gate result — iteration 15
+
+**Result: CLEAR IMPROVEMENT / SUSTAINED SPEED TOO LOW + ACTIVE GRAPPLE TOO RIGID**
+
+Human feedback:
+
+- the compact city scale is a clear improvement;
+- sustained pull speed after the launch explosion now falls too low;
+- the active grapple currently feels too rigid because gravity does not meaningfully shape the trajectory;
+- desired next step is the ability to swing/arc around the hook instead of only being directly translated toward it.
+
+## Iteration 16 — gravity-driven swing + higher sustained speed
+
+The compact 200 × 250 × 80 m enclosed city remains unchanged.
+
+### Sustained speed
+
+Post-burst radial pull is raised:
+
+- short/medium: **30 m/s**;
+- long: **52 m/s**;
+- long-range maximum still reached around **62.5 m**.
+
+### Stronger launch contrast
+
+The launch profile is also increased relatively:
+
+1. immediate: **2.25×** current radial pull speed;
+2. peak after ~**0.12 s**: **4.5×**;
+3. decay back to sustained radial speed over ~**0.72 s**.
+
+At maximum long-range pull:
+
+- sustained: **52 m/s**;
+- immediate: **117 m/s**;
+- peak: **234 m/s**;
+- then decay to 52 m/s.
+
+### Swing model
+
+Gravity now applies during active grapple travel.
+
+Each tick:
+
+1. ordinary gravity is added to the player's current velocity;
+2. velocity is decomposed into:
+   - radial component along the cable;
+   - tangential component around the cable;
+3. tangential velocity is preserved;
+4. the cable replaces the radial component with the configured inward pull speed;
+5. radial motion away from the anchor is therefore not allowed to fight the cable.
+
+The result is a controlled swing model:
+
+- lateral momentum can carry the player around the hook;
+- gravity curves the trajectory;
+- the player can pass under/around an anchor rather than moving on a perfectly straight rail;
+- Space detach preserves the resulting full velocity for free flight;
+- a new RMB retarget establishes a new cable direction and a fresh launch surge.
+
+### What is intentionally still prevented
+
+This does **not** restore iteration 10's unwanted collision inertia:
+
+- walls/ceilings still hard-stop velocity;
+- impact energy is not converted into endless surface sliding;
+- reaching the target surface still enters the stable latched stop.
+
+The human gate should now judge whether the grapple finally feels like a swingable cable rather than a guided zipline.
