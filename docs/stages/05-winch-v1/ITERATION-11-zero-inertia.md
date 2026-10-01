@@ -51,3 +51,16 @@ Verify:
 2. flying into a wall stops the player instead of dragging them sideways;
 3. completed grapple contact remains stable and motionless;
 4. movement feels more controllable and deliberate without carried inertia.
+
+
+### Iteration 11 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36914543762
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 61 passed / 0 failed;
+- spawn smoke: stable and grounded;
+- room smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual gate.
