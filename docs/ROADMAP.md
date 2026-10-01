@@ -75,6 +75,8 @@ A new agent should be able to answer:
 
 # Stage 1 — Godot/C# project bootstrap
 
+**Status: DONE — 2026-10-01**
+
 **Task breakdown:** [docs/stages/01-bootstrap/README.md](./stages/01-bootstrap/README.md)
 
 ## Goal
