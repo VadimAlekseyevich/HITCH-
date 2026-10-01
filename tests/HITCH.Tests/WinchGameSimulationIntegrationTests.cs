@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchGameSimulationIntegrationTests
 {
     [Fact]
-    public void OneRmbClickStartsPullAndNeutralTicksKeepPulling()
+    public void OneRmbClickShootsCableAndStartsPullImmediately()
     {
         var config = new SimulationConfig
         {
@@ -21,8 +21,8 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 10f,
-                PullAcceleration = 12f,
+                PullInitialImpulse = 30f,
+                PullAcceleration = 60f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -30,12 +30,14 @@ public sealed class WinchGameSimulationIntegrationTests
         var simulation = CreateAirborneSimulation(config);
         var world = new FixedGrappleWorld(target);
 
-        simulation.Step(Input(PlayerButtons.SelectGrapplePointPressed), world);
-        var started = simulation.Step(Input(PlayerButtons.PullPressed), world);
-        var speedAfterClick = started.Player.Velocity.Length();
+        var started = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
 
+        Assert.True(started.Winch.HasTarget);
         Assert.True(started.Winch.IsPulling);
-        Assert.True(speedAfterClick > 9f);
+        Assert.True(started.Player.Velocity.Length() > 29f);
+        Assert.True(started.Player.Position.Z < 0f);
 
         var continued = simulation.Step(PlayerInput.Neutral, world);
 
@@ -44,7 +46,7 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
-    public void LmbDuringPullCancelsForceAndKeepsHorizontalMomentum()
+    public void SecondRmbRetargetsAndPullsInSameTick()
     {
         var config = new SimulationConfig
         {
@@ -55,34 +57,29 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 14f,
-                PullAcceleration = 20f,
+                PullInitialImpulse = 30f,
+                PullAcceleration = 60f,
                 ArrivalDistance = 0.5f,
             },
         };
         var world = new MutableGrappleWorld(new Vector3(20f, 8f, -20f));
         var simulation = CreateAirborneSimulation(config);
 
-        simulation.Step(Input(PlayerButtons.SelectGrapplePointPressed), world);
-        simulation.Step(Input(PlayerButtons.PullPressed), world);
+        simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
         var beforeRetarget = simulation.State;
 
         world.Anchor = new Vector3(-25f, 20f, 10f);
         var retargeted = simulation.Step(
-            Input(PlayerButtons.SelectGrapplePointPressed),
+            Input(PlayerButtons.GrapplePullPressed),
             world);
 
         Assert.True(retargeted.Winch.HasTarget);
-        Assert.False(retargeted.Winch.IsPulling);
-        Assert.InRange(
-            Math.Abs(retargeted.Player.Velocity.X - beforeRetarget.Player.Velocity.X),
-            0f,
-            1e-5f);
-        Assert.InRange(
-            Math.Abs(retargeted.Player.Velocity.Z - beforeRetarget.Player.Velocity.Z),
-            0f,
-            1e-5f);
-        Assert.True(retargeted.Player.Velocity.Y < beforeRetarget.Player.Velocity.Y);
+        Assert.True(retargeted.Winch.IsPulling);
+        Assert.Equal(world.Anchor, retargeted.Winch.Path.CurrentPullPoint);
+        Assert.True(retargeted.Player.Velocity.X < beforeRetarget.Player.Velocity.X);
+        Assert.True(retargeted.Player.Velocity.Y > beforeRetarget.Player.Velocity.Y);
     }
 
     [Fact]
@@ -97,8 +94,8 @@ public sealed class WinchGameSimulationIntegrationTests
             },
             Winch = new WinchConfig
             {
-                PullInitialImpulse = 10f,
-                PullAcceleration = 20f,
+                PullInitialImpulse = 30f,
+                PullAcceleration = 60f,
                 ArrivalDistance = 0.9f,
             },
         };
@@ -130,7 +127,8 @@ public sealed class WinchGameSimulationIntegrationTests
         Assert.True(after.Player.Velocity.Y < 0f);
     }
 
-    private static GameSimulation CreateAirborneSimulation(SimulationConfig config)
+    private static GameSimulation CreateAirborneSimulation(
+        SimulationConfig config)
     {
         return new GameSimulation(
             config,
@@ -158,11 +156,17 @@ public sealed class WinchGameSimulationIntegrationTests
 
         public bool TryRaycast(in RayQuery query, out WorldHit hit)
         {
-            hit = new WorldHit(CurrentAnchor, Vector3.UnitY, 0.5f, 1u);
+            hit = new WorldHit(
+                CurrentAnchor,
+                Vector3.UnitY,
+                0.5f,
+                1u);
             return true;
         }
 
-        public bool TrySweepCapsule(in CapsuleSweepQuery query, out WorldHit hit)
+        public bool TrySweepCapsule(
+            in CapsuleSweepQuery query,
+            out WorldHit hit)
         {
             hit = default;
             return false;
