@@ -61,7 +61,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | RMB is the only grapple input: each click raycasts a fresh anchor, replaces any previous cable, and immediately starts strong automatic pull in the same tick. Current playtest values: 72 m range, 30 m/s initial impulse, 60 m/s² continued pull acceleration. |
+| Current Stage 5 pull model | HYPOTHESIS | RMB is the only grapple input. Each click raycasts/replaces the anchor and starts pull immediately. Pull preserves tangential velocity but aggressively establishes inward radial speed: current playtest uses 30 m/s initial impulse, 420 m/s² radial acceleration, and a 55 m/s inward radial-speed target. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
