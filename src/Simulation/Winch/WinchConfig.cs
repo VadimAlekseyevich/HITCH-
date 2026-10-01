@@ -1,9 +1,9 @@
 namespace Hitch.Simulation.Winch;
 
 /// <summary>
-/// Stage 5 iteration 6: one-click grapple + automatic pull.
+/// Stage 5 iteration 7: dual-cable automatic pull.
 ///
-/// One RMB click raycasts a world point, replaces any previous cable, and immediately starts a strong automatic pull.
+/// LMB and RMB own independent left/right cables. Each click raycasts/replaces that side and immediately starts pull.
 /// </summary>
 public sealed record WinchConfig
 {
