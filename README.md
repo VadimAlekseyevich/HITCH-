@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 9: the movement lab is substantially larger and brighter, and grapple completion uses a hard same-tick settle with a post-movement contact recheck to eliminate residual orbiting. Damage is deliberately still out of scope while core movement feel is being evaluated.**
+**Stages 1–4 are complete. Stage 5 remains in human iteration, now at iteration 10: a much larger 800 × 1000 × 320 m movement lab with restrained dark lighting, surface-aware grapple arrival, and a persistent latched stop at the reached anchor. Iteration 9 failed human review and is superseded. Damage remains deliberately out of scope while core movement feel is being fixed.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
