@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchGameSimulationIntegrationTests
 {
     [Fact]
-    public void OneRmbClickShootsCableAndStartsPullImmediately()
+    public void OneRmbClickShootsCableAndStronglyContractsDistance()
     {
         var config = new SimulationConfig
         {
@@ -22,7 +22,8 @@ public sealed class WinchGameSimulationIntegrationTests
             Winch = new WinchConfig
             {
                 PullInitialImpulse = 30f,
-                PullAcceleration = 60f,
+                PullRadialAcceleration = 420f,
+                PullTargetInwardSpeed = 55f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -36,13 +37,63 @@ public sealed class WinchGameSimulationIntegrationTests
 
         Assert.True(started.Winch.HasTarget);
         Assert.True(started.Winch.IsPulling);
-        Assert.True(started.Player.Velocity.Length() > 29f);
-        Assert.True(started.Player.Position.Z < 0f);
+        Assert.True(started.Player.Velocity.Z < -35f);
 
-        var continued = simulation.Step(PlayerInput.Neutral, world);
+        var initialDistance = started.Winch.LastActualDistance;
 
-        Assert.True(continued.Winch.IsPulling);
-        Assert.True(continued.Player.Velocity.Z < started.Player.Velocity.Z);
+        for (var i = 0; i < 12; i++)
+        {
+            simulation.Step(PlayerInput.Neutral, world);
+        }
+
+        var later = simulation.State;
+
+        Assert.True(later.Winch.IsPulling);
+        Assert.True(later.Winch.LastActualDistance < initialDistance - 8f);
+        Assert.True(later.Player.Velocity.Z <= -54f);
+    }
+
+    [Fact]
+    public void StrongPullPreservesTangentialMomentum()
+    {
+        var config = new SimulationConfig
+        {
+            Locomotion = new Hitch.Simulation.Player.PlayerLocomotionConfig
+            {
+                Gravity = 0.1f,
+                AirAcceleration = 0f,
+            },
+            Winch = new WinchConfig
+            {
+                PullInitialImpulse = 30f,
+                PullRadialAcceleration = 420f,
+                PullTargetInwardSpeed = 55f,
+                ArrivalDistance = 0.5f,
+            },
+        };
+        var target = new Vector3(0f, 5f, -40f);
+        var initial = SimulationState.Initial with
+        {
+            Player = SimulationState.Initial.Player with
+            {
+                Position = new Vector3(0f, 5f, 0f),
+                Velocity = new Vector3(18f, 0f, 0f),
+                IsGrounded = false,
+            },
+        };
+        var simulation = new GameSimulation(config, initial);
+        var world = new FixedGrappleWorld(target);
+
+        var after = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
+
+        Assert.True(after.Winch.IsPulling);
+        Assert.InRange(
+            Math.Abs(after.Player.Velocity.X - 18f),
+            0f,
+            0.05f);
+        Assert.True(after.Player.Velocity.Z < -35f);
     }
 
     [Fact]
@@ -58,7 +109,8 @@ public sealed class WinchGameSimulationIntegrationTests
             Winch = new WinchConfig
             {
                 PullInitialImpulse = 30f,
-                PullAcceleration = 60f,
+                PullRadialAcceleration = 420f,
+                PullTargetInwardSpeed = 55f,
                 ArrivalDistance = 0.5f,
             },
         };
@@ -95,7 +147,8 @@ public sealed class WinchGameSimulationIntegrationTests
             Winch = new WinchConfig
             {
                 PullInitialImpulse = 30f,
-                PullAcceleration = 60f,
+                PullRadialAcceleration = 420f,
+                PullTargetInwardSpeed = 55f,
                 ArrivalDistance = 0.9f,
             },
         };
@@ -113,7 +166,7 @@ public sealed class WinchGameSimulationIntegrationTests
                 WinchPathState.AtWorldAnchor(target),
                 true,
                 0.5f,
-                config.Winch.PullAcceleration),
+                config.Winch.PullRadialAcceleration),
         };
         var simulation = new GameSimulation(config, initial);
 
