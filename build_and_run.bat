@@ -121,7 +121,7 @@ exit /b 0
 :ensure_godot
 set "GODOT_EXE="
 if exist "%GODOT_DIR%" (
-    for /r "%GODOT_DIR%" %%F in ("%GODOT_EXE_NAME%") do (
+    for /f "delims=" %%F in ('dir /b /s "%GODOT_DIR%\%GODOT_EXE_NAME%" 2^>nul') do (
         if not defined GODOT_EXE set "GODOT_EXE=%%~fF"
     )
 )
@@ -142,7 +142,7 @@ set "HITCH_GODOT_URL=%GODOT_URL%"
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $zip=Join-Path $env:HITCH_TOOLS_DIR 'godot-dotnet.zip'; if (Test-Path $env:HITCH_GODOT_DIR) { Remove-Item -Recurse -Force $env:HITCH_GODOT_DIR }; New-Item -ItemType Directory -Force -Path $env:HITCH_GODOT_DIR | Out-Null; Invoke-WebRequest -UseBasicParsing -Uri $env:HITCH_GODOT_URL -OutFile $zip; Expand-Archive -LiteralPath $zip -DestinationPath $env:HITCH_GODOT_DIR -Force; Remove-Item -Force $zip"
 if errorlevel 1 exit /b 1
 
-for /r "%GODOT_DIR%" %%F in ("%GODOT_EXE_NAME%") do (
+for /f "delims=" %%F in ('dir /b /s "%GODOT_DIR%\%GODOT_EXE_NAME%" 2^>nul') do (
     if not defined GODOT_EXE set "GODOT_EXE=%%~fF"
 )
 
@@ -174,5 +174,5 @@ exit /b 0
 echo.
 echo [HITCH] FAILED. See the error above.
 echo.
-pause
+if not defined GITHUB_ACTIONS pause
 exit /b 1
