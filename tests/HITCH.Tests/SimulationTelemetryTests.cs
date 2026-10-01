@@ -8,67 +8,53 @@ namespace Hitch.Tests;
 public sealed class SimulationTelemetryTests
 {
     [Fact]
-    public void TelemetryTracksPeaksAverageAndAttachmentTransitions()
+    public void TelemetryTracksSpeedTargetAndPullTransitions()
     {
         var telemetry = new SimulationTelemetry();
 
-        telemetry.Observe(State(
-            speed: 3f,
-            tension: 10f,
-            attached: false));
-        telemetry.Observe(State(
-            speed: 5f,
-            tension: 20f,
-            attached: true));
-        telemetry.Observe(State(
-            speed: 4f,
-            tension: 15f,
-            attached: true));
-        telemetry.Observe(State(
-            speed: 2f,
-            tension: 0f,
-            attached: false));
+        telemetry.Observe(State(3f, hasTarget: false, pulling: false, pullSpeed: 0f));
+        telemetry.Observe(State(5f, hasTarget: true, pulling: false, pullSpeed: 0f));
+        telemetry.Observe(State(8f, hasTarget: true, pulling: true, pullSpeed: 18f));
+        telemetry.Observe(State(4f, hasTarget: true, pulling: false, pullSpeed: 0f));
 
-        Assert.Equal(5f, telemetry.PeakPlayerSpeed);
-        Assert.Equal(20f, telemetry.PeakWinchTensionAcceleration);
-        Assert.Equal(3.5f, telemetry.AveragePlayerSpeed);
-        Assert.Equal(1UL, telemetry.AttachCount);
-        Assert.Equal(1UL, telemetry.DetachCount);
+        Assert.Equal(8f, telemetry.PeakPlayerSpeed);
+        Assert.Equal(18f, telemetry.PeakPullSpeed);
+        Assert.Equal(5f, telemetry.AveragePlayerSpeed);
+        Assert.Equal(1UL, telemetry.TargetSelectionCount);
+        Assert.Equal(1UL, telemetry.PullStartCount);
+        Assert.Equal(1UL, telemetry.PullStopCount);
     }
 
     [Fact]
     public void ResetClearsDevelopmentMetrics()
     {
         var telemetry = new SimulationTelemetry();
-        telemetry.Observe(State(10f, 30f, attached: true));
+        telemetry.Observe(State(10f, true, true, 18f));
 
         telemetry.Reset();
 
         Assert.Equal(0f, telemetry.PeakPlayerSpeed);
-        Assert.Equal(0f, telemetry.PeakWinchTensionAcceleration);
+        Assert.Equal(0f, telemetry.PeakPullSpeed);
         Assert.Equal(0f, telemetry.AveragePlayerSpeed);
-        Assert.Equal(0UL, telemetry.AttachCount);
-        Assert.Equal(0UL, telemetry.DetachCount);
+        Assert.Equal(0UL, telemetry.TargetSelectionCount);
+        Assert.Equal(0UL, telemetry.PullStartCount);
+        Assert.Equal(0UL, telemetry.PullStopCount);
     }
 
     private static SimulationState State(
         float speed,
-        float tension,
-        bool attached)
+        bool hasTarget,
+        bool pulling,
+        float pullSpeed)
     {
-        var winch = attached
+        var winch = hasTarget
             ? new WinchState(
-                WinchAttachmentState.Attached,
+                WinchTargetState.Selected,
                 WinchPathState.AtWorldAnchor(new Vector3(0f, 0f, -5f)),
+                pulling,
                 5f,
-                0f,
-                0f,
-                5f,
-                tension)
-            : WinchState.Initial with
-            {
-                LastTensionAcceleration = tension,
-            };
+                pullSpeed)
+            : WinchState.Initial;
 
         return SimulationState.Initial with
         {
