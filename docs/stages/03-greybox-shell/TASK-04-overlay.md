@@ -1,6 +1,6 @@
 # Task 04 — Add Debug Overlay
 
-**Status:** PLANNED  
+**Status:** DONE  
 **Depends on:** Tasks 01–03
 
 ## Goal
