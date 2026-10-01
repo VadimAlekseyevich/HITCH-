@@ -210,15 +210,31 @@ public partial class SimulationBootstrap : Node
     private bool ValidateClosedRoomBounds()
     {
         const uint collisionMask = 0b11u;
-        var origin = new NumericsVector3(0f, 80f, 0f);
+        var probeY = MovementLabBuilder.RoomHeight - 20f;
+        var origin = new NumericsVector3(0f, probeY, 0f);
 
         var checks = new (string Name, NumericsVector3 End)[]
         {
-            ("west", new NumericsVector3(-70f, 80f, 0f)),
-            ("east", new NumericsVector3(70f, 80f, 0f)),
-            ("back", new NumericsVector3(0f, 80f, -85f)),
-            ("front", new NumericsVector3(0f, 80f, 85f)),
-            ("ceiling", new NumericsVector3(0f, 95f, 0f)),
+            ("west", new NumericsVector3(
+                -MovementLabBuilder.RoomHalfWidth - 15f,
+                probeY,
+                0f)),
+            ("east", new NumericsVector3(
+                MovementLabBuilder.RoomHalfWidth + 15f,
+                probeY,
+                0f)),
+            ("back", new NumericsVector3(
+                0f,
+                probeY,
+                -MovementLabBuilder.RoomHalfDepth - 15f)),
+            ("front", new NumericsVector3(
+                0f,
+                probeY,
+                MovementLabBuilder.RoomHalfDepth + 15f)),
+            ("ceiling", new NumericsVector3(
+                0f,
+                MovementLabBuilder.RoomHeight + 15f,
+                0f)),
         };
 
         foreach (var check in checks)
