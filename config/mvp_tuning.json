@@ -4,7 +4,7 @@
     "capsuleRadius": 0.45,
     "capsuleHeight": 1.8,
     "eyeOffsetFromCapsuleCenter": 0.65,
-    "gravity": 11,
+    "gravity": 14.5,
     "groundAcceleration": 50,
     "groundMaxSpeed": 8,
     "groundBraking": 65,
