@@ -27,7 +27,18 @@ public sealed class GameSimulation
         Telemetry = new SimulationTelemetry();
     }
 
-    public SimulationConfig Config { get; }
+    public SimulationConfig Config { get; private set; }
+
+    /// <summary>
+    /// Applies validated feel tuning at runtime without resetting player/cable state.
+    /// Intended for the Stage 5 in-game tuning panel.
+    /// </summary>
+    public void ApplyConfig(SimulationConfig config)
+    {
+        ArgumentNullException.ThrowIfNull(config);
+        config.Validate();
+        Config = config;
+    }
 
     public SimulationState State { get; private set; }
 
