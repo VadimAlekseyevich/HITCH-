@@ -11,7 +11,7 @@ namespace Hitch.GodotIntegration.Bootstrap;
 
 public partial class SimulationBootstrap : Node
 {
-    private readonly NullWorldQuery _world = new();
+    private GodotWorldQuery _world = null!;
     private readonly DeviceInputAdapter _input = new();
 
     private GameSimulation _simulation = null!;
@@ -43,6 +43,7 @@ public partial class SimulationBootstrap : Node
         };
 
         _simulation = new GameSimulation(config, initialState);
+        _world = new GodotWorldQuery(_playerRoot);
 
         _yawPivot.Position = new Vector3(
             0f,
