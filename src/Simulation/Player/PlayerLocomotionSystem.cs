@@ -17,7 +17,8 @@ public static class PlayerLocomotionSystem
         in PlayerInput input,
         PlayerLocomotionConfig config,
         IWorldQuery world,
-        float fixedDeltaSeconds)
+        float fixedDeltaSeconds,
+        bool suppressGroundBraking = false)
     {
         var velocity = player.Velocity;
 
@@ -28,7 +29,8 @@ public static class PlayerLocomotionSystem
                 input.Move,
                 player.ViewYawRadians,
                 config,
-                fixedDeltaSeconds);
+                fixedDeltaSeconds,
+                suppressGroundBraking);
 
             if (input.Has(PlayerButtons.JumpPressed))
             {
@@ -82,13 +84,19 @@ public static class PlayerLocomotionSystem
         Vector2 moveInput,
         float viewYawRadians,
         PlayerLocomotionConfig config,
-        float fixedDeltaSeconds)
+        float fixedDeltaSeconds,
+        bool suppressGroundBraking)
     {
         var horizontal = new Vector3(velocity.X, 0f, velocity.Z);
         var wishDirection = BuildWishDirection(moveInput, viewYawRadians);
 
         if (wishDirection.LengthSquared() <= TinySpeedSquared)
         {
+            if (suppressGroundBraking)
+            {
+                return new Vector3(horizontal.X, velocity.Y, horizontal.Z);
+            }
+
             // Do not automatically kill future winch/external momentum just because it exceeds
             // ordinary walking speed.
             if (horizontal.LengthSquared()
