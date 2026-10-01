@@ -45,6 +45,34 @@ Presentation must not become the authority that determines gameplay state.
 
 ---
 
+## Implemented Stage 2 simulation boundary
+
+The core simulation now lives in the plain .NET project:
+
+```text
+src/Simulation/Hitch.Simulation.csproj
+```
+
+It has **no Godot dependency**. It uses `System.Numerics` for simulation-side vectors/quaternions.
+
+Both the Godot game project and ordinary xUnit tests reference this same assembly.
+
+Current explicit contracts include:
+
+- `SimulationConfig`;
+- `SimulationTick`;
+- `PlayerInput` / `PlayerButtons`;
+- `PlayerState`;
+- `SimulationState`;
+- `IWorldQuery` with ray and upright-capsule sweep contracts;
+- `GameSimulation.Step(...)` where one call means one fixed gameplay tick.
+
+Godot currently drives the kernel from `_PhysicsProcess` through a thin bootstrap runner.
+
+The current **60 Hz** setting is a temporary baseline, not a final feel/performance decision.
+
+---
+
 # 3. Planned top-level code ownership
 
 The exact directory names may change during bootstrap, but ownership should remain recognizable.
