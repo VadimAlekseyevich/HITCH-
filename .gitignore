@@ -1,0 +1,26 @@
+# Godot generated data
+.godot/
+.import/
+
+# Local bootstrap toolchain
+.tools/
+
+# .NET build output
+**/bin/
+**/obj/
+
+# IDE/editor
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temporary files
+*.log
+*.tmp
