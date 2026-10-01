@@ -16,21 +16,21 @@ public sealed record PlayerLocomotionConfig
     /// </summary>
     public float EyeOffsetFromCapsuleCenter { get; init; } = 0.65f;
 
-    public float Gravity { get; init; } = 18.0f;
+    public float Gravity { get; init; } = 11.0f;
 
-    public float GroundAcceleration { get; init; } = 150.0f;
+    public float GroundAcceleration { get; init; } = 50.0f;
 
-    public float GroundMaxSpeed { get; init; } = 13.0f;
+    public float GroundMaxSpeed { get; init; } = 8.0f;
 
-    public float GroundBraking { get; init; } = 160.0f;
+    public float GroundBraking { get; init; } = 65.0f;
 
-    public float JumpSpeed { get; init; } = 10.0f;
+    public float JumpSpeed { get; init; } = 5.8f;
 
-    public float AirJumpSpeed { get; init; } = 9.5f;
+    public float AirJumpSpeed { get; init; } = 4.8f;
 
-    public float AirAcceleration { get; init; } = 20.0f;
+    public float AirAcceleration { get; init; } = 6.0f;
 
-    public float AirControlMaxSpeed { get; init; } = 12.0f;
+    public float AirControlMaxSpeed { get; init; } = 7.5f;
 
     public float GroundProbeDistance { get; init; } = 0.08f;
 
