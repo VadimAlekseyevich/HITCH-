@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 16: compact-city scale with gravity-driven swing. Sustained radial pull is 30–52 m/s; gravity acts while attached; tangential velocity relative to the cable is preserved so the player can arc around the anchor, while radial motion away from the anchor is replaced by controlled inward pull. Fresh RMB starts at 2.25× radial speed, peaks at 4.5× after 0.12 s, then decays over 0.72 s. Space detaches and preserves full current velocity; wall/ceiling impacts still hard-stop and arrival still latches at zero velocity. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 17: compact-city gravity swing with deterministic piecewise rope wrapping. Sustained radial pull remains 30–52 m/s; launch is reduced to 1.35× immediate / 2× peak at 0.14 s / 0.60 s decay. The rope is represented as player → up to 4 bend contacts → anchor. Obstruction adds a bend; restored visibility removes bends; pull targets the nearest bend while rope length is the sum of all polyline segments. Space preserves full velocity on detach; hard impacts still stop. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
