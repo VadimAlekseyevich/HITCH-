@@ -61,12 +61,32 @@ public partial class MovementLabBuilder : Node3D
         // Large base so long grapple experiments do not immediately leave the test space.
         AddBox("Floor", new Vector3(0f, -0.5f, 0f), new Vector3(120f, 1f, 150f), _floorMaterial);
 
-        // Low perimeter reference walls. The useful vertical gameplay comes from the internal towers.
-        AddBox("WestWall", new Vector3(-60f, 6f, 0f), new Vector3(1f, 12f, 150f));
-        AddBox("EastWall", new Vector3(60f, 6f, 0f), new Vector3(1f, 12f, 150f));
-        AddBox("BackWall", new Vector3(0f, 6f, -75f), new Vector3(120f, 12f, 1f));
-        AddBox("FrontWallLeft", new Vector3(-40f, 5f, 75f), new Vector3(40f, 10f, 1f));
-        AddBox("FrontWallRight", new Vector3(40f, 5f, 75f), new Vector3(40f, 10f, 1f));
+        // Fully enclosed test room. The walls and ceiling intentionally prevent high-speed
+        // movement tests from escaping the greybox.
+        const float roomHeight = 86f;
+        const float wallCenterY = roomHeight * 0.5f;
+
+        AddBox(
+            "WestWall",
+            new Vector3(-60f, wallCenterY, 0f),
+            new Vector3(1f, roomHeight, 150f));
+        AddBox(
+            "EastWall",
+            new Vector3(60f, wallCenterY, 0f),
+            new Vector3(1f, roomHeight, 150f));
+        AddBox(
+            "BackWall",
+            new Vector3(0f, wallCenterY, -75f),
+            new Vector3(120f, roomHeight, 1f));
+        AddBox(
+            "FrontWall",
+            new Vector3(0f, wallCenterY, 75f),
+            new Vector3(120f, roomHeight, 1f));
+        AddBox(
+            "Ceiling",
+            new Vector3(0f, roomHeight + 0.5f, 0f),
+            new Vector3(120f, 1f, 150f),
+            _floorMaterial);
 
         // Nearby onboarding geometry.
         AddBox("LowLedge", new Vector3(-16f, 2f, 40f), new Vector3(14f, 4f, 10f));
@@ -79,7 +99,7 @@ public partial class MovementLabBuilder : Node3D
         AddBox("NorthSpire", new Vector3(4f, 36f, -44f), new Vector3(8f, 72f, 8f));
         AddBox("SouthSpire", new Vector3(-6f, 22f, 58f), new Vector3(8f, 44f, 8f));
 
-        // Mid-air targets for chaining LMB -> RMB -> LMB transitions.
+        // Mid-air targets for chaining rapid RMB retargets.
         AddBox("BridgeLow", new Vector3(-12f, 20f, 8f), new Vector3(40f, 2f, 4f));
         AddBox("BridgeMid", new Vector3(17f, 34f, -25f), new Vector3(38f, 2f, 4f));
         AddBox("BridgeHigh", new Vector3(-14f, 50f, -36f), new Vector3(32f, 2f, 4f));
