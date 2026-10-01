@@ -91,3 +91,19 @@ Test:
 4. Is 30–52 m/s sustained pull high enough after the burst?
 5. Does the 2.25× → 4.5× surge still feel explosive without dominating the whole flight?
 6. Does any old unwanted wall-drag behavior return?
+
+
+### Iteration 16 technical evidence
+
+CI: https://github.com/VadimAlekseyevich/HITCH-/actions/runs/36921058182
+
+- build: success;
+- warnings/errors: 0 / 0;
+- tests: 74 passed / 0 failed;
+- active-grapple gravity covered by automated tests;
+- tangential swing velocity preservation covered by automated tests;
+- retarget radial replacement + tangent preservation covered by integration tests;
+- spawn smoke: stable and grounded;
+- compact city enclosure smoke: west/east/back/front/ceiling all detected.
+
+Human feel remains the actual Stage 5 gate.
