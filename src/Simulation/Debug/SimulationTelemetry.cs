@@ -36,27 +36,36 @@ public sealed class SimulationTelemetry
             speed);
         PeakPullAcceleration = MathF.Max(
             PeakPullAcceleration,
-            state.Winch.LastPullAcceleration);
+            MathF.Max(
+                state.Winch.LastPullAcceleration,
+                state.SecondaryWinch.LastPullAcceleration));
 
         _speedSampleSum += speed;
         _speedSampleCount++;
 
-        if (state.Winch.HasTarget && !_hadTarget)
+        var hasAnyTarget =
+            state.Winch.HasTarget
+            || state.SecondaryWinch.HasTarget;
+        var anyPulling =
+            state.Winch.IsPulling
+            || state.SecondaryWinch.IsPulling;
+
+        if (hasAnyTarget && !_hadTarget)
         {
             TargetSelectionCount++;
         }
 
-        if (state.Winch.IsPulling && !_wasPulling)
+        if (anyPulling && !_wasPulling)
         {
             PullStartCount++;
         }
-        else if (!state.Winch.IsPulling && _wasPulling)
+        else if (!anyPulling && _wasPulling)
         {
             PullStopCount++;
         }
 
-        _hadTarget = state.Winch.HasTarget;
-        _wasPulling = state.Winch.IsPulling;
+        _hadTarget = hasAnyTarget;
+        _wasPulling = anyPulling;
     }
 
     public void Reset()
