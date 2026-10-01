@@ -92,14 +92,44 @@ public sealed class GameSimulation
             world,
             (float)FixedDeltaSeconds);
 
-        var movedPlayer = PlayerLocomotionSystem.Step(
-            winchResult.Player,
-            input,
-            Config.Locomotion,
-            world,
-            (float)FixedDeltaSeconds);
-
         var finalWinch = winchResult.Winch;
+        PlayerState movedPlayer;
+
+        if (winchResult.CompletedThisTick)
+        {
+            // Completion is a hard settle event. Do not immediately re-apply gravity or air
+            // control in the same tick after the winch has decided the capsule reached contact.
+            // The next simulation tick resumes ordinary locomotion.
+            movedPlayer = winchResult.Player with
+            {
+                Velocity = System.Numerics.Vector3.Zero,
+            };
+        }
+        else
+        {
+            movedPlayer = PlayerLocomotionSystem.Step(
+                winchResult.Player,
+                input,
+                Config.Locomotion,
+                world,
+                (float)FixedDeltaSeconds);
+
+            // High-speed movement can reach/collide with the anchor surface during locomotion,
+            // after the winch's pre-move distance check. Re-check here so the cable cannot stay
+            // active for an extra tick and create the small post-arrival orbit/jitter.
+            if (WinchSystem.HasReachedAnchor(
+                    movedPlayer,
+                    finalWinch,
+                    Config.Winch,
+                    Config.Locomotion))
+            {
+                finalWinch = WinchState.Initial;
+                movedPlayer = movedPlayer with
+                {
+                    Velocity = System.Numerics.Vector3.Zero,
+                };
+            }
+        }
 
         if (finalWinch.HasTarget)
         {
