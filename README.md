@@ -78,6 +78,6 @@ The directory tree above intentionally exists before production code. The reposi
 
 ## Current status
 
-**Stages 1–4 are complete. Stage 5 is READY FOR HUMAN GATE in iteration 3. Current controls: LMB throws/replaces an idle cable; one RMB click starts strong automatic pull; LMB during pull cancels it while preserving momentum. Stage 6 remains blocked on human movement feel.**
+**Stages 1–4 are complete. Stage 5 is READY FOR HUMAN GATE in iteration 4. Current controls: one RMB click raycasts a new cable point and immediately starts a stronger automatic pull. Stage 6 remains blocked on human movement feel.**
 
 Do not treat planned APIs, class names, folder names, numerical tuning values, or networking details as final unless they are explicitly marked **DECIDED** in the project documentation.
