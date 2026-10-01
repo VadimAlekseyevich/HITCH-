@@ -51,7 +51,8 @@ public static class WinchSystem
         {
             return new WinchStepResult(
                 updatedPlayer,
-                winch.HasTarget ? winch : WinchState.Initial);
+                winch.HasTarget ? winch : WinchState.Initial,
+                false);
         }
 
         var toTarget =
@@ -83,7 +84,8 @@ public static class WinchSystem
 
             return new WinchStepResult(
                 updatedPlayer,
-                WinchState.Initial);
+                WinchState.Initial,
+                true);
         }
 
         var velocity = updatedPlayer.Velocity;
@@ -127,7 +129,8 @@ public static class WinchSystem
             {
                 LastActualDistance = distance,
                 LastPullAcceleration = appliedRadialAcceleration,
-            });
+            },
+            false);
     }
 
     public static RayQuery BuildAimRay(
@@ -146,6 +149,33 @@ public static class WinchSystem
             eye,
             eye + (direction * EngineSafeRaycastDistance),
             config.GrappleCollisionMask);
+    }
+
+    public static bool HasReachedAnchor(
+        in PlayerState player,
+        in WinchState winch,
+        WinchConfig config,
+        PlayerLocomotionConfig locomotionConfig)
+    {
+        if (!winch.IsPulling)
+        {
+            return false;
+        }
+
+        var toTarget = winch.Path.CurrentPullPoint - player.Position;
+        var distanceSquared = toTarget.LengthSquared();
+        var distance = distanceSquared <= TinyDistanceSquared
+            ? 0f
+            : MathF.Sqrt(distanceSquared);
+
+        var direction = distance > 0f
+            ? toTarget / distance
+            : Vector3.Zero;
+
+        return distance <= ComputeCapsuleAwareArrivalDistance(
+            direction,
+            config,
+            locomotionConfig);
     }
 
     public static float ComputeCapsuleAwareArrivalDistance(
