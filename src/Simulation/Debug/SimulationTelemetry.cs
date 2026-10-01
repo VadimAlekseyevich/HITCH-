@@ -9,12 +9,16 @@ public sealed class SimulationTelemetry
 {
     private double _speedSampleSum;
     private ulong _speedSampleCount;
-    private bool _hadTarget;
-    private bool _wasPulling;
+    private bool _leftHadTarget;
+    private bool _rightHadTarget;
+    private bool _leftWasPulling;
+    private bool _rightWasPulling;
 
     public float PeakPlayerSpeed { get; private set; }
 
     public float PeakPullAcceleration { get; private set; }
+
+    public int PeakActiveCables { get; private set; }
 
     public ulong TargetSelectionCount { get; private set; }
 
@@ -30,43 +34,70 @@ public sealed class SimulationTelemetry
     public void Observe(in SimulationState state)
     {
         var speed = state.Player.Velocity.Length();
+        var left = state.Winch.Left;
+        var right = state.Winch.Right;
 
-        PeakPlayerSpeed = MathF.Max(PeakPlayerSpeed, speed);
+        PeakPlayerSpeed = MathF.Max(
+            PeakPlayerSpeed,
+            speed);
         PeakPullAcceleration = MathF.Max(
             PeakPullAcceleration,
-            state.Winch.LastPullAcceleration);
+            MathF.Max(
+                left.LastPullAcceleration,
+                right.LastPullAcceleration));
+        PeakActiveCables = Math.Max(
+            PeakActiveCables,
+            state.Winch.ActiveCableCount);
 
         _speedSampleSum += speed;
         _speedSampleCount++;
 
-        if (state.Winch.HasTarget && !_hadTarget)
-        {
-            TargetSelectionCount++;
-        }
-
-        if (state.Winch.IsPulling && !_wasPulling)
-        {
-            PullStartCount++;
-        }
-        else if (!state.Winch.IsPulling && _wasPulling)
-        {
-            PullStopCount++;
-        }
-
-        _hadTarget = state.Winch.HasTarget;
-        _wasPulling = state.Winch.IsPulling;
+        ObserveCable(
+            left,
+            ref _leftHadTarget,
+            ref _leftWasPulling);
+        ObserveCable(
+            right,
+            ref _rightHadTarget,
+            ref _rightWasPulling);
     }
 
     public void Reset()
     {
         PeakPlayerSpeed = 0f;
         PeakPullAcceleration = 0f;
+        PeakActiveCables = 0;
         TargetSelectionCount = 0;
         PullStartCount = 0;
         PullStopCount = 0;
         _speedSampleSum = 0d;
         _speedSampleCount = 0;
-        _hadTarget = false;
-        _wasPulling = false;
+        _leftHadTarget = false;
+        _rightHadTarget = false;
+        _leftWasPulling = false;
+        _rightWasPulling = false;
+    }
+
+    private void ObserveCable(
+        in Winch.WinchCableState cable,
+        ref bool hadTarget,
+        ref bool wasPulling)
+    {
+        if (cable.HasTarget && !hadTarget)
+        {
+            TargetSelectionCount++;
+        }
+
+        if (cable.IsPulling && !wasPulling)
+        {
+            PullStartCount++;
+        }
+        else if (!cable.IsPulling && wasPulling)
+        {
+            PullStopCount++;
+        }
+
+        hadTarget = cable.HasTarget;
+        wasPulling = cable.IsPulling;
     }
 }
