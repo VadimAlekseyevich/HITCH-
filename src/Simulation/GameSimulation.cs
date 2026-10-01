@@ -51,8 +51,9 @@ public sealed class GameSimulation
             ViewPitchRadians = pitch,
         };
 
-        var movedPlayer = CapsuleMovementSolver.Move(
+        var movedPlayer = PlayerLocomotionSystem.Step(
             viewUpdatedPlayer,
+            input,
             Config.Locomotion,
             world,
             (float)FixedDeltaSeconds);
