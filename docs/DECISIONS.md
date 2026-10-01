@@ -31,8 +31,8 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 
 | Topic | Status | Decision |
 |---|---|---|
-| Base walking | HYPOTHESIS | Stage 5 override: fast/responsive, currently ~13 m/s max ground speed. Original slow baseline is reopened for feel testing. |
-| Base jump | HYPOTHESIS | Stage 5 override: strong ground jump plus exactly one air jump per airborne sequence; landing restores it. |
+| Base walking | HYPOTHESIS | Iteration 19 brings ordinary movement back toward human scale: currently ~8 m/s max ground speed with moderate acceleration/braking. |
+| Base jump | HYPOTHESIS | Iteration 19 uses a ~5.8 m/s ground jump plus one reduced ~4.8 m/s gear-assisted air hop per airborne sequence; landing restores it. |
 | Primary traversal | DECIDED | Winch/grapple. |
 | Momentum on detach | HYPOTHESIS | Reopened in Stage 5 iteration 11. Active prototype clears grapple-carried velocity on release/miss instead of preserving inertia. |
 | Air control | DECIDED | Very weak hidden correction only. |
@@ -63,7 +63,7 @@ It is not a replacement for `DESIGN.md`. Use `DESIGN.md` for behavioral detail a
 | Explicit rope escape | DEFERRED | No dedicated break/counter action in MVP. |
 | Full rope wrapping | DEFERRED | Not part of first MVP implementation. |
 | Obstruction precursor | DECIDED | Effective path may move to wall intersection; architecture must allow future multiple contacts. |
-| Current Stage 5 pull model | HYPOTHESIS | Iteration 18: finite gravity-driven rope with explicit reel state. Max rope/acquisition length is 100 m. RMB attaches without reeling; LMB starts reel-in. Attached idle rope holds deployed length and preserves swing tangent. Reel target remains 30–52 m/s with 1.35× → 2× start envelope, but radial velocity changes are acceleration-bounded so bends cannot instant-snap/catapult the player. Piecewise path remains capped at 4 bend contacts; geometry can pay out only required path length up to the global max. |
+| Current Stage 5 pull model | HYPOTHESIS | Iteration 19: single-cable ODM-inspired rope. Max rope/acquisition length is 75 m. RMB attaches without reeling; LMB engages a moderate 9–16 m/s radial reel plus separate ~14 m/s² tangential gas thrust. Default artificial launch multipliers are neutralized at 1×. Gas has full authority below ~18 m/s and smoothly fades to zero added thrust by ~34 m/s without hard-clamping velocity. Gravity, tangent momentum, piecewise wrapping, and acceleration-bounded bend response remain active. |
 | Exact spring force law | TBD | Previous one-sided spring experiment failed the first human movement gate and is inactive. |
 
 # Combat
