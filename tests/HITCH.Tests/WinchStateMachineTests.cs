@@ -10,7 +10,7 @@ namespace Hitch.Tests;
 public sealed class WinchStateMachineTests
 {
     [Fact]
-    public void LmbShootsOnlyLeftCableAndStartsPull()
+    public void RmbShootsCableAndStartsPullInSameTick()
     {
         var player = PlayerState.Initial with
         {
@@ -22,7 +22,7 @@ public sealed class WinchStateMachineTests
         var result = WinchSystem.Step(
             player,
             WinchState.Initial,
-            Input(PlayerButtons.LeftGrapplePressed),
+            Input(PlayerButtons.GrapplePullPressed),
             new WinchConfig(),
             new PlayerLocomotionConfig
             {
@@ -31,96 +31,63 @@ public sealed class WinchStateMachineTests
             world,
             1f / 60f);
 
-        Assert.True(result.Winch.Left.IsPulling);
-        Assert.False(result.Winch.Right.IsPulling);
-        Assert.Equal(hit, result.Winch.Left.Path.CurrentPullPoint);
+        Assert.True(result.Winch.HasTarget);
+        Assert.True(result.Winch.IsPulling);
+        Assert.Equal(hit, result.Winch.Path.CurrentPullPoint);
+        Assert.True(result.Player.Velocity.Z < -23f);
 
         Assert.Equal(
             new Vector3(2f, 3.65f, 4f),
             world.LastRay.From);
-
-        // 10 km is an engine-query distance, not gameplay rope range.
         Assert.Equal(
             new Vector3(2f, 3.65f, -9996f),
             world.LastRay.To);
     }
 
     [Fact]
-    public void RmbShootsOnlyRightCableAndStartsPull()
-    {
-        var hit = new Vector3(15f, 8f, -20f);
-
-        var result = WinchSystem.Step(
-            PlayerState.Initial,
-            WinchState.Initial,
-            Input(PlayerButtons.RightGrapplePressed),
-            new WinchConfig(),
-            new PlayerLocomotionConfig(),
-            new RecordingRayWorld(hit),
-            1f / 60f);
-
-        Assert.False(result.Winch.Left.IsPulling);
-        Assert.True(result.Winch.Right.IsPulling);
-        Assert.Equal(hit, result.Winch.Right.Path.CurrentPullPoint);
-    }
-
-    [Fact]
-    public void RetargetingLeftDoesNotReplaceRightCable()
-    {
-        var rightPoint = new Vector3(20f, 10f, -20f);
-        var newLeftPoint = new Vector3(-15f, 12f, -25f);
-        var initial = new WinchState(
-            WinchCableState.Initial,
-            ActiveCable(rightPoint));
-
-        var result = WinchSystem.Step(
-            PlayerState.Initial,
-            initial,
-            Input(PlayerButtons.LeftGrapplePressed),
-            new WinchConfig(),
-            new PlayerLocomotionConfig(),
-            new RecordingRayWorld(newLeftPoint),
-            1f / 60f);
-
-        Assert.Equal(
-            newLeftPoint,
-            result.Winch.Left.Path.CurrentPullPoint);
-        Assert.Equal(
-            rightPoint,
-            result.Winch.Right.Path.CurrentPullPoint);
-        Assert.True(result.Winch.Left.IsPulling);
-        Assert.True(result.Winch.Right.IsPulling);
-    }
-
-    [Fact]
-    public void LeftMissClearsOnlyLeftCable()
+    public void RmbMissClearsCableAndPreservesMomentum()
     {
         var velocity = new Vector3(8f, 3f, -6f);
-        var rightPoint = new Vector3(20f, 10f, -20f);
-        var initial = new WinchState(
-            ActiveCable(new Vector3(-20f, 10f, -20f)),
-            ActiveCable(rightPoint));
 
         var result = WinchSystem.Step(
             PlayerState.Initial with { Velocity = velocity },
-            initial,
-            Input(PlayerButtons.LeftGrapplePressed),
+            ActiveAt(new Vector3(0f, 10f, -20f)),
+            Input(PlayerButtons.GrapplePullPressed),
             new WinchConfig(),
             new PlayerLocomotionConfig(),
             new NoHitWorld(),
             1f / 60f);
 
-        Assert.False(result.Winch.Left.HasTarget);
-        Assert.True(result.Winch.Right.HasTarget);
+        Assert.False(result.Winch.HasTarget);
+        Assert.False(result.Winch.IsPulling);
+        Assert.Equal(velocity, result.Player.Velocity);
+    }
+
+    [Fact]
+    public void SecondRmbReplacesExistingCable()
+    {
+        var newTarget = new Vector3(20f, 15f, 0f);
+        var world = new RecordingRayWorld(newTarget);
+
+        var result = WinchSystem.Step(
+            PlayerState.Initial,
+            ActiveAt(new Vector3(0f, 10f, -20f)),
+            Input(PlayerButtons.GrapplePullPressed),
+            new WinchConfig(),
+            new PlayerLocomotionConfig(),
+            world,
+            1f / 60f);
+
+        Assert.True(result.Winch.IsPulling);
         Assert.Equal(
-            rightPoint,
-            result.Winch.Right.Path.CurrentPullPoint);
+            newTarget,
+            result.Winch.Path.CurrentPullPoint);
     }
 
     private static PlayerInput Input(PlayerButtons buttons) =>
         new(Vector2.Zero, Vector2.Zero, 0f, buttons);
 
-    private static WinchCableState ActiveCable(Vector3 point) =>
+    private static WinchState ActiveAt(Vector3 point) =>
         new(
             WinchTargetState.Selected,
             WinchPathState.AtWorldAnchor(point),
