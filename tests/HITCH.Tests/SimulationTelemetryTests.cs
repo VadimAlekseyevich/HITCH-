@@ -8,20 +8,36 @@ namespace Hitch.Tests;
 public sealed class SimulationTelemetryTests
 {
     [Fact]
-    public void TelemetryTracksSpeedTargetAndAutomaticPullTransitions()
+    public void TelemetryTracksDualCableTransitionsAndPeaks()
     {
         var telemetry = new SimulationTelemetry();
 
-        telemetry.Observe(State(3f, hasTarget: false, pulling: false, pullAcceleration: 0f));
-        telemetry.Observe(State(5f, hasTarget: true, pulling: false, pullAcceleration: 0f));
-        telemetry.Observe(State(8f, hasTarget: true, pulling: true, pullAcceleration: 32f));
-        telemetry.Observe(State(4f, hasTarget: true, pulling: false, pullAcceleration: 0f));
+        telemetry.Observe(State(
+            speed: 3f,
+            left: WinchCableState.Initial,
+            right: WinchCableState.Initial));
+
+        telemetry.Observe(State(
+            speed: 5f,
+            left: ActiveCable(new Vector3(-5f, 0f, -5f), 20f),
+            right: WinchCableState.Initial));
+
+        telemetry.Observe(State(
+            speed: 8f,
+            left: ActiveCable(new Vector3(-5f, 0f, -5f), 20f),
+            right: ActiveCable(new Vector3(5f, 0f, -5f), 32f)));
+
+        telemetry.Observe(State(
+            speed: 4f,
+            left: WinchCableState.Initial,
+            right: ActiveCable(new Vector3(5f, 0f, -5f), 12f)));
 
         Assert.Equal(8f, telemetry.PeakPlayerSpeed);
         Assert.Equal(32f, telemetry.PeakPullAcceleration);
+        Assert.Equal(2, telemetry.PeakActiveCables);
         Assert.Equal(5f, telemetry.AveragePlayerSpeed);
-        Assert.Equal(1UL, telemetry.TargetSelectionCount);
-        Assert.Equal(1UL, telemetry.PullStartCount);
+        Assert.Equal(2UL, telemetry.TargetSelectionCount);
+        Assert.Equal(2UL, telemetry.PullStartCount);
         Assert.Equal(1UL, telemetry.PullStopCount);
     }
 
@@ -29,12 +45,16 @@ public sealed class SimulationTelemetryTests
     public void ResetClearsDevelopmentMetrics()
     {
         var telemetry = new SimulationTelemetry();
-        telemetry.Observe(State(10f, true, true, 32f));
+        telemetry.Observe(State(
+            10f,
+            ActiveCable(new Vector3(-5f, 0f, -5f), 30f),
+            ActiveCable(new Vector3(5f, 0f, -5f), 40f)));
 
         telemetry.Reset();
 
         Assert.Equal(0f, telemetry.PeakPlayerSpeed);
         Assert.Equal(0f, telemetry.PeakPullAcceleration);
+        Assert.Equal(0, telemetry.PeakActiveCables);
         Assert.Equal(0f, telemetry.AveragePlayerSpeed);
         Assert.Equal(0UL, telemetry.TargetSelectionCount);
         Assert.Equal(0UL, telemetry.PullStartCount);
@@ -43,26 +63,24 @@ public sealed class SimulationTelemetryTests
 
     private static SimulationState State(
         float speed,
-        bool hasTarget,
-        bool pulling,
-        float pullAcceleration)
-    {
-        var winch = hasTarget
-            ? new WinchState(
-                WinchTargetState.Selected,
-                WinchPathState.AtWorldAnchor(new Vector3(0f, 0f, -5f)),
-                pulling,
-                5f,
-                pullAcceleration)
-            : WinchState.Initial;
-
-        return SimulationState.Initial with
+        WinchCableState left,
+        WinchCableState right) =>
+        SimulationState.Initial with
         {
             Player = SimulationState.Initial.Player with
             {
                 Velocity = Vector3.UnitX * speed,
             },
-            Winch = winch,
+            Winch = new WinchState(left, right),
         };
-    }
+
+    private static WinchCableState ActiveCable(
+        Vector3 point,
+        float pullAcceleration) =>
+        new(
+            WinchTargetState.Selected,
+            WinchPathState.AtWorldAnchor(point),
+            true,
+            Vector3.Distance(Vector3.Zero, point),
+            pullAcceleration);
 }
