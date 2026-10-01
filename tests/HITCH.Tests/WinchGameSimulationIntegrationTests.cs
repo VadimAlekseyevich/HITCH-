@@ -199,6 +199,54 @@ public sealed class WinchGameSimulationIntegrationTests
     }
 
     [Fact]
+    public void RetargetRestartsLaunchBurst()
+    {
+        var config = TestSimulationConfig() with
+        {
+            Winch = new WinchConfig
+            {
+                PullTargetInwardSpeed = 100f,
+                PullLongRangeInwardSpeed = 100f,
+                PullLongRangeDistance = 250f,
+                PullLaunchSpeedMultiplier = 1.45f,
+                PullLaunchDecaySeconds = 0.75f,
+                ArrivalContactTolerance = 0.06f,
+            },
+        };
+        var world = new MutableGrappleWorld(
+            new Vector3(0f, 5f, -300f));
+        var simulation = CreateAirborneSimulation(config);
+
+        var launched = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
+
+        for (var i = 0; i < 30; i++)
+        {
+            simulation.Step(PlayerInput.Neutral, world);
+        }
+
+        var beforeRetargetSpeed =
+            simulation.State.Player.Velocity.Length();
+
+        world.Anchor = new Vector3(300f, 5f, 0f);
+        var retargeted = simulation.Step(
+            Input(PlayerButtons.GrapplePullPressed),
+            world);
+
+        Assert.True(retargeted.Winch.IsPulling);
+        Assert.True(
+            retargeted.Player.Velocity.Length()
+            > beforeRetargetSpeed);
+        Assert.True(
+            retargeted.Player.Velocity.Length()
+            > 140f);
+        Assert.True(
+            launched.Player.Velocity.Length()
+            > 140f);
+    }
+
+    [Fact]
     public void RetargetDiscardsExistingMomentumAndStartsNewDirectPull()
     {
         var config = TestSimulationConfig();
@@ -248,6 +296,8 @@ public sealed class WinchGameSimulationIntegrationTests
                 PullTargetInwardSpeed = 42f,
                 PullLongRangeInwardSpeed = 42f,
                 PullLongRangeDistance = 250f,
+                PullLaunchSpeedMultiplier = 1f,
+                PullLaunchDecaySeconds = 0.75f,
                 ArrivalContactTolerance = 0.06f,
             },
         };
