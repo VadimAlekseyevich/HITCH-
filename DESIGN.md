@@ -123,7 +123,7 @@ Camera architecture should not make a future third-person experiment unnecessari
 - current ground speed target is about **8 m/s**;
 - ground jump is about **5.8 m/s**;
 - the previously requested one-time air jump remains, reduced to **4.8 m/s** and treated as a small gear-assisted hop rather than a second full-strength jump;
-- gravity is approximately **11 m/s²**;
+- gravity is approximately **14.5 m/s²** to return the player to useful urban height faster after high arcs;
 - wall/ceiling contacts remove only velocity into the surface; tangential motion survives so grapple swing/wrap can continue along geometry;
 - air steering remains limited and does not clamp already-earned high momentum.
 
@@ -196,7 +196,7 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 20, DUAL-HOOK ODM + STRONG REEL.**
+**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 21, DUAL-HOOK ODM + LIVE FEEL TUNING.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
@@ -1016,3 +1016,21 @@ For future AI agents:
 - keep the document focused on behavior and constraints rather than code trivia.
 
 Last conceptual update: initial MVP planning.
+
+
+### Live tuning workflow
+
+Stage 5 now includes an in-game developer tuning panel.
+
+- **F2** opens/closes the panel;
+- simulation motion is frozen while the panel is open;
+- mouse cursor is released while tuning;
+- parameters use Russian labels;
+- every exposed value has both a slider and direct numeric entry;
+- valid changes apply immediately without resetting player position, velocity, hooks, or simulation tick;
+- **Скопировать параметры** copies a compact `HITCH_TUNING_V1` block to the system clipboard;
+- **Сбросить к стартовым** returns to the tuning profile loaded when the scene started.
+
+The panel exposes base locomotion, gravity/jumps, rope range, reel acceleration/speeds, launch envelope, gas, dual-cable scaling, and rope/contact geometry.
+
+Current iteration-21 city shell is approximately **1000 × 1200 × 320 m**. Procedural blocks keep local scale readable with roughly **120 buildings**, generally around **50–170 m** tall, plus >200 m skyline landmarks.
