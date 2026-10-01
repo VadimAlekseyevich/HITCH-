@@ -18,17 +18,19 @@ public sealed record PlayerLocomotionConfig
 
     public float Gravity { get; init; } = 18.0f;
 
-    public float GroundAcceleration { get; init; } = 80.0f;
+    public float GroundAcceleration { get; init; } = 150.0f;
 
-    public float GroundMaxSpeed { get; init; } = 6.0f;
+    public float GroundMaxSpeed { get; init; } = 13.0f;
 
-    public float GroundBraking { get; init; } = 100.0f;
+    public float GroundBraking { get; init; } = 160.0f;
 
-    public float JumpSpeed { get; init; } = 4.2f;
+    public float JumpSpeed { get; init; } = 10.0f;
 
-    public float AirAcceleration { get; init; } = 5.0f;
+    public float AirJumpSpeed { get; init; } = 9.5f;
 
-    public float AirControlMaxSpeed { get; init; } = 5.0f;
+    public float AirAcceleration { get; init; } = 20.0f;
+
+    public float AirControlMaxSpeed { get; init; } = 12.0f;
 
     public float GroundProbeDistance { get; init; } = 0.08f;
 
@@ -82,6 +84,7 @@ public sealed record PlayerLocomotionConfig
         RequireFinitePositive(GroundMaxSpeed, nameof(GroundMaxSpeed));
         RequireFiniteNonNegative(GroundBraking, nameof(GroundBraking));
         RequireFinitePositive(JumpSpeed, nameof(JumpSpeed));
+        RequireFinitePositive(AirJumpSpeed, nameof(AirJumpSpeed));
         RequireFiniteNonNegative(AirAcceleration, nameof(AirAcceleration));
         RequireFinitePositive(AirControlMaxSpeed, nameof(AirControlMaxSpeed));
         RequireFinitePositive(GroundProbeDistance, nameof(GroundProbeDistance));
