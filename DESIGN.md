@@ -196,23 +196,22 @@ The chosen implementation must preserve responsive locomotion.
 
 ## 5.0 Current Stage 5 playtest override
 
-**CURRENT PROTOTYPE HYPOTHESIS — SINGLE-CABLE ITERATION 19, ODM-INSPIRED REEL + GAS.**
+**CURRENT PROTOTYPE HYPOTHESIS — ITERATION 20, DUAL-HOOK ODM + STRONG REEL.**
 
 The dual-cable experiment from iteration 7 was rejected as unnecessary.
 
-The active local movement prototype uses **one finite cable as an ODM-inspired approximation**:
+The active local movement prototype uses **two finite cables as an ODM-inspired approximation**:
 
-- RMB raycasts and attaches/replaces a world anchor;
+- RMB clicks alternate cable slots: **left → right → left → right**;
+- each RMB raycasts and attaches/replaces only that side's anchor;
 - RMB by itself does **not** start reel-in;
-- another RMB click retargets;
-- an RMB miss leaves an existing cable attached;
-- LMB starts automatic reel-in for the existing cable;
-- repeated LMB clicks while already reeling do not restart the launch envelope;
-- Space detaches and preserves the current full flight velocity.
+- LMB starts reel-in on **every active cable**;
+- repeated LMB clicks while a cable is already reeling do not restart that cable's launch envelope;
+- Space detaches both cables and preserves the current full flight velocity.
 
 ### Finite gameplay rope length
 
-The active Stage 5 tuning uses a **75 m maximum rope/acquisition length**.
+The active Stage 5 tuning uses a **150 m maximum rope/acquisition length per cable**.
 
 This is intentionally large relative to individual buildings but no longer allows effectively map-wide acquisition in the compact 200 × 250 m test city. The exact final maximum remains a tuning hypothesis, not a locked balance value.
 
@@ -228,11 +227,12 @@ When attached but not reeling:
 After LMB starts reel-in:
 
 - deployed rope length decreases over time;
-- reel target is deliberately moderate at roughly **9–16 m/s** depending on line length;
-- radial reel acceleration is about **40 m/s²**;
-- default artificial launch multipliers are neutralized at **1.0× → 1.0×**;
-- a separate compressed-gas-like thrust adds about **14 m/s²** along the cable tangent, based on the player's view direction;
-- gas keeps full authority up to roughly **18 m/s**, then smoothly fades to zero added acceleration by roughly **34 m/s**;
+- reel target is deliberately powerful at roughly **20–32 m/s** depending on line length;
+- radial reel acceleration is about **110 m/s²**;
+- a short controlled motor-assist envelope is **1.25× immediate → 1.65× peak**, then decays to sustained reel;
+- a separate compressed-gas-like thrust adds about **11 m/s²** along each active cable tangent, based on the player's view direction;
+- gas keeps full authority up to roughly **24 m/s**, then smoothly fades to zero added acceleration by roughly **46 m/s**;
+- while both cables are active, each cable motor uses roughly **0.72×** normal motor authority so dual-hook control is stronger without blindly doubling all force;
 - this gas fade is **not a hard speed cap**: gravity, stored momentum, and swing geometry may carry the player faster;
 - radial velocity changes remain acceleration-bounded rather than snapping instantly to a new direction;
 - a newly created bend may pay out only the geometric length needed by the new polyline, up to the global maximum, specifically to prevent corner creation from becoming a catapult;
@@ -316,7 +316,7 @@ Implementation expectation:
 
 Current playtest value:
 
-- maximum acquisition/deployed rope length: **75 m**.
+- maximum acquisition/deployed rope length per cable: **150 m**.
 
 Intent:
 
