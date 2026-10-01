@@ -30,6 +30,9 @@ public sealed class WinchConfigTests
         Assert.True(config.RopeContactEdgeSearchDistance > 0f);
         Assert.True(config.RopeConstraintCorrectionSpeed > 0f);
         Assert.True(config.RopeTautTolerance >= 0f);
+        Assert.True(config.GasAcceleration > 0f);
+        Assert.True(config.GasFullAccelerationSpeed >= 0f);
+        Assert.True(config.GasCutoffSpeed > config.GasFullAccelerationSpeed);
     }
 
     [Fact]
@@ -102,6 +105,19 @@ public sealed class WinchConfigTests
         };
 
         config.Validate();
+    }
+
+    [Fact]
+    public void GasCutoffMustExceedFullAccelerationSpeed()
+    {
+        var config = new WinchConfig
+        {
+            GasFullAccelerationSpeed = 20f,
+            GasCutoffSpeed = 20f,
+        };
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            config.Validate);
     }
 
     [Fact]
